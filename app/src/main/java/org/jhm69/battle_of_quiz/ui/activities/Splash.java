@@ -19,7 +19,7 @@ public class Splash extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        MotionLayout motionLayout = findViewById(R.id.constraintLayout5);
+        MotionLayout motionLayout = findViewById(R.id.ertyu);
         motionLayout.setTransitionListener(new MotionLayout.TransitionListener() {
             @Override
             public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {

@@ -1,10 +1,12 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:tools="http://schemas.android.com/tools"
     android:width="363.98dp"
     android:height="363.98dp"
     android:autoMirrored="true"
     android:viewportWidth="363.98"
-    android:viewportHeight="363.98">
+    android:viewportHeight="363.98"
+    tools:ignore="VectorRaster">
     <path android:pathData="M183.17,64.38l21.51,123.1L183.17,292.4A62.66,62.66 0,0 1,76 235.06a48,48 0,0 1,14.73 -76.84A48,48 0,0 1,129 84.52a33.16,33.16 0,0 1,54.18 -20.14Z">
         <aapt:attr name="android:fillColor">
             <gradient

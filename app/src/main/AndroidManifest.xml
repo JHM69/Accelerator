@@ -28,7 +28,7 @@
         tools:targetApi="m">
         <activity
             android:name=".ui.activities.account.EditProfile"
-            android:noHistory="true"></activity>
+            android:noHistory="true" />
         <activity
             android:name=".ui.activities.quiz.SelectTopic"
             android:noHistory="true" />
@@ -76,7 +76,7 @@
         <!--  ca-app-pub-1812307912459750~8721341741-->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@mipmap/ic_launcher" />
+            android:resource="@drawable/ic_logo_icon" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccentt" />
@@ -91,12 +91,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/LoginAppTheme"
             android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".ui.activities.messege.ChatActivity"
-            android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/SplashAppTheme"
-            tools:ignore="MissingClass" />
         <activity
             android:name=".ui.activities.notification.ImagePreviewSave"
             android:screenOrientation="portrait"
