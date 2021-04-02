@@ -15,33 +15,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8bfb8ece-f9bc-4cb6-b9ee-dd278e3e1c89" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/ic_launcher-playstore.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/Splash.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/Splash.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_launcher_foreground.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_logo.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_logo.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_result.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_result.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_splash.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_splash.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values-night/themes.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/activity_login_xml_constraintlayout4_scene.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/activity_login_xml_constraintlayout4_scene.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/activity_splash_xml_constraintlayout5_scene2.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -165,7 +139,14 @@
       <option name="project" value="LOCAL" />
       <updated>1617388383113</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="edited">
+      <created>1617390173478</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1617390173478</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="UpdateCopyrightCheckinHandler">
@@ -173,7 +154,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="edit" />
-    <option name="LAST_COMMIT_MESSAGE" value="edit" />
+    <MESSAGE value="edited" />
+    <option name="LAST_COMMIT_MESSAGE" value="edited" />
   </component>
   <component name="WindowStateProjectService">
     <state x="413" y="115" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1617389787307">
@@ -188,10 +170,10 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="494" y="176" key="AndroidCreateXmlResourceDialog/0.0.1366.738@0.0.1366.738" timestamp="1617389693142" />
-    <state x="300" y="55" key="CommitChangelistDialog2" timestamp="1617388380041">
+    <state x="300" y="55" key="CommitChangelistDialog2" timestamp="1617390163735">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="300" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1617388380041" />
+    <state x="300" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1617390163735" />
     <state x="523" y="266" key="Github.ShareDialog" timestamp="1617387947071">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
@@ -200,21 +182,25 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="293" y="73" key="Github.UntrackedFilesDialog/0.0.1366.738@0.0.1366.738" timestamp="1617387968615" />
-    <state width="1323" height="379" key="GridCell.Tab.0.bottom" timestamp="1617388989606">
+    <state width="1323" height="379" key="GridCell.Tab.0.bottom" timestamp="1617390546180">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="379" key="GridCell.Tab.0.bottom/0.0.1366.738@0.0.1366.738" timestamp="1617388989606" />
-    <state width="1323" height="379" key="GridCell.Tab.0.center" timestamp="1617388989606">
+    <state width="1323" height="379" key="GridCell.Tab.0.bottom/0.0.1366.738@0.0.1366.738" timestamp="1617390546180" />
+    <state width="1323" height="379" key="GridCell.Tab.0.center" timestamp="1617390546179">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="379" key="GridCell.Tab.0.center/0.0.1366.738@0.0.1366.738" timestamp="1617388989606" />
-    <state width="1323" height="379" key="GridCell.Tab.0.left" timestamp="1617388989606">
+    <state width="1323" height="379" key="GridCell.Tab.0.center/0.0.1366.738@0.0.1366.738" timestamp="1617390546179" />
+    <state width="1323" height="379" key="GridCell.Tab.0.left" timestamp="1617390546179">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="379" key="GridCell.Tab.0.left/0.0.1366.738@0.0.1366.738" timestamp="1617388989606" />
-    <state width="1323" height="379" key="GridCell.Tab.0.right" timestamp="1617388989606">
+    <state width="1323" height="379" key="GridCell.Tab.0.left/0.0.1366.738@0.0.1366.738" timestamp="1617390546179" />
+    <state width="1323" height="379" key="GridCell.Tab.0.right" timestamp="1617390546180">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="379" key="GridCell.Tab.0.right/0.0.1366.738@0.0.1366.738" timestamp="1617388989606" />
+    <state width="1323" height="379" key="GridCell.Tab.0.right/0.0.1366.738@0.0.1366.738" timestamp="1617390546180" />
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1617390175194">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1617390175194" />
   </component>
 </project>
