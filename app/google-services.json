@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "547449529390",
+    "firebase_url": "https://battle-of-quiz-default-rtdb.firebaseio.com",
+    "project_id": "battle-of-quiz",
+    "storage_bucket": "battle-of-quiz.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:547449529390:android:56eb1702bffd2302f56bbf",
+        "android_client_info": {
+          "package_name": "org.jhm69.battle_of_quiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "547449529390-lk4gse4l26mnt9ob50h49gnm49jq3oon.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.jhm69.battle_of_quiz",
+            "certificate_hash": "6ce72517dc6b6ae0f348a1982afe4172ddaaf696"
+          }
+        },
+        {
+          "client_id": "547449529390-nn47v1510j90lom974en9o24j4is9q2c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoxCPDFv8_CeKJW-xYR6KSWiqHxYKjgmc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "547449529390-nn47v1510j90lom974en9o24j4is9q2c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

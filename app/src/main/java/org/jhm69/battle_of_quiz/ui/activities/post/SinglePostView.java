@@ -1,0 +1,170 @@
+package org.jhm69.battle_of_quiz.ui.activities.post;
+
+import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
+import org.jhm69.battle_of_quiz.models.Post;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+public class SinglePostView extends AppCompatActivity {
+    RecyclerView mRecyclerView;
+    private View statsheetView;
+    private BottomSheetDialog mmBottomSheetDialog;
+    private ProgressBar pbar;
+    private FirebaseFirestore mFirestore;
+
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
+    }
+
+
+    @SuppressLint("InflateParams")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_single_post_view);
+
+        String post_id = getIntent().getStringExtra("post_id");
+        Window window = this.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.setTitle("Post");
+
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Post");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        if (post_id == null) {
+            finish();
+        }
+
+        if (!TextUtils.isEmpty(post_id)) {
+
+            pbar = findViewById(R.id.pbar);
+            mFirestore = FirebaseFirestore.getInstance();
+
+            statsheetView = getLayoutInflater().inflate(R.layout.stat_bottom_sheet_dialog, null);
+            mmBottomSheetDialog = new BottomSheetDialog(this);
+            mmBottomSheetDialog.setContentView(statsheetView);
+            mmBottomSheetDialog.setCanceledOnTouchOutside(true);
+
+            List<Post> mPostsList = new ArrayList<>();
+
+            mRecyclerView = findViewById(R.id.recyclerView);
+            mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            mRecyclerView.setHasFixedSize(true);
+            pbar.setVisibility(View.VISIBLE);
+            getPosts(post_id);
+
+
+        } else {
+            finish();
+        }
+
+    }
+
+    private void getPosts(final String post_id) {
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(1)
+                .setPageSize(1)
+                .build();
+        Query mQuery = mFirestore.collection("Posts")
+                .whereEqualTo("postId", post_id);
+
+        FirestorePagingOptions<Post> options = new FirestorePagingOptions.Builder<Post>()
+                .setLifecycleOwner(this)
+                .setQuery(mQuery, config, Post.class)
+                .build();
+        // Instantiate Paging Adapter
+
+        // getApplicationContext().getSharedPreferences("Posts", MODE_PRIVATE).edit().putInt("num", getItemCount()).apply();
+        FirestorePagingAdapter<Post, PostViewHolder> mAdapter = new FirestorePagingAdapter<Post, PostViewHolder>(options) {
+            @NonNull
+            @Override
+            public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = getLayoutInflater().inflate(R.layout.item_feed_post, parent, false);
+                return new PostViewHolder(view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull Post post) {
+                holder.bind(post, holder, position, mmBottomSheetDialog, statsheetView, false);
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Log.e("MainActivity", e.getMessage());
+            }
+
+            @Override
+            protected void onLoadingStateChanged(@NonNull LoadingState state) {
+                switch (state) {
+                    case LOADING_INITIAL:
+                    case LOADING_MORE:
+                        pbar.setVisibility(View.VISIBLE);
+                        break;
+
+                    case LOADED:
+
+                    case FINISHED:
+                        if (getItemCount() == 0) finish();
+                        pbar.setVisibility(View.GONE);
+                        // getApplicationContext().getSharedPreferences("Posts", MODE_PRIVATE).edit().putInt("num", getItemCount()).apply();
+                        break;
+
+                    case ERROR:
+                        Toast.makeText(
+                                getApplicationContext(),
+                                "Error Occurred!",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        pbar.setVisibility(View.GONE);
+                        break;
+                }
+            }
+
+        };
+        mRecyclerView.setAdapter(mAdapter);
+    }
+}

@@ -1,0 +1,15 @@
+img {
+   max-width:140% !important;
+   width:140% !important;
+}
+code{
+       padding-left: 3px;
+       background: #ced0d665;
+       border-left: 4px solid #3498DB;
+       color: currentColor;
+       font-family: monospace;
+       font-size: 95%;
+       page-break-inside: avoid;
+       line-height: 1;
+       max-width: 100%;
+ }

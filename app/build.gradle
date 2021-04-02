@@ -1,0 +1,112 @@
+apply plugin: 'com.android.application'
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+    defaultConfig {
+        applicationId "org.jhm69.battle_of_quiz"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            ext.enableCrashlytics = true
+            crunchPngs true // Enabled by default for RELEASE build type
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+configurations {
+    compile.exclude group: 'com.google.zxing'
+}
+allprojects {
+    repositories {
+        jcenter()
+        maven {
+            url "https://maven.google.com"
+        }
+        maven {
+            url "https://jitpack.io"
+        }
+    }
+}
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+    implementation 'com.firebaseui:firebase-ui-firestore:6.3.0'
+    implementation 'com.firebaseui:firebase-ui-database:6.3.0'
+    implementation 'com.firebaseui:firebase-ui-auth:6.3.0'
+    implementation 'commons-validator:commons-validator:1.6'
+    implementation 'com.google.firebase:firebase-database:19.6.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'com.google.android.material:material:1.4.0-alpha01'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.firebase:firebase-perf:19.1.1'
+    implementation 'com.google.firebase:firebase-firestore:22.1.1'
+    implementation 'com.google.firebase:firebase-auth:20.0.3'
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
+    implementation 'com.google.firebase:firebase-storage:19.2.1'
+
+    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+
+    implementation 'com.google.firebase:firebase-core:18.0.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    implementation 'com.yarolegovich:sliding-root-nav:1.1.1'
+    implementation 'id.zelory:compressor:2.1.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.karumi:dexter:5.0.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+    implementation 'com.firebase:firebase-client-android:2.5.2'
+    implementation 'com.tapadoo.android:alerter:2.0.4'
+    implementation 'com.github.marcoscgdev:DialogSheet:2.0.3'
+    implementation 'com.github.GrenderG:Toasty:1.4.1'
+    implementation 'com.afollestad.material-dialogs:commons:0.8.6.1'
+    implementation 'com.github.ivbaranov:materialfavoritebutton:0.1.4'
+    implementation 'com.github.marlonlom:timeago:3.0.2'
+    implementation 'com.github.yalantis:ucrop:2.2.5'
+    implementation 'org.apache.commons:commons-lang3:3.6'
+    implementation 'commons-io:commons-io:2.5'
+    implementation 'android.arch.core:runtime:1.1.1'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.tbuonomo.andrui:viewpagerdotsindicator:2.1.2'
+    implementation 'com.github.esafirm.android-image-picker:imagepicker:2.0.0'
+    implementation 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
+    implementation 'com.mikepenz:aboutlibraries:6.2.3'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation 'com.google.android.gms:play-services-ads:19.8.0'
+    implementation "androidx.paging:paging-runtime:2.1.2"
+    implementation 'com.shobhitpuri.custombuttons:google-signin:1.0.0'
+    implementation "android.arch.lifecycle:livedata:1.1.1"
+    implementation "android.arch.persistence.room:runtime:1.1.1"
+    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+}
+apply plugin: 'com.google.gms.google-services'
+repositories {
+    mavenCentral()
+}
+
+
+
+

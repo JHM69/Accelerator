@@ -1,0 +1,180 @@
+package org.jhm69.battle_of_quiz.ui.activities.quiz;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.adapters.PlayerAdapter;
+import org.jhm69.battle_of_quiz.models.Player;
+import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import es.dmoral.toasty.Toasty;
+
+/**
+ * Created by jhm69
+ */
+
+public class PlayQuiz extends Fragment {
+    List<String> usersId;
+    UserViewModel userViewModel;
+    long myType;
+    private FirebaseFirestore firestore;
+    private RecyclerView mRecyclerView;
+    private SwipeRefreshLayout refreshLayout;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.send_message_fragment, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        firestore = FirebaseFirestore.getInstance();
+
+        usersId = new ArrayList<>();
+        mRecyclerView = view.findViewById(R.id.messageList);
+        refreshLayout = view.findViewById(R.id.refreshLayout);
+
+        userViewModel = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(UserViewModel.class);
+
+        myType = userViewModel.getUser().getType();
+
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL));
+
+        refreshLayout.setOnRefreshListener(this::setupAdapter);
+        setupAdapter();
+    }
+
+
+    private void setupAdapter() {
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(5)
+                .setPageSize(20)
+                .build();
+        Query mQuery = firestore.collection("Users").whereEqualTo("type", myType)
+                .orderBy("lastTimestamp", Query.Direction.DESCENDING);
+
+        FirestorePagingOptions<Player> options = new FirestorePagingOptions.Builder<Player>()
+                .setLifecycleOwner(this)
+                .setQuery(mQuery, config, Player.class)
+                .build();
+        // Instantiate Paging Adapter
+
+        //holder.bind(post, holder, position,  mmBottomSheetDialog, statsheetView);
+        FirestorePagingAdapter<Player, PlayerAdapter.ViewHolder> mAdapter = new FirestorePagingAdapter<Player, PlayerAdapter.ViewHolder>(options) {
+            @NonNull
+            @Override
+            public PlayerAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = getLayoutInflater().inflate(R.layout.item_quiz_profile, parent, false);
+                return new PlayerAdapter.ViewHolder(view);
+            }
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            protected void onBindViewHolder(@NonNull PlayerAdapter.ViewHolder holder, int position, @NonNull Player user) {
+                //holder.bind(post, holder, position,  mmBottomSheetDialog, statsheetView);
+                usersId.add(user.getId());
+                Objects.requireNonNull(getView()).findViewById(R.id.default_item).setVisibility(View.GONE);
+                holder.name.setText(user.getName());
+                holder.institute.setText(user.getDept() + ", " + user.getInstitute());
+                int score = (int) user.getScore();
+                holder.level.setText(String.valueOf(score));
+                Glide.with(getContext())
+                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                        .load(user.getImage())
+                        .into(holder.image);
+
+                holder.mView.setOnClickListener(new View.OnClickListener() {
+                    @SuppressLint("CheckResult")
+                    @Override
+                    public void onClick(View view) {
+                        if (Objects.equals(FirebaseAuth.getInstance().getUid(), user.getId())) {
+                            Toasty.error(getContext(), "You can't play with yourself. Select someone else", Toasty.LENGTH_SHORT, true);
+                        } else {
+                            Intent goBattle = new Intent(getContext(), SelectTopic.class);
+                            goBattle.putExtra("otherUid", user.getId());
+                            getContext().startActivity(goBattle);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            protected void onError(@NonNull Exception e) {
+                super.onError(e);
+                Log.e("MainActivity", e.getMessage());
+            }
+
+            @Override
+            protected void onLoadingStateChanged(@NonNull LoadingState state) {
+                switch (state) {
+                    case LOADING_INITIAL:
+                    case LOADING_MORE:
+                        refreshLayout.setRefreshing(true);
+                        break;
+
+                    case LOADED:
+                        if (getItemCount() == 0) {
+                            getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
+                        }
+                        refreshLayout.setRefreshing(false);
+                        break;
+
+                    case ERROR:
+                        Toast.makeText(
+                                getActivity(),
+                                "Error Occurred!",
+                                Toast.LENGTH_SHORT
+                        ).show();
+
+                        refreshLayout.setRefreshing(false);
+                        break;
+                    case FINISHED:
+                        refreshLayout.setRefreshing(false);
+                        break;
+                }
+            }
+
+        };
+        mRecyclerView.setAdapter(mAdapter);
+
+    }
+
+}
