@@ -132,12 +132,13 @@ public class Quiz extends Fragment {
                 Chip c = view.findViewById(checkedId);
                 tag = c.getText().toString();
                 setupAdapter(tag);
-            } catch (NullPointerException j) {
+            } catch (NullPointerException ignored) {
 
             }
         });
-
-        AdView adView = new AdView(getContext());
+        MobileAds.initialize(requireContext(), initializationStatus -> {
+        });
+        AdView adView = new AdView(requireContext());
 
         adView.setAdSize(AdSize.BANNER);
 
@@ -186,9 +187,7 @@ public class Quiz extends Fragment {
                                     loadFragment(new PlayQuiz());
                                 }
                             })
-                            .setNegativeButton("Custom Selection", v -> {
-                                loadFragment(new PlayQuiz());
-                            })
+                            .setNegativeButton("Custom Selection", v -> loadFragment(new PlayQuiz()))
                             .show());
 
             mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -268,7 +267,7 @@ public class Quiz extends Fragment {
             case "All":
                 mViewModel.results.observe(Objects.requireNonNull(getActivity()), result -> {
                     if (result.size() < 1) {
-                        string = getContext().getString(R.string.let_s_challenge_others_in_battle_of_quiz);
+                        string = Objects.requireNonNull(getContext()).getString(R.string.let_s_challenge_others_in_battle_of_quiz);
                         //Toasty.info(getContext(), "", Toast.LENGTH_LONG).show();
                     }
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
@@ -283,8 +282,7 @@ public class Quiz extends Fragment {
             coverTxt.setText(string);
         } else {
             coverTxt.setText("");
-            coverTxt.setVisibility(View.GONE);
-            cover.setVisibility(View.GONE);
+            cover.setImageDrawable(getResources().getDrawable(R.drawable.code));
         }
     }
 
@@ -311,7 +309,7 @@ public class Quiz extends Fragment {
 
             });
 
-        } catch (NullPointerException h) {
+        } catch (NullPointerException ignored) {
 
         }
     }
@@ -369,8 +367,8 @@ public class Quiz extends Fragment {
 
 
     private static class RandomiseListAsyncTask extends AsyncTask<Void, Void, List<Friends>> {
-        List<Friends> usersList = new ArrayList<>();
-        long type;
+        final List<Friends> usersList = new ArrayList<>();
+        final long type;
 
         public RandomiseListAsyncTask(long type) {
             this.type = type;
@@ -394,7 +392,7 @@ public class Quiz extends Fragment {
                             }
                             try {
                                 Collections.shuffle(usersList);
-                            } catch (IndexOutOfBoundsException h) {
+                            } catch (IndexOutOfBoundsException ignored) {
 
                             }
                         }

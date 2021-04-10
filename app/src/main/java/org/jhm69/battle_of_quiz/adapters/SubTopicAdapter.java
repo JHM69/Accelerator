@@ -12,6 +12,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.Chip;
@@ -27,8 +28,8 @@ public class SubTopicAdapter extends RecyclerView.Adapter<SubTopicAdapter.MyView
     private final List<SubTopicModel> subTopicNameList;
     private final String otherUid;
     private final String type;
-    Context context;
-    String topic;
+    final Context context;
+    final String topic;
     int lastPosition = -1;
 
     public SubTopicAdapter(List<SubTopicModel> subTopicNameList, String topic, Context context, String otherUid, String type) {
@@ -39,6 +40,7 @@ public class SubTopicAdapter extends RecyclerView.Adapter<SubTopicAdapter.MyView
         this.type = type;
     }
 
+    @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_topic, viewGroup, false);
@@ -68,7 +70,7 @@ public class SubTopicAdapter extends RecyclerView.Adapter<SubTopicAdapter.MyView
 
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTV;
+        final TextView nameTV;
 
         public MyViewHolder(View itemView) {
             super(itemView);

@@ -10,6 +10,7 @@ import java.io.Serializable;
 /**
  * Created by Jahangir.
  */
+@SuppressWarnings("NotNullFieldNotInitialized")
 @Entity
 public class Post implements Serializable {
     @PrimaryKey
@@ -30,7 +31,7 @@ public class Post implements Serializable {
     private String tag;
     private String image_url_0, image_url_1, image_url_2, image_url_3, image_url_4, image_url_5, image_url_6;
 
-    public Post(String postId, String userId, String name, String timestamp, String likes, String favourites, String description, String username, String institute, String dept, String userimage, int image_count, String image_url_0, String image_url_1, String image_url_2, String image_url_3, String image_url_4, String image_url_5, String image_url_6, int liked_count) {
+    public Post(@NonNull String postId, String userId, String name, String timestamp, String likes, String favourites, String description, String username, String institute, String dept, String userimage, int image_count, String image_url_0, String image_url_1, String image_url_2, String image_url_3, String image_url_4, String image_url_5, String image_url_6, int liked_count) {
         this.postId = postId;
         this.userId = userId;
         this.name = name;
@@ -54,7 +55,7 @@ public class Post implements Serializable {
     }
 
     @Ignore
-    public Post(String postId, String userId, String name, String timestamp, String description, String institute, String dept, String userimage, int liked_count) {
+    public Post(@NonNull String postId, String userId, String name, String timestamp, String description, String institute, String dept, String userimage, int liked_count) {
         this.postId = postId;
         this.userId = userId;
         this.name = name;
@@ -70,11 +71,12 @@ public class Post implements Serializable {
     public Post() {
     }
 
+    @NonNull
     public String getPostId() {
         return postId;
     }
 
-    public void setPostId(String postId) {
+    public void setPostId(@NonNull String postId) {
         this.postId = postId;
     }
 

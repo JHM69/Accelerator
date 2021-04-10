@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("NotNullFieldNotInitialized")
 @Entity
 public class BattleModel implements Serializable {
 
@@ -37,7 +38,7 @@ public class BattleModel implements Serializable {
     public BattleModel() {
     }
 
-    public BattleModel(String senderUid, String receiverUid, List<Question> questionList, ArrayList<Boolean> senderAnswerList, ArrayList<Boolean> receiverList, String timestamp, String winner, String battleId, String topic, Boolean scoreUpdated) {
+    public BattleModel(String senderUid, String receiverUid, List<Question> questionList, ArrayList<Boolean> senderAnswerList, ArrayList<Boolean> receiverList, String timestamp, String winner, @NonNull String battleId, String topic, Boolean scoreUpdated) {
         this.senderUid = senderUid;
         this.receiverUid = receiverUid;
         this.questionList = questionList;
@@ -106,11 +107,12 @@ public class BattleModel implements Serializable {
         this.winner = winner;
     }
 
+    @SuppressWarnings("NullableProblems")
     public String getBattleId() {
         return battleId;
     }
 
-    public void setBattleId(String battleId) {
+    public void setBattleId(@NonNull String battleId) {
         this.battleId = battleId;
     }
 

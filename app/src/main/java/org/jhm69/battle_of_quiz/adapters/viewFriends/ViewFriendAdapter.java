@@ -51,9 +51,10 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
         this.context = context;
     }
 
+
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_friend_added, parent, false);
         return new ViewHolder(view);
     }
@@ -101,9 +102,9 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
                     .addOnSuccessListener(documentSnapshot -> {
 
                         try {
-                            if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName()) &&
-                                    !documentSnapshot.getString("email").equals(usersList.get(holder.getAdapterPosition()).getEmail()) &&
-                                    !documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                            if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName()) &&
+                                    !Objects.requireNonNull(documentSnapshot.getString("email")).equals(usersList.get(holder.getAdapterPosition()).getEmail()) &&
+                                    !Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("name", documentSnapshot.getString("name"));
@@ -127,8 +128,8 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
                                         .into(holder.image);
 
 
-                            } else if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName()) &&
-                                    !documentSnapshot.getString("email").equals(usersList.get(holder.getAdapterPosition()).getEmail())) {
+                            } else if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName()) &&
+                                    !Objects.requireNonNull(documentSnapshot.getString("email")).equals(usersList.get(holder.getAdapterPosition()).getEmail())) {
 
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("name", documentSnapshot.getString("name"));
@@ -146,8 +147,8 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
                                 holder.institute.setText(usersList.get(position).getDept() + ", " + usersList.get(position).getInstitute());
 
 
-                            } else if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName()) &&
-                                    !documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                            } else if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName()) &&
+                                    !Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("name", documentSnapshot.getString("name"));
@@ -169,7 +170,7 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
                                         .into(holder.image);
 
 
-                            } else if (!documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                            } else if (!Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("name", documentSnapshot.getString("name"));
@@ -192,7 +193,7 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
                                         .into(holder.image);
 
 
-                            } else if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName())) {
+                            } else if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName())) {
 
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("name", documentSnapshot.getString("name"));
@@ -208,7 +209,7 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
 
                                 holder.name.setText(documentSnapshot.getString("name"));
 
-                            } else if (!documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                            } else if (!Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("image", documentSnapshot.getString("image"));
@@ -227,7 +228,7 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
                                         .load(documentSnapshot.getString("image"))
                                         .into(holder.image);
 
-                            } else if (!documentSnapshot.getString("email").equals(usersList.get(holder.getAdapterPosition()).getEmail())) {
+                            } else if (!Objects.requireNonNull(documentSnapshot.getString("email")).equals(usersList.get(holder.getAdapterPosition()).getEmail())) {
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("institute", documentSnapshot.getString("institute"));
                                 FirebaseFirestore.getInstance().collection("Users")
@@ -281,7 +282,7 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
                     usersList.remove(position);
                     notifyItemRemoved(position);
                     notifyDataSetChanged();
-                })).addOnFailureListener(e -> e.printStackTrace());
+                })).addOnFailureListener(Throwable::printStackTrace);
 
     }
 
@@ -313,12 +314,16 @@ public class ViewFriendAdapter extends RecyclerView.Adapter<ViewFriendAdapter.Vi
         return level;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView name, listenerText, institute, levelTv;
-        RelativeLayout viewBackground, viewForeground;
-        View mView;
-        CircleImageView image;
+        final TextView name;
+        final TextView listenerText;
+        final TextView institute;
+        final TextView levelTv;
+        final RelativeLayout viewBackground;
+        final RelativeLayout viewForeground;
+        final View mView;
+        final CircleImageView image;
 
         public ViewHolder(View itemView) {
             super(itemView);

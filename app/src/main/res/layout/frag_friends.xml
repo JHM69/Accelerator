@@ -33,7 +33,8 @@
         android:pointerIcon="arrow"
         android:src="@drawable/ic_search"
         android:transitionName="search"
-        tools:targetApi="n" />
+        tools:targetApi="n"
+        tools:ignore="ContentDescription" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"

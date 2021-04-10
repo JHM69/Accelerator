@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -40,7 +39,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -53,10 +51,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.SendNotificationPack.APIService;
-import org.jhm69.battle_of_quiz.SendNotificationPack.Client;
-import org.jhm69.battle_of_quiz.SendNotificationPack.MyResponse;
-import org.jhm69.battle_of_quiz.SendNotificationPack.NotificationSender;
+import org.jhm69.battle_of_quiz.notification.APIService;
+import org.jhm69.battle_of_quiz.notification.Client;
+import org.jhm69.battle_of_quiz.notification.MyResponse;
+import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.models.Question;
 import org.jhm69.battle_of_quiz.repository.UserRepository;
@@ -85,11 +83,11 @@ public class QuizBattle extends AppCompatActivity {
     public ArrayList<Boolean> reciverAnsList;
     public int position;
 
-    public int JUST_STARTED = -1;
-    public int OFFLINE_STARTED = -2;
-    public int JUST_IN = -3;
-    public int IN_STARTED = -4;
-    public int COMPLETED = -5;
+    public final int JUST_STARTED = -1;
+    public final int OFFLINE_STARTED = -2;
+    public final int JUST_IN = -3;
+    public final int IN_STARTED = -4;
+    public final int COMPLETED = -5;
     BattleViewModel battleViewModel;
     ImageView otherUserImage, thisUserImage;
     TextView thisUserName, thisUserLevel, otherUserName, otherUserLevel, thisScore, otherScore, topicTV;
@@ -100,8 +98,8 @@ public class QuizBattle extends AppCompatActivity {
     String topic, subtopic;
     int question_number;
     BattleModel realBattle;
-    String timestamp = String.valueOf(System.currentTimeMillis());
-    String battleId = Long.toHexString(Double.doubleToLongBits(Math.random()));
+    final String timestamp = String.valueOf(System.currentTimeMillis());
+    final String battleId = Long.toHexString(Double.doubleToLongBits(Math.random()));
     BattleModel offlineBattleSaving;
     ResultViewModel viewModel;
     UserViewModel userViewModel;
@@ -177,7 +175,7 @@ public class QuizBattle extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void playAnim(final View view, final int value, final String data) {
         try {
-            timeLeft(pb, getApplicationContext(), list.get(position).getTime());
+            timeLeft(pb, list.get(position).getTime());
             next.setEnabled(false);
             if (list.get(position).getImg().length() > 10) {
                 mcqImg.setVisibility(View.VISIBLE);
@@ -188,7 +186,7 @@ public class QuizBattle extends AppCompatActivity {
             } else {
                 mcqImg.setVisibility(View.GONE);
             }
-        } catch (NullPointerException uh) {
+        } catch (NullPointerException ignored) {
 
         }
         changeColor();
@@ -272,7 +270,17 @@ public class QuizBattle extends AppCompatActivity {
                 realBattle = battleViewModel.getBattle(battleIdNew);
                 topic = realBattle.topic;
                 topicTV.setText(topic);
-                mDialog.dismiss();
+                mDialog.hide();
+                Result result = viewModel.getResult(battleIdNew);
+                if (result.getAction()==IN_STARTED){
+                    Intent intent = new Intent(this, QuizBattle.class);
+                    intent.putExtra("ofo", battleIdNew);
+                    startActivity(intent);
+                }else if(result.getAction()==COMPLETED){
+                    Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                    intent.putExtra("resultId", battleIdNew);
+                    startActivity(intent);
+                }
                 list = Objects.requireNonNull(realBattle).questionList;
                 question_number = realBattle.questionList.size();
                 if (realBattle.getWinner().length() > 4) {
@@ -309,7 +317,6 @@ public class QuizBattle extends AppCompatActivity {
                 offlineBattleSaving.setWinner("3");
 
             } catch (NullPointerException h) {
-                mDialog.show();
                 DatabaseReference mDb = FirebaseDatabase.getInstance().getReference();
                 Query query = mDb.child("Play").orderByChild("battleId").equalTo(battleIdNew);
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -317,40 +324,45 @@ public class QuizBattle extends AppCompatActivity {
                     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot data : snapshot.getChildren()) {
-                            realBattle = data.getValue(BattleModel.class);
-                        }
-                        list = Objects.requireNonNull(realBattle).questionList;
-                        question_number = realBattle.questionList.size();
-                        if (!realBattle.getWinner().equals("0")) {
-                            Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                            intent.putExtra("resultId", realBattle.battleId);
-                            Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
-                            startActivity(intent);
-                            finish();
-                        }
-                        setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
                         try {
-                            playAnim(question, 0, list.get(position).getQuestion());
-                        } catch (NullPointerException ignored) {
-                            Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
-                            finish();
-                        }
-                        try {
-                            stepView.getState()
-                                    .animationType(StepView.ANIMATION_ALL)
-                                    .nextStepCircleEnabled(true)
-                                    .stepsNumber(list.size())
-                                    .commit();
-                        } catch (Exception ignored) {
-                            Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
-                            finish();
-                        }
 
-                        SenderAnsList = realBattle.senderAnswerList;
-                        otherUid = realBattle.getSenderUid();
-                        offlineBattleSaving = realBattle;
-                        offlineBattleSaving.setWinner("3");
+                            for (DataSnapshot data : snapshot.getChildren()) {
+                                realBattle = data.getValue(BattleModel.class);
+                            }
+                            list = Objects.requireNonNull(realBattle).questionList;
+                            question_number = realBattle.questionList.size();
+                            if (!realBattle.getWinner().equals("0")) {
+                                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                                intent.putExtra("resultId", realBattle.battleId);
+                                Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
+                                startActivity(intent);
+                                finish();
+                            }
+                            setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
+                            try {
+                                playAnim(question, 0, list.get(position).getQuestion());
+                            } catch (NullPointerException ignored) {
+                                Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                                finish();
+                            }
+                            try {
+                                stepView.getState()
+                                        .animationType(StepView.ANIMATION_ALL)
+                                        .nextStepCircleEnabled(true)
+                                        .stepsNumber(list.size())
+                                        .commit();
+                            } catch (Exception ignored) {
+                                Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                                finish();
+                            }
+
+                            SenderAnsList = realBattle.senderAnswerList;
+                            otherUid = realBattle.getSenderUid();
+                            offlineBattleSaving = realBattle;
+                            offlineBattleSaving.setWinner("3");
+                        }catch (NullPointerException h){
+                            finish();
+                        }
                     }
 
                     @Override
@@ -367,7 +379,7 @@ public class QuizBattle extends AppCompatActivity {
             try {
                 Toast.makeText(this, "Resuming battle...", Toast.LENGTH_SHORT).show();
                 realBattle = battleViewModel.getBattle(offlideID);
-                mDialog.dismiss();
+                mDialog.hide();
                 topic = realBattle.topic;
                 topicTV.setText(topic);
                 if (realBattle.getWinner().equals("3")) {
@@ -441,7 +453,7 @@ public class QuizBattle extends AppCompatActivity {
                     offlineBattleSaving = realBattle;
                     offlineBattleSaving.setWinner("2");
                 }
-            } catch (NullPointerException n) {
+            } catch (NullPointerException ignored) {
             }
         } else {
             try {
@@ -497,21 +509,26 @@ public class QuizBattle extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void goToNext(int which) {
-        if (battleIdNew == null) {
-            stepView.go(which, true, SenderAnsList.get(which - 1));
-        } else {
-            stepView.go(which, true, reciverAnsList.get(which - 1));
+        try {
+            if (battleIdNew == null) {
+                stepView.go(which, true, SenderAnsList.get(which - 1));
+            } else {
+                stepView.go(which, true, reciverAnsList.get(which - 1));
+            }
+            next.setEnabled(false);
+            next.setAlpha(0.5f);
+            elableOption(true);
+            if (which >= list.size()) {
+                mDialog.show();
+                addToNotification();
+            } else {
+                playAnim(question, 0, list.get(which).getQuestion());
+            }
+            count = 0;
+        }catch (IndexOutOfBoundsException d){
+            Log.d("Errorrr", d.getMessage());
+            finish();
         }
-        next.setEnabled(false);
-        next.setAlpha(0.5f);
-        elableOption(true);
-        if (which >= list.size()) {
-            mDialog.show();
-            addToNotification();
-        } else {
-            playAnim(question, 0, list.get(which).getQuestion());
-        }
-        count = 0;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -528,7 +545,7 @@ public class QuizBattle extends AppCompatActivity {
 
     }
 
-    private void timeLeft(final View view, Context context, int time) {
+    private void timeLeft(final View view, int time) {
         view.setBackground(getDrawableWithRadius());
         view.setTranslationX(-view.getWidth());
         view.animate()
@@ -558,28 +575,22 @@ public class QuizBattle extends AppCompatActivity {
         return gradientDrawable;
     }
 
-    private void addScore(int score, String uid) {
+    private void addScore(String uid) {
         try {
             FirebaseFirestore.getInstance().collection("Users")
                     .document(uid)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         int scoreOld = Objects.requireNonNull(documentSnapshot.getLong("score")).intValue();
-                        int newScore = scoreOld + (score);
+                        int newScore = scoreOld + (-3);
                         HashMap<String, Object> scoreMap = new HashMap<>();
                         scoreMap.put("score", newScore);
                         FirebaseFirestore.getInstance()
                                 .collection("Users")
                                 .document(uid)
-                                .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                new UserRepository((Application) getApplicationContext()).updateScore(score);
-
-                            }
-                        });
+                                .update(scoreMap).addOnSuccessListener(aVoid -> new UserRepository((Application) getApplicationContext()).updateScore(-3));
                     });
-        } catch (NullPointerException bg) {
+        } catch (NullPointerException ignored) {
 
         }
     }
@@ -663,139 +674,129 @@ public class QuizBattle extends AppCompatActivity {
         });*/
         for (int i = 0; i < 4; i++) {
             final int selected = i;
-            optionsContainer.getChildAt(i).setOnClickListener(new View.OnClickListener() {
-                @SuppressLint("CheckResult")
-                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public void onClick(View v) {
-                    LinearLayout selectedLayout = (LinearLayout) v;
-                    elableOption(false);
-                    next.setEnabled(true);
-                    next.setAlpha(1);
-                    if (selected == list.get(position).getAns()) {
-                        score++;
-                        thisScore.setText(String.valueOf(score));
-                        Toasty.success(getApplicationContext(), "Correct", Toasty.LENGTH_SHORT, true).show();
-                        selectedLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4BBB4F")));
-                        stepAnsList.add(position, true);
-                        AsyncTask.execute(() -> {
-                            if (battleIdNew != null) {
-                                reciverAnsList.add(position, true);
-                                realBattle.setReceiverList(reciverAnsList);
-                                realBattle.setWinner("3");
-                                battleViewModel.insert(realBattle);
-                                Result myResult = new Result(realBattle.battleId, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
-                                myResult.setBattleId(realBattle.battleId);
-                                if (position + 1 == question_number) {
-                                    myResult.setAction(COMPLETED);
-                                    myResult.setOtherUid(realBattle.senderUid);
-                                    myResult.setOtherScore(getScoreCount(realBattle.senderAnswerList));
-                                }
-                                viewModel.insert(myResult);
-                            } else if (offlideID != null) {
-                                if (realBattle.getWinner().equals("2")) {
-                                    SenderAnsList.add(position, true);
-                                    offlineBattleSaving.setSenderAnswerList(SenderAnsList);
-                                    battleViewModel.insert(offlineBattleSaving);
-                                    Result myResult = new Result(offlideID, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
-                                    if (position + 1 == question_number)
-                                        myResult.setAction(JUST_STARTED);
-                                    viewModel.insert(myResult);
-                                } else if (realBattle.getWinner().equals("3")) {
-                                    reciverAnsList.add(position, true);
-                                    offlineBattleSaving.setSenderAnswerList(reciverAnsList);
-                                    battleViewModel.insert(offlineBattleSaving);
-                                    Result myResult = new Result(offlideID, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
-                                    if (position + 1 == question_number) {
-                                        myResult.setAction(COMPLETED);
-                                        myResult.setOtherUid(realBattle.senderUid);
-                                        myResult.setOtherScore(getScoreCount(offlineBattleSaving.senderAnswerList));
-                                    }
-                                    viewModel.insert(myResult);
-                                }
-                            } else {
+            optionsContainer.getChildAt(i).setOnClickListener(v -> {
+                LinearLayout selectedLayout = (LinearLayout) v;
+                elableOption(false);
+                next.setEnabled(true);
+                next.setAlpha(1);
+                if (selected == list.get(position).getAns()) {
+                    score++;
+                    thisScore.setText(String.valueOf(score));
+                    Toasty.success(getApplicationContext(), "Correct", Toasty.LENGTH_SHORT, true).show();
+                    selectedLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4BBB4F")));
+                    stepAnsList.add(position, true);
+                    AsyncTask.execute(() -> {
+                        if (battleIdNew != null) {
+                            reciverAnsList.add(position, true);
+                            realBattle.setReceiverList(reciverAnsList);
+                            realBattle.setWinner("3");
+                            battleViewModel.insert(realBattle);
+                            Result myResult = new Result(realBattle.battleId, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
+                            myResult.setBattleId(realBattle.battleId);
+                            if (position + 1 == question_number) {
+                                myResult.setAction(COMPLETED);
+                                myResult.setOtherUid(realBattle.senderUid);
+                                myResult.setOtherScore(getScoreCount(realBattle.senderAnswerList));
+                            }
+                            viewModel.insert(myResult);
+                        } else if (offlideID != null) {
+                            if (realBattle.getWinner().equals("2")) {
                                 SenderAnsList.add(position, true);
                                 offlineBattleSaving.setSenderAnswerList(SenderAnsList);
-                                offlineBattleSaving.setWinner("2");
                                 battleViewModel.insert(offlineBattleSaving);
-                                Result myResult = new Result(battleId, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
+                                Result myResult = new Result(offlideID, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
                                 if (position + 1 == question_number)
                                     myResult.setAction(JUST_STARTED);
                                 viewModel.insert(myResult);
-                            }
-
-                        });
-                    } else {
-                        Toasty.error(getApplicationContext(), "Wrong", Toasty.LENGTH_SHORT, true).show();
-                        selectedLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#D32F2F")));
-                        LinearLayout CorrectLayout = (LinearLayout) optionsContainer.getChildAt(list.get(position).getAns());
-                        CorrectLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4BBB4F")));
-                        stepAnsList.add(position, false);
-                        AsyncTask.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (battleIdNew != null) {
-                                    reciverAnsList.add(position, false);
-                                    realBattle.setReceiverList(reciverAnsList);
-                                    realBattle.setWinner("3");
-                                    battleViewModel.insert(realBattle);
-                                    Result myResult = new Result(realBattle.battleId, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
-                                    myResult.setBattleId(realBattle.battleId);
-                                    if (position + 1 == question_number) {
-                                        myResult.setAction(COMPLETED);
-                                        myResult.setOtherUid(realBattle.senderUid);
-                                        myResult.setOtherScore(getScoreCount(realBattle.senderAnswerList));
-                                    }
-                                    viewModel.insert(myResult);
-                                } else if (offlideID != null) {
-                                    if (realBattle.getWinner().equals("2")) {
-                                        SenderAnsList.add(position, false);
-                                        offlineBattleSaving.setSenderAnswerList(SenderAnsList);
-                                        battleViewModel.insert(offlineBattleSaving);
-                                        Result myResult = new Result(offlideID, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
-                                        if (position + 1 == question_number)
-                                            myResult.setAction(JUST_STARTED);
-                                        viewModel.insert(myResult);
-                                    } else if (realBattle.getWinner().equals("3")) {
-                                        reciverAnsList.add(position, false);
-                                        offlineBattleSaving.setSenderAnswerList(reciverAnsList);
-                                        battleViewModel.insert(offlineBattleSaving);
-                                        Result myResult = new Result(offlideID, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
-                                        if (position + 1 == question_number) {
-                                            myResult.setAction(COMPLETED);
-                                            myResult.setOtherUid(realBattle.senderUid);
-                                            myResult.setOtherScore(getScoreCount(offlineBattleSaving.senderAnswerList));
-                                        }
-                                        viewModel.insert(myResult);
-                                    }
-                                } else {
-                                    SenderAnsList.add(position, false);
-                                    offlineBattleSaving.setSenderAnswerList(SenderAnsList);
-                                    offlineBattleSaving.setWinner("2");
-                                    battleViewModel.insert(offlineBattleSaving);
-                                    Result myResult = new Result(battleId, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
-                                    if (position + 1 == question_number)
-                                        myResult.setAction(JUST_STARTED);
-                                    viewModel.insert(myResult);
+                            } else if (realBattle.getWinner().equals("3")) {
+                                reciverAnsList.add(position, true);
+                                offlineBattleSaving.setSenderAnswerList(reciverAnsList);
+                                battleViewModel.insert(offlineBattleSaving);
+                                Result myResult = new Result(offlideID, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
+                                if (position + 1 == question_number) {
+                                    myResult.setAction(COMPLETED);
+                                    myResult.setOtherUid(realBattle.senderUid);
+                                    myResult.setOtherScore(getScoreCount(offlineBattleSaving.senderAnswerList));
                                 }
-
+                                viewModel.insert(myResult);
                             }
-                        });
-                    }
+                        } else {
+                            SenderAnsList.add(position, true);
+                            offlineBattleSaving.setSenderAnswerList(SenderAnsList);
+                            offlineBattleSaving.setWinner("2");
+                            battleViewModel.insert(offlineBattleSaving);
+                            Result myResult = new Result(battleId, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
+                            if (position + 1 == question_number)
+                                myResult.setAction(JUST_STARTED);
+                            viewModel.insert(myResult);
+                        }
+
+                    });
+                } else {
+                    Toasty.error(getApplicationContext(), "Wrong", Toasty.LENGTH_SHORT, true).show();
+                    selectedLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#D32F2F")));
+                    LinearLayout CorrectLayout = (LinearLayout) optionsContainer.getChildAt(list.get(position).getAns());
+                    CorrectLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4BBB4F")));
+                    stepAnsList.add(position, false);
+                    AsyncTask.execute(() -> {
+                        if (battleIdNew != null) {
+                            reciverAnsList.add(position, false);
+                            realBattle.setReceiverList(reciverAnsList);
+                            realBattle.setWinner("3");
+                            battleViewModel.insert(realBattle);
+                            Result myResult = new Result(realBattle.battleId, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
+                            myResult.setBattleId(realBattle.battleId);
+                            if (position + 1 == question_number) {
+                                myResult.setAction(COMPLETED);
+                                myResult.setOtherUid(realBattle.senderUid);
+                                myResult.setOtherScore(getScoreCount(realBattle.senderAnswerList));
+                            }
+                            viewModel.insert(myResult);
+                        } else if (offlideID != null) {
+                            if (realBattle.getWinner().equals("2")) {
+                                SenderAnsList.add(position, false);
+                                offlineBattleSaving.setSenderAnswerList(SenderAnsList);
+                                battleViewModel.insert(offlineBattleSaving);
+                                Result myResult = new Result(offlideID, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
+                                if (position + 1 == question_number)
+                                    myResult.setAction(JUST_STARTED);
+                                viewModel.insert(myResult);
+                            } else if (realBattle.getWinner().equals("3")) {
+                                reciverAnsList.add(position, false);
+                                offlineBattleSaving.setSenderAnswerList(reciverAnsList);
+                                battleViewModel.insert(offlineBattleSaving);
+                                Result myResult = new Result(offlideID, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
+                                if (position + 1 == question_number) {
+                                    myResult.setAction(COMPLETED);
+                                    myResult.setOtherUid(realBattle.senderUid);
+                                    myResult.setOtherScore(getScoreCount(offlineBattleSaving.senderAnswerList));
+                                }
+                                viewModel.insert(myResult);
+                            }
+                        } else {
+                            SenderAnsList.add(position, false);
+                            offlineBattleSaving.setSenderAnswerList(SenderAnsList);
+                            offlineBattleSaving.setWinner("2");
+                            battleViewModel.insert(offlineBattleSaving);
+                            Result myResult = new Result(battleId, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
+                            if (position + 1 == question_number)
+                                myResult.setAction(JUST_STARTED);
+                            viewModel.insert(myResult);
+                        }
+
+                    });
                 }
             });
         }
-        next.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public void onClick(View v) {
-                if (position < 1) {
-                    addScore(-3, userId);
-                    Toast.makeText(getApplicationContext(), "3 point reduced", Toast.LENGTH_SHORT).show();
-                }
-                position++;
-                goToNext(position);
+        next.setOnClickListener(v -> {
+            if (position < 1) {
+                addScore(userId);
+                Toast.makeText(getApplicationContext(), "3 point reduced", Toast.LENGTH_SHORT).show();
             }
+            position++;
+            goToNext(position);
+        });
+        MobileAds.initialize(this, initializationStatus -> {
         });
 
         AdView adView = new AdView(this);
@@ -803,9 +804,6 @@ public class QuizBattle extends AppCompatActivity {
         adView.setAdSize(AdSize.BANNER);
 
         adView.setAdUnitId("ca-app-pub-3940256099942544/6300978111");
-
-        MobileAds.initialize(this, initializationStatus -> {
-        });
 
         adView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -828,11 +826,8 @@ public class QuizBattle extends AppCompatActivity {
                     FirebaseFirestore.getInstance()
                             .collection("Users")
                             .document(uid)
-                            .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                        }
-                    });
+                            .update(scoreMap).addOnSuccessListener(aVoid -> {
+                            });
                 });
     }
 
@@ -864,7 +859,7 @@ public class QuizBattle extends AppCompatActivity {
                                     .into(proPic);
                         });
             }
-        } catch (NullPointerException h) {
+        } catch (NullPointerException ignored) {
 
         }
     }
@@ -956,16 +951,13 @@ public class QuizBattle extends AppCompatActivity {
                             mainDB = FirebaseDatabase.getInstance().getReference();
                             // Result senderResult = new Result(realBattle.battleId, realBattle.senderUid, userId, getScoreCount(realBattle.getSenderAnswerList()), getScoreCount(reciverAnsList), topic, timestamp, COMPLETED);
                             // FirebaseDatabase.getInstance().getReference().child("Result").child(realBattle.senderUid).child(realBattle.battleId).setValue(senderResult);
-                            mainDB.child("Play").child(realBattle.battleId).setValue(battle).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                                    UpdateFinalResult(battle);
-                                    intent.putExtra("FinalResult", battle);
-                                    startActivity(intent);
-                                    mDialog.dismiss();
-                                    finish();
-                                }
+                            mainDB.child("Play").child(realBattle.battleId).setValue(battle).addOnSuccessListener(aVoid -> {
+                                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                                UpdateFinalResult(battle);
+                                intent.putExtra("FinalResult", battle);
+                                startActivity(intent);
+                                mDialog.dismiss();
+                                finish();
                             });
                         })
                         .addOnFailureListener(e -> Log.e("Error", Objects.requireNonNull(e.getLocalizedMessage())));
@@ -1100,16 +1092,12 @@ public class QuizBattle extends AppCompatActivity {
                         FirebaseFirestore.getInstance()
                                 .collection("Users")
                                 .document(userId)
-                                .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @SuppressLint({"CheckResult", "DefaultLocale"})
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                userViewModel.updateXp(score);
-                                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-                                //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
-                            }
-                        });
-                    } catch (NullPointerException h) {
+                                .update(scoreMap).addOnSuccessListener(aVoid -> {
+                                    userViewModel.updateXp(score);
+                                    //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
+                                    //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
+                                });
+                    } catch (NullPointerException ignored) {
                     }
                 });
 
@@ -1117,7 +1105,7 @@ public class QuizBattle extends AppCompatActivity {
 
     private static class SendNotificationAsyncTask extends AsyncTask<Void, Void, Void> {
         final APIService apiService;
-        Notification notification;
+        final Notification notification;
 
         private SendNotificationAsyncTask(Notification notification) {
             this.notification = notification;
@@ -1134,14 +1122,10 @@ public class QuizBattle extends AppCompatActivity {
                     apiService.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
                         @Override
                         public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
-                            if (response.code() == 200) {
-                                if (response.body().success != 1) {
-                                }
-                            }
                         }
 
                         @Override
-                        public void onFailure(@NonNull Call<MyResponse> call, Throwable t) {
+                        public void onFailure(@NonNull Call<MyResponse> call, @NonNull Throwable t) {
 
                         }
                     });

@@ -102,7 +102,7 @@ public class Home extends Fragment {
                 Chip c = view.findViewById(checkedId);
                 tag = c.getText().toString();
                 setupAdapter(tag);
-            } catch (NullPointerException j) {
+            } catch (NullPointerException ignored) {
 
             }
         });
@@ -163,6 +163,8 @@ public class Home extends Fragment {
                         break;
 
                     case LOADED:
+
+                    case FINISHED:
                         //refreshLayout.setRefreshing(false);
                         break;
 
@@ -174,10 +176,6 @@ public class Home extends Fragment {
                         ).show();
 
                         //refreshLayout.setRefreshing(false);
-                        break;
-
-                    case FINISHED:
-                        // refreshLayout.setRefreshing(false);
                         break;
                 }
             }

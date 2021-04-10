@@ -67,13 +67,10 @@ public class SendMessage extends Fragment {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(usersAdapter);
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                usersList.clear();
-                usersAdapter.notifyDataSetChanged();
-                startListening();
-            }
+        refreshLayout.setOnRefreshListener(() -> {
+            usersList.clear();
+            usersAdapter.notifyDataSetChanged();
+            startListening();
         });
         usersList.clear();
         usersAdapter.notifyDataSetChanged();

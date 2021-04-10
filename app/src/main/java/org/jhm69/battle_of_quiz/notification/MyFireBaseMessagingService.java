@@ -1,4 +1,4 @@
-package org.jhm69.battle_of_quiz.SendNotificationPack;
+package org.jhm69.battle_of_quiz.notification;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -19,6 +19,9 @@ import com.google.firebase.messaging.RemoteMessage;
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.ui.activities.MainActivity;
 
+import java.util.Objects;
+
+@SuppressWarnings("RedundantSuppression")
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 public class MyFireBaseMessagingService extends FirebaseMessagingService {
     @Override
@@ -31,28 +34,36 @@ public class MyFireBaseMessagingService extends FirebaseMessagingService {
         String title = remoteMessage.getData().get("username");
         String message = remoteMessage.getData().get("message");
 
-        if (type.equals("like")) {
-            name = "Lights";
-            icon = (R.drawable.ic_batti);
-        } else if (type.equals("comment")) {
-            name = "Comments";
-            icon = (R.drawable.ic_comment_blue);
-        } else if (type.equals("friend_req")) {
-            name = "Friend Requests";
-            icon = (R.drawable.ic_person_add_yellow_24dp);
-        } else if (type.equals("accept_friend_req")) {
-            name = "Accepted Notification";
-            icon = (R.drawable.ic_person_green_24dp);
-        } else if (type.equals("play")) {
-            name = "Invites to Play";
-            icon = (R.drawable.ic_logo_icon);
-        } else if (type.equals("play_result")) {
-            name = "Battle Results";
-            icon = (R.drawable.ic_logo_icon);
-        } else if (type.equals("post")) {
-            icon = (R.drawable.ic_image_post_black);
-        } else {
-            icon = (R.drawable.ic_logo_icon);
+        switch (Objects.requireNonNull(type)) {
+            case "like":
+                name = "Lights";
+                icon = (R.drawable.ic_batti);
+                break;
+            case "comment":
+                name = "Comments";
+                icon = (R.drawable.ic_comment_blue);
+                break;
+            case "friend_req":
+                name = "Friend Requests";
+                icon = (R.drawable.ic_person_add_yellow_24dp);
+                break;
+            case "accept_friend_req":
+                name = "Accepted Notification";
+                icon = (R.drawable.ic_person_green_24dp);
+                break;
+            case "play":
+                name = "Invites to Play";
+                break;
+            case "play_result":
+                name = "Battle Results";
+                icon = (R.drawable.ic_logo_icon);
+                break;
+            case "post":
+                icon = (R.drawable.ic_image_post_black);
+                break;
+            default:
+                icon = (R.drawable.ic_logo_icon);
+                break;
         }
 
         showNotification(icon, title, message, type, name);

@@ -33,6 +33,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by jhm69
@@ -49,7 +50,7 @@ public class NotificationUtil {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         try {
             Date date = format.parse(timeStamp);
-            return date.getTime();
+            return Objects.requireNonNull(date).getTime();
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -174,7 +175,7 @@ public class NotificationUtil {
                 .setSound(Uri.parse("android.resource://" + mContext.getPackageName() + "/" + R.raw.study_forum))
                 .setColor(Color.parseColor("#2591FC"))
                 .setStyle(bigTextStyle)
-                .setLargeIcon(getCircularBitmap(getBitmapFromURL(user_image)))
+                .setLargeIcon(getCircularBitmap(Objects.requireNonNull(getBitmapFromURL(user_image))))
                 .setSmallIcon(700052)
                 .setContentText(message)
                 .build();
@@ -232,7 +233,7 @@ public class NotificationUtil {
                 .setWhen(getTimeMilliSec(timeStamp))
                 .setColor(Color.parseColor("#2591FC"))
                 .setStyle(bigPictureStyle) //bigPictureStyle
-                .setLargeIcon(getCircularBitmap(getBitmapFromURL(user_image)))
+                .setLargeIcon(getCircularBitmap(Objects.requireNonNull(getBitmapFromURL(user_image))))
                 .setSmallIcon(700052)
                 .setContentText(message)
                 .build();

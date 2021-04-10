@@ -91,22 +91,31 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         holder.body.setText(notification.getMessage());
         holder.timestamp.setText(TimeAgo.using(Long.parseLong(notification.getTimestamp())));
 
-        if (notification.getType().equals("like")) {
-            holder.type_image.setImageResource(R.drawable.ic_batti);
-        } else if (notification.getType().equals("comment")) {
-            holder.type_image.setImageResource(R.drawable.ic_comment_blue);
-        } else if (notification.getType().equals("friend_req")) {
-            holder.type_image.setImageResource(R.drawable.ic_person_add_yellow_24dp);
-        } else if (notification.getType().equals("accept_friend_req")) {
-            holder.type_image.setImageResource(R.drawable.ic_person_green_24dp);
-        } else if (notification.getType().equals("play")) {
-            holder.type_image.setImageResource(R.drawable.ic_flash_on_black_24dp);
-        } else if (notification.getType().equals("play_result")) {
-            holder.type_image.setImageResource(R.drawable.ic_baseline_multiline_chart_24);
-        } else if (notification.getType().equals("post")) {
-            holder.type_image.setImageResource(R.drawable.ic_image_post_black);
-        } else {
-            holder.type_image.setImageResource(R.drawable.ic_logo_icon);
+        switch (notification.getType()) {
+            case "like":
+                holder.type_image.setImageResource(R.drawable.ic_batti);
+                break;
+            case "comment":
+                holder.type_image.setImageResource(R.drawable.ic_comment_blue);
+                break;
+            case "friend_req":
+                holder.type_image.setImageResource(R.drawable.ic_person_add_yellow_24dp);
+                break;
+            case "accept_friend_req":
+                holder.type_image.setImageResource(R.drawable.ic_person_green_24dp);
+                break;
+            case "play":
+                holder.type_image.setImageResource(R.drawable.ic_flash_on_black_24dp);
+                break;
+            case "play_result":
+                holder.type_image.setImageResource(R.drawable.ic_baseline_multiline_chart_24);
+                break;
+            case "post":
+                holder.type_image.setImageResource(R.drawable.ic_image_post_black);
+                break;
+            default:
+                holder.type_image.setImageResource(R.drawable.ic_logo_icon);
+                break;
         }
 
         holder.itemView.setOnClickListener(v -> {

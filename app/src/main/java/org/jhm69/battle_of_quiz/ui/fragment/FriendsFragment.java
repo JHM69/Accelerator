@@ -17,10 +17,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.ui.activities.friends.SearchUsersActivity;
 
+import java.util.Objects;
+
 /**
  * Created by jhm69
  */
 
+@SuppressWarnings("NullableProblems")
 public class FriendsFragment extends Fragment implements BottomNavigationView.OnNavigationItemReselectedListener,
         BottomNavigationView.OnNavigationItemSelectedListener {
 
@@ -49,12 +52,7 @@ public class FriendsFragment extends Fragment implements BottomNavigationView.On
         super.onViewCreated(view, savedInstanceState);
 
         fab = view.findViewById(R.id.searchFab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gotoSearch();
-            }
-        });
+        fab.setOnClickListener(v -> gotoSearch());
 
         BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_nav);
         if (getArguments() != null) {
@@ -70,14 +68,14 @@ public class FriendsFragment extends Fragment implements BottomNavigationView.On
     }
 
     private void loadFragment(Fragment fragment) {
-        getFragmentManager()
+        Objects.requireNonNull(getFragmentManager())
                 .beginTransaction()
                 .replace(R.id.container_2, fragment)
                 .commit();
     }
 
     public void gotoSearch() {
-        SearchUsersActivity.startActivity(getActivity(), getView().getContext(), fab);
+        SearchUsersActivity.startActivity(getActivity(), Objects.requireNonNull(getView()).getContext(), fab);
     }
 
     @SuppressLint("NonConstantResourceId")

@@ -6,15 +6,14 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.transition.Fade;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,12 +26,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -41,7 +35,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -51,11 +44,10 @@ import com.marcoscg.dialogsheet.DialogSheet;
 import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.SendNotificationPack.Token;
+import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.ui.activities.MainActivity;
 import org.jhm69.battle_of_quiz.utils.AnimationUtil;
-import org.jhm69.battle_of_quiz.utils.Config;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
 import java.util.HashMap;
@@ -80,12 +72,12 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     String image;
     String idToken;
     private EditText email, password;
-    private Button login, register;
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private ProgressDialog mDialog;
     private FirebaseAuth.AuthStateListener firebaseAuthListener;
     private GoogleApiClient googleApiClient;
+    ProgressBar progressBar;
 
     public static void startActivityy(Context context) {
         Intent intent = new Intent(context, LoginActivity.class);
@@ -102,7 +94,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.isAnyPermissionPermanentlyDenied()) {
-                            //Toasty.info(LoginActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG, true).show();
+                            Toasty.info(LoginActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG, true).show();
                         }
                     }
 
@@ -134,6 +126,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         email = findViewById(R.id.email);
         password = findViewById(R.id.password);
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        progressBar = findViewById(R.id.dfef);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Fade fade = new Fade();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -184,21 +177,17 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private void goMainScreen(FirebaseUser user) {
         try {
-            FirebaseFirestore.getInstance().collection("Users").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @SuppressLint("CheckResult")
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        Users users = document.toObject(Users.class);
-                        if (users == null) {
-                            createNew(user);
-                        } else {
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            setUpMessaging(users, intent);
-                        }
-
+            FirebaseFirestore.getInstance().collection("Users").document(user.getUid()).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    Users users = document.toObject(Users.class);
+                    if (users == null) {
+                        createNew(user);
+                    } else {
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        setUpMessaging(users, intent);
                     }
+
                 }
             });
         } catch (Exception j) {
@@ -212,6 +201,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            assert result != null;
             handleSignInResultGoogle(result);
         }
     }
@@ -235,116 +225,88 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         if (!TextUtils.isEmpty(email_) && !TextUtils.isEmpty(pass_)) {
             mDialog.show();
-            mAuth.signInWithEmailAndPassword(email_, pass_).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull final Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
+            progressBar.setVisibility(View.VISIBLE);
+            mAuth.signInWithEmailAndPassword(email_, pass_).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
 
-                        Log.i(TAG, "Login Successful, continue to email verified");
+                    Log.i(TAG, "Login Successful, continue to email verified");
 
-                        if (task.getResult().getUser().isEmailVerified()) {
+                    if (Objects.requireNonNull(task.getResult().getUser()).isEmailVerified()) {
 
-                            Log.i(TAG, "Email is verified Successful, continue to get token");
-                            FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<InstanceIdResult> taskInstanceToken) {
-                                    if (!taskInstanceToken.isSuccessful()) {
-                                        Log.w(TAG, "getInstanceId failed", taskInstanceToken.getException());
-                                        return;
-                                    }
-                                    final String token_id = taskInstanceToken.getResult().getToken();
-                                    Log.i(TAG, "Get Token Listener, Token ID (token_id): " + token_id);
-                                    final String current_id = task.getResult().getUser().getUid();
-                                    mFirestore.collection("Users").document(current_id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                        @Override
-                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                            final Map<String, Object> tokenMap = new HashMap<>();
-                                            tokenMap.put("token_ids", FieldValue.arrayUnion(token_id));
-                                            mFirestore.collection("Users")
-                                                    .document(current_id)
-                                                    .update(tokenMap)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            FirebaseFirestore.getInstance().collection("Users").document(current_id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                                    if (task.isSuccessful()) {
-                                                                        DocumentSnapshot document = task.getResult();
-                                                                        if (document.exists()) {
-                                                                            SharedPreferences pref = getApplicationContext().getSharedPreferences(Config.SHARED_PREF, MODE_PRIVATE);
-                                                                            SharedPreferences.Editor editor = pref.edit();
-                                                                            editor.putString("regId", token_id);
-                                                                            editor.apply();
-                                                                            Users usersa = document.toObject(Users.class);
-                                                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                                                            setUpMessaging(usersa, intent);
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Log.e("Error", ".." + e.getMessage());
-                                                                    mDialog.dismiss();
-                                                                }
-                                                            });
-
-                                                        }
-                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    mDialog.dismiss();
-                                                    error(LoginActivity.this, "Error: " + e.getMessage(), LENGTH_SHORT, true).show();
+                        Log.i(TAG, "Email is verified Successful, continue to get token");
+                        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(taskInstanceToken -> {
+                            if (!taskInstanceToken.isSuccessful()) {
+                                Log.w(TAG, "getInstanceId failed", taskInstanceToken.getException());
+                                return;
+                            }
+                            final String token_id = taskInstanceToken.getResult().getToken();
+                            Log.i(TAG, "Get Token Listener, Token ID (token_id): " + token_id);
+                            final String current_id = task.getResult().getUser().getUid();
+                            mFirestore.collection("Users").document(current_id).get().addOnSuccessListener(documentSnapshot -> {
+                                final Map<String, Object> tokenMap = new HashMap<>();
+                                tokenMap.put("token_ids", FieldValue.arrayUnion(token_id));
+                                mFirestore.collection("Users")
+                                        .document(current_id)
+                                        .update(tokenMap)
+                                        .addOnSuccessListener(aVoid -> FirebaseFirestore.getInstance().collection("Users").document(current_id).get().addOnCompleteListener(task1 -> {
+                                            if (task1.isSuccessful()) {
+                                                DocumentSnapshot document = task1.getResult();
+                                                if (document.exists()) {
+                                                    Users usersa = document.toObject(Users.class);
+                                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                    setUpMessaging(usersa, intent);
                                                 }
-                                            });
-
-                                        }
-
-
-                                    });
-
-                                }
+                                            }
+                                        }).addOnFailureListener(e -> {
+                                            Log.e("Error", ".." + e.getMessage());
+                                            mDialog.dismiss();
+                                            progressBar.setVisibility(View.GONE);
+                                        })).addOnFailureListener(e -> {
+                                            mDialog.dismiss();
+                                            progressBar.setVisibility(View.GONE);
+                                            error(LoginActivity.this, "Error: " + e.getMessage(), LENGTH_SHORT, true).show();
+                                        });
 
                             });
 
-                        } else {
-                            mDialog.dismiss();
-                            new DialogSheet(LoginActivity.this)
-                                    .setTitle("Information")
-                                    .setCancelable(true)
-                                    .setRoundedCorners(true)
-                                    .setColoredNavigationBar(true)
-                                    .setMessage("Email has not been verified, please verify and continue.")
-                                    .setPositiveButton("Send again", v -> task.getResult()
-                                            .getUser()
-                                            .sendEmailVerification()
-                                            .addOnSuccessListener(aVoid -> success(LoginActivity.this, "Verification email sent", LENGTH_SHORT, true).show())
-                                            .addOnFailureListener(e -> Log.e("Error", Objects.requireNonNull(e.getMessage()))))
-                                    .setNegativeButton("Ok", v -> {
-
-                                    })
-                                    .show();
-
-                            if (mAuth.getCurrentUser() != null) {
-                                mAuth.signOut();
-                            }
-
-                        }
+                        });
 
                     } else {
-                        if (Objects.requireNonNull(Objects.requireNonNull(task.getException()).getMessage()).contains("The password is invalid")) {
-                            error(LoginActivity.this, "Error: The password you have entered is invalid.", LENGTH_SHORT, true).show();
-                            mDialog.dismiss();
-                        } else if (Objects.requireNonNull(task.getException().getMessage()).contains("There is no user record")) {
-                            error(LoginActivity.this, "Error: Invalid user, Please register using the button below.", LENGTH_SHORT, true).show();
-                            mDialog.dismiss();
-                        } else {
-                            error(LoginActivity.this, "Error: " + task.getException().getMessage(), LENGTH_SHORT, true).show();
-                            mDialog.dismiss();
+                        mDialog.dismiss();
+                        new DialogSheet(LoginActivity.this)
+                                .setTitle("Information")
+                                .setCancelable(true)
+                                .setRoundedCorners(true)
+                                .setColoredNavigationBar(true)
+                                .setMessage("Email has not been verified, please verify and continue.")
+                                .setPositiveButton("Send again", v -> task.getResult()
+                                        .getUser()
+                                        .sendEmailVerification()
+                                        .addOnSuccessListener(aVoid -> success(LoginActivity.this, "Verification email sent", LENGTH_SHORT, true).show())
+                                        .addOnFailureListener(e -> Log.e("Error", Objects.requireNonNull(e.getMessage()))))
+                                .setNegativeButton("Ok", v -> {
+
+                                })
+                                .show();
+
+                        if (mAuth.getCurrentUser() != null) {
+                            mAuth.signOut();
                         }
 
                     }
+
+                } else {
+                    if (Objects.requireNonNull(Objects.requireNonNull(task.getException()).getMessage()).contains("The password is invalid")) {
+                        error(LoginActivity.this, "Error: The password you have entered is invalid.", LENGTH_SHORT, true).show();
+                        mDialog.dismiss();
+                    } else if (Objects.requireNonNull(task.getException().getMessage()).contains("There is no user record")) {
+                        error(LoginActivity.this, "Error: Invalid user, Please register using the button below.", LENGTH_SHORT, true).show();
+                        mDialog.dismiss();
+                    } else {
+                        error(LoginActivity.this, "Error: " + task.getException().getMessage(), LENGTH_SHORT, true).show();
+                        mDialog.dismiss();
+                    }
+
                 }
             });
 
@@ -366,15 +328,15 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
 
-    public void onLogin(View view) {
+    public void onLogin() {
         performLogin();
     }
 
-    public void onRegister(View view) {
+    public void onRegister() {
         RegisterActivity.startActivity(this);
     }
 
-    public void onForgotPassword(View view) {
+    public void onForgotPassword() {
 
         if (TextUtils.isEmpty(email.getText().toString())) {
             info(activity, "Enter your email to send reset password mail.", LENGTH_SHORT, true).show();
@@ -446,10 +408,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     void createNew(FirebaseUser user) {
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(Config.SHARED_PREF, MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString("regId", user.getProviderId());
-        editor.apply();
+        progressBar.setVisibility(View.VISIBLE);
         String name = user.getDisplayName();
         String email = user.getEmail();
         String institute = "";
@@ -466,24 +425,50 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 name, Objects.requireNonNull(image),
                 institute, dept, email, bio, getNickName(name), location);
 
-        FirebaseFirestore.getInstance().collection("Users").document(user.getUid()).set(user1).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @SuppressLint("CheckResult")
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class).putExtra("sss", "sss");
-                setUpMessaging(user1, intent);
-            }
+        FirebaseFirestore.getInstance().collection("Users").document(user.getUid()).set(user1).addOnCompleteListener(task -> {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class).putExtra("sss", "sss");
+            setUpMessaging(user1, intent);
         });
     }
 
     void setUpMessaging(Users users, Intent intent) {
         String refreshToken = FirebaseInstanceId.getInstance().getToken();
         Token token = new Token(refreshToken);
-        FirebaseDatabase.getInstance().getReference("Tokens").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(token);
+        FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
         userViewModel.insert(users);
         mDialog.dismiss();
         startActivity(intent);
         finish();
     }
 
+
+
+    public void onLogin(View view) {
+        performLogin();
+    }
+
+    public void onRegister(View view) {
+        RegisterActivity.startActivity(this);
+    }
+
+    public void onForgotPassword(View view) {
+
+        if (TextUtils.isEmpty(email.getText().toString())) {
+            info(activity, "Enter your email to send reset password mail.", LENGTH_SHORT, true).show();
+            AnimationUtil.shakeView(email, this);
+        } else {
+
+            mDialog.show();
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email.getText().toString())
+                    .addOnSuccessListener(aVoid -> {
+                        mDialog.dismiss();
+                        success(LoginActivity.this, "Reset password mail sent", LENGTH_SHORT, true).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        mDialog.dismiss();
+                        error(LoginActivity.this, "Error sending mail : " + e.getLocalizedMessage(), LENGTH_SHORT, true).show();
+                    });
+        }
+
+    }
 }

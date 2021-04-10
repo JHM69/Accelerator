@@ -25,6 +25,7 @@ import org.jhm69.battle_of_quiz.ui.activities.friends.FriendProfile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -85,8 +86,8 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
                         final String mCurrentId = userId;
 
-                        if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName()) &&
-                                !documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                        if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName()) &&
+                                !Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                             holder.mBar.setVisibility(View.VISIBLE);
                             Map<String, Object> user = new HashMap<>();
@@ -97,7 +98,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                                     .collection("Users")
                                     .document(mCurrentId)
                                     .collection("Friend_Requests")
-                                    .document(documentSnapshot.getString("id"))
+                                    .document(Objects.requireNonNull(documentSnapshot.getString("id")))
                                     .update(user)
                                     .addOnSuccessListener(aVoid -> {
                                         Log.i("friend_req_update", "success");
@@ -113,7 +114,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                                     .into(holder.image);
 
 
-                        } else if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName())) {
+                        } else if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName())) {
 
                             holder.mBar.setVisibility(View.VISIBLE);
                             Map<String, Object> user = new HashMap<>();
@@ -123,7 +124,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                                     .collection("Users")
                                     .document(mCurrentId)
                                     .collection("Friend_Requests")
-                                    .document(documentSnapshot.getString("id"))
+                                    .document(Objects.requireNonNull(documentSnapshot.getString("id")))
                                     .update(user)
                                     .addOnSuccessListener(aVoid -> {
                                         Log.i("friend_req_update", "success");
@@ -134,7 +135,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
 
                             holder.name.setText(documentSnapshot.getString("name"));
 
-                        } else if (!documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                        } else if (!Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                             holder.mBar.setVisibility(View.VISIBLE);
                             Map<String, Object> user = new HashMap<>();
@@ -144,7 +145,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                                     .collection("Users")
                                     .document(mCurrentId)
                                     .collection("Friend_Requests")
-                                    .document(documentSnapshot.getString("id"))
+                                    .document(Objects.requireNonNull(documentSnapshot.getString("id")))
                                     .update(user)
                                     .addOnSuccessListener(aVoid -> {
                                         Log.i("friend_req_update", "success");

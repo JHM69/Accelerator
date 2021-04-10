@@ -18,12 +18,14 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
         android:padding="16dp"
-        tools:targetApi="m">
+        tools:targetApi="m"
+        tools:ignore="UnusedAttribute">
 
         <ImageView
             android:layout_width="40dp"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_text_post_grey" />
+            android:src="@drawable/ic_text_post_grey"
+            tools:ignore="ContentDescription" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,12 +70,14 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
         android:padding="16dp"
-        tools:targetApi="m">
+        tools:targetApi="m"
+        tools:ignore="UnusedAttribute">
 
         <ImageView
             android:layout_width="40dp"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_image_post" />
+            android:src="@drawable/ic_image_post"
+            tools:ignore="ContentDescription" />
 
         <LinearLayout
             android:layout_width="match_parent"

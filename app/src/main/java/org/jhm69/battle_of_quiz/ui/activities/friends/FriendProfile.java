@@ -40,7 +40,6 @@ import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,14 +51,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.marcoscg.dialogsheet.DialogSheet;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.SendNotificationPack.APIService;
-import org.jhm69.battle_of_quiz.SendNotificationPack.Client;
-import org.jhm69.battle_of_quiz.SendNotificationPack.MyResponse;
-import org.jhm69.battle_of_quiz.SendNotificationPack.NotificationSender;
+import org.jhm69.battle_of_quiz.notification.APIService;
+import org.jhm69.battle_of_quiz.notification.Client;
+import org.jhm69.battle_of_quiz.notification.MyResponse;
+import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
 import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.models.Post;
@@ -168,6 +166,7 @@ public class FriendProfile extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     public static class AboutFragment extends Fragment {
         FirestorePagingAdapter<Post, PostViewHolder> mAdapter;
         String id;
@@ -190,7 +189,7 @@ public class FriendProfile extends AppCompatActivity {
         public AboutFragment() {
         }
 
-        @SuppressLint("SetTextI18n")
+        @SuppressLint({"SetTextI18n", "InflateParams"})
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -201,7 +200,7 @@ public class FriendProfile extends AppCompatActivity {
                 id = bundle.getString("id");
             } else {
                 Toasty.error(rootView.getContext(), "Error retrieving information.", Toasty.LENGTH_SHORT, true).show();
-                getActivity().finish();
+                Objects.requireNonNull(getActivity()).finish();
             }
 
             mFirestore = FirebaseFirestore.getInstance();
@@ -234,8 +233,8 @@ public class FriendProfile extends AppCompatActivity {
             mDialog.setIndeterminate(true);
             mDialog.setCanceledOnTouchOutside(false);
             mDialog.setCancelable(false);
-            statsheetView = getActivity().getLayoutInflater().inflate(R.layout.stat_bottom_sheet_dialog, null);
-            mmBottomSheetDialog = new BottomSheetDialog(getContext());
+            statsheetView = Objects.requireNonNull(getActivity()).getLayoutInflater().inflate(R.layout.stat_bottom_sheet_dialog, null);
+            mmBottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()));
             mmBottomSheetDialog.setContentView(statsheetView);
             mmBottomSheetDialog.setCanceledOnTouchOutside(true);
 
@@ -250,44 +249,41 @@ public class FriendProfile extends AppCompatActivity {
             mFirestore.collection("Users")
                     .document(id)
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            try {
-                                friend_name = documentSnapshot.getString("name");
-                                friend_email = documentSnapshot.getString("email");
-                                friend_image = documentSnapshot.getString("image");
-                                type = Long.parseLong(Objects.requireNonNull(documentSnapshot.get("type")).toString());
+                    .addOnSuccessListener(documentSnapshot -> {
+                        try {
+                            friend_name = documentSnapshot.getString("name");
+                            friend_email = documentSnapshot.getString("email");
+                            friend_image = documentSnapshot.getString("image");
+                            type = Long.parseLong(Objects.requireNonNull(documentSnapshot.get("type")).toString());
 
 
-                                float win = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("win")).toString());
-                                float lose = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("lose")).toString());
-                                float draw = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("draw")).toString());
-                                setUpChartData(pieChart, win, lose, draw);
-                                name.setText(friend_name);
-                                email.setText(friend_email);
-                                int score = Objects.requireNonNull(documentSnapshot.getLong("score")).intValue();
-                                scoreTV.setText(String.valueOf(score));
-                                setLevelByScore(levelTV, score);
-                                location.setText(documentSnapshot.getString("location"));
-                                bio.setText(documentSnapshot.getString("bio"));
+                            float win = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("win")).toString());
+                            float lose = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("lose")).toString());
+                            float draw = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("draw")).toString());
+                            setUpChartData(pieChart, win, lose, draw);
+                            name.setText(friend_name);
+                            email.setText(friend_email);
+                            int score = Objects.requireNonNull(documentSnapshot.getLong("score")).intValue();
+                            scoreTV.setText(String.valueOf(score));
+                            setLevelByScore(levelTV, score);
+                            location.setText(documentSnapshot.getString("location"));
+                            bio.setText(documentSnapshot.getString("bio"));
+                            institute.setText(documentSnapshot.getString("dept") + ", " + documentSnapshot.getString("institute"));
+
+                            if (documentSnapshot.getString("dept").equals("")) {
+                                institute.setText(documentSnapshot.getString("institute"));
+                            } else if (documentSnapshot.getString("institute").equals("")) {
+                                institute.setText(documentSnapshot.getString("institute"));
+                            } else {
                                 institute.setText(documentSnapshot.getString("dept") + ", " + documentSnapshot.getString("institute"));
-
-                                if (documentSnapshot.getString("dept").equals("")) {
-                                    institute.setText(documentSnapshot.getString("institute"));
-                                } else if (documentSnapshot.getString("institute").equals("")) {
-                                    institute.setText(documentSnapshot.getString("institute"));
-                                } else {
-                                    institute.setText(documentSnapshot.getString("dept") + ", " + documentSnapshot.getString("institute"));
-                                }
-
-                                Glide.with(Objects.requireNonNull(getActivity()))
-                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
-                                        .load(friend_image)
-                                        .into(profile_pic);
-                            } catch (NullPointerException g) {
-
                             }
+
+                            Glide.with(Objects.requireNonNull(getActivity()))
+                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                    .load(friend_image)
+                                    .into(profile_pic);
+                        } catch (NullPointerException ignored) {
+
                         }
                     });
 
@@ -296,100 +292,68 @@ public class FriendProfile extends AppCompatActivity {
                     .collection("Friends")
                     .document(id)
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    .addOnSuccessListener(documentSnapshot -> {
 
-                            if (documentSnapshot.exists()) {
-                                req_sent.setVisibility(View.GONE);
-                                showRemoveButton();
-                            } else {
-                                mFirestore.collection("Users")
-                                        .document(id)
-                                        .collection("Friend_Requests")
-                                        .document(currentUser.getUid())
-                                        .get()
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                if (!documentSnapshot.exists()) {
+                        if (documentSnapshot.exists()) {
+                            req_sent.setVisibility(View.GONE);
+                            showRemoveButton();
+                        } else {
+                            mFirestore.collection("Users")
+                                    .document(id)
+                                    .collection("Friend_Requests")
+                                    .document(currentUser.getUid())
+                                    .get()
+                                    .addOnSuccessListener(documentSnapshot12 -> {
+                                        if (!documentSnapshot12.exists()) {
 
-                                                    mFirestore.collection("Users")
-                                                            .document(currentUser.getUid())
-                                                            .collection("Friend_Requests")
-                                                            .document(id)
-                                                            .get()
-                                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                                    if (documentSnapshot.exists()) {
-                                                                        req_sent.setVisibility(View.GONE);
-                                                                        showRequestLayout();
-                                                                    } else {
-                                                                        req_sent.setVisibility(View.GONE);
-                                                                        showAddButton();
-                                                                    }
+                                            mFirestore.collection("Users")
+                                                    .document(currentUser.getUid())
+                                                    .collection("Friend_Requests")
+                                                    .document(id)
+                                                    .get()
+                                                    .addOnSuccessListener(documentSnapshot1 -> {
+                                                        if (documentSnapshot1.exists()) {
+                                                            req_sent.setVisibility(View.GONE);
+                                                            showRequestLayout();
+                                                        } else {
+                                                            req_sent.setVisibility(View.GONE);
+                                                            showAddButton();
+                                                        }
 
-                                                                }
-                                                            })
-                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    Log.w("error", "fail", e);
-                                                                }
-                                                            });
+                                                    })
+                                                    .addOnFailureListener(e -> Log.w("error", "fail", e));
 
-                                                } else {
-                                                    req_sent.setText("Friend request sent");
-                                                    req_sent.setVisibility(View.VISIBLE);
-                                                    req_sent.setAlpha(0.0f);
+                                        } else {
+                                            req_sent.setText("Friend request sent");
+                                            req_sent.setVisibility(View.VISIBLE);
+                                            req_sent.setAlpha(0.0f);
 
-                                                    req_sent.animate()
-                                                            .setDuration(200)
-                                                            .alpha(1.0f)
-                                                            .start();
-                                                }
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("error", "fail", e);
-                                    }
-                                });
-
-                            }
+                                            req_sent.animate()
+                                                    .setDuration(200)
+                                                    .alpha(1.0f)
+                                                    .start();
+                                        }
+                                    }).addOnFailureListener(e -> Log.w("error", "fail", e));
 
                         }
+
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("error", "fail", e);
-                        }
-                    });
+                    .addOnFailureListener(e -> Log.w("error", "fail", e));
 
 
             mFirestore.collection("Users")
                     .document(id)
                     .collection("Friends")
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot documentSnapshots) {
-                            //Total Friends
-                            friend.setText(String.format(Locale.ENGLISH, "Total Friends : %d", documentSnapshots.size()));
-                        }
+                    .addOnSuccessListener(documentSnapshots -> {
+                        //Total Friends
+                        friend.setText(String.format(Locale.ENGLISH, "Total Friends : %d", documentSnapshots.size()));
                     });
 
             FirebaseFirestore.getInstance().collection("Posts")
                     .whereEqualTo("userId", id)
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot querySnapshot) {
-                            post.setText(String.format(Locale.ENGLISH, "Total Posts : %d", querySnapshot.size()));
-                        }
-                    });
+                    .addOnSuccessListener(querySnapshot -> post.setText(String.format(Locale.ENGLISH, "Total Posts : %d", querySnapshot.size())));
 
 
             return rootView;
@@ -593,14 +557,11 @@ public class FriendProfile extends AppCompatActivity {
             playMatchs.setVisibility(View.VISIBLE);
 
 
-            playMatchs.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent goBattle = new Intent(getActivity(), SelectTopic.class);
-                    goBattle.putExtra("otherUid", id);
-                    goBattle.putExtra("type", type);
-                    Objects.requireNonNull(getActivity()).startActivity(goBattle);
-                }
+            playMatchs.setOnClickListener(view -> {
+                Intent goBattle = new Intent(getActivity(), SelectTopic.class);
+                goBattle.putExtra("otherUid", id);
+                goBattle.putExtra("type", type);
+                Objects.requireNonNull(getActivity()).startActivity(goBattle);
             });
             remove_friend.setVisibility(View.VISIBLE);
             remove_friend.setAlpha(0.0f);
@@ -636,120 +597,81 @@ public class FriendProfile extends AppCompatActivity {
                     .collection("Friend_Requests")
                     .document(id)
                     .delete()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
+                    .addOnSuccessListener(aVoid -> {
 
-                            Map<String, Object> friendInfo = new HashMap<>();
-                            friendInfo.put("name", friend_name);
-                            friendInfo.put("email", friend_email);
-                            friendInfo.put("id", id);
-                            friendInfo.put("image", friend_image);
-                            friendInfo.put("notification_id", String.valueOf(System.currentTimeMillis()));
-                            friendInfo.put("timestamp", String.valueOf(System.currentTimeMillis()));
+                        Map<String, Object> friendInfo = new HashMap<>();
+                        friendInfo.put("name", friend_name);
+                        friendInfo.put("email", friend_email);
+                        friendInfo.put("id", id);
+                        friendInfo.put("image", friend_image);
+                        friendInfo.put("notification_id", String.valueOf(System.currentTimeMillis()));
+                        friendInfo.put("timestamp", String.valueOf(System.currentTimeMillis()));
 
-                            //Add data friend to current user
-                            mFirestore.collection("Users/" + currentUser.getUid() + "/Friends/")
-                                    .document(id)
-                                    .set(friendInfo)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
+                        //Add data friend to current user
+                        mFirestore.collection("Users/" + currentUser.getUid() + "/Friends/")
+                                .document(id)
+                                .set(friendInfo)
+                                .addOnSuccessListener(aVoid13 -> {
 
-                                            //get the current user data
-                                            mFirestore.collection("Users")
-                                                    .document(currentUser.getUid())
-                                                    .get()
-                                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    //get the current user data
+                                    mFirestore.collection("Users")
+                                            .document(currentUser.getUid())
+                                            .get()
+                                            .addOnSuccessListener(documentSnapshot -> {
 
-                                                            String name_c = documentSnapshot.getString("name");
-                                                            final String email_c = documentSnapshot.getString("email");
-                                                            final String id_c = documentSnapshot.getId();
-                                                            String image_c = documentSnapshot.getString("image");
-                                                            String username_c = documentSnapshot.getString("username");
-                                                            List<String> tokens_c;
-                                                            tokens_c = (List<String>) documentSnapshot.get("token_ids");
+                                                String name_c = documentSnapshot.getString("name");
+                                                final String email_c = documentSnapshot.getString("email");
+                                                final String id_c = documentSnapshot.getId();
+                                                String image_c = documentSnapshot.getString("image");
+                                                String username_c = documentSnapshot.getString("username");
+                                                List<String> tokens_c;
+                                                //noinspection unchecked
+                                                tokens_c = (List<String>) documentSnapshot.get("token_ids");
 
-                                                            final Map<String, Object> currentuserInfo = new HashMap<>();
-                                                            currentuserInfo.put("name", name_c);
-                                                            currentuserInfo.put("email", email_c);
-                                                            currentuserInfo.put("id", id_c);
-                                                            currentuserInfo.put("image", image_c);
-                                                            currentuserInfo.put("token_ids", tokens_c);
-                                                            currentuserInfo.put("notification_id", String.valueOf(System.currentTimeMillis()));
-                                                            currentuserInfo.put("timestamp", String.valueOf(System.currentTimeMillis()));
+                                                final Map<String, Object> currentuserInfo = new HashMap<>();
+                                                currentuserInfo.put("name", name_c);
+                                                currentuserInfo.put("email", email_c);
+                                                currentuserInfo.put("id", id_c);
+                                                currentuserInfo.put("image", image_c);
+                                                currentuserInfo.put("token_ids", tokens_c);
+                                                currentuserInfo.put("notification_id", String.valueOf(System.currentTimeMillis()));
+                                                currentuserInfo.put("timestamp", String.valueOf(System.currentTimeMillis()));
 
-                                                            //Save current user data to Friend
-                                                            mFirestore.collection("Users/" + id + "/Friends/")
-                                                                    .document(id_c)
-                                                                    .set(currentuserInfo)
-                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                        @Override
-                                                                        public void onSuccess(Void aVoid) {
-
-                                                                            mFirestore.collection("Notifications")
-                                                                                    .document(id)
-                                                                                    .collection("Accepted_Friend_Requests")
-                                                                                    .document(email_c)
-                                                                                    .set(currentuserInfo)
-                                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                        @Override
-                                                                                        public void onSuccess(Void aVoid) {
-
-                                                                                            addToNotification(id,
-                                                                                                    id_c,
-                                                                                                    image_c,
-                                                                                                    username_c,
-                                                                                                    "Accepted your friend request",
-                                                                                                    "accept_friend_req");
-
-                                                                                        }
-                                                                                    })
-                                                                                    .addOnFailureListener(new OnFailureListener() {
-                                                                                        @Override
-                                                                                        public void onFailure(@NonNull Exception e) {
-                                                                                            Log.e("Error", e.getMessage());
-                                                                                        }
-                                                                                    });
-
-                                                                        }
-                                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    mDialog.dismiss();
-                                                                    Log.w("fourth", "listen:error", e);
-                                                                }
-                                                            });
-
-                                                        }
-                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
+                                                //Save current user data to Friend
+                                                mFirestore.collection("Users/" + id + "/Friends/")
+                                                        .document(id_c)
+                                                        .set(currentuserInfo)
+                                                        .addOnSuccessListener(aVoid12 -> mFirestore.collection("Notifications")
+                                                                .document(id)
+                                                                .collection("Accepted_Friend_Requests")
+                                                                .document(email_c)
+                                                                .set(currentuserInfo)
+                                                                .addOnSuccessListener(aVoid1 -> addToNotification(id,
+                                                                        id_c,
+                                                                        image_c,
+                                                                        username_c,
+                                                                        "Accepted your friend request",
+                                                                        "accept_friend_req"))
+                                                                .addOnFailureListener(e -> Log.e("Error", e.getMessage()))).addOnFailureListener(e -> {
                                                     mDialog.dismiss();
-                                                    Log.w("third", "listen:error", e);
-                                                }
-                                            });
+                                                    Log.w("fourth", "listen:error", e);
+                                                });
+
+                                            }).addOnFailureListener(e -> {
+                                        mDialog.dismiss();
+                                        Log.w("third", "listen:error", e);
+                                    });
 
 
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
+                                }).addOnFailureListener(e -> {
                                     mDialog.dismiss();
                                     Log.w("second", "listen:error", e);
-                                }
-                            });
+                                });
 
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    mDialog.dismiss();
-                    Log.w("first", "listen:error", e);
-                }
-            });
+                    }).addOnFailureListener(e -> {
+                        mDialog.dismiss();
+                        Log.w("first", "listen:error", e);
+                    });
 
         }
 
@@ -776,12 +698,7 @@ public class FriendProfile extends AppCompatActivity {
                                 }).start();
 
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i("Error decline", e.getMessage());
-                    }
-                });
+                }).addOnFailureListener(e -> Log.i("Error decline", e.getMessage()));
             } catch (Exception ex) {
                 Log.w("error", "fail", ex);
                 Toasty.error(rootView.getContext(), "Some error occurred while declining friend request, Try again later.", Toasty.LENGTH_SHORT, true).show();
@@ -855,67 +772,44 @@ public class FriendProfile extends AppCompatActivity {
                     .collection("Users")
                     .document(userId)
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    .addOnSuccessListener(documentSnapshot -> {
 
-                            final String email = documentSnapshot.getString("email");
+                        final String email = documentSnapshot.getString("email");
 
-                            userMap.put("name", documentSnapshot.getString("name"));
-                            userMap.put("id", documentSnapshot.getString("id"));
-                            userMap.put("email", email);
-                            userMap.put("image", documentSnapshot.getString("image"));
-                            userMap.put("tokens", documentSnapshot.get("token_ids"));
-                            userMap.put("notification_id", String.valueOf(System.currentTimeMillis()));
-                            userMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
+                        userMap.put("name", documentSnapshot.getString("name"));
+                        userMap.put("id", documentSnapshot.getString("id"));
+                        userMap.put("email", email);
+                        userMap.put("image", documentSnapshot.getString("image"));
+                        userMap.put("tokens", documentSnapshot.get("token_ids"));
+                        userMap.put("notification_id", String.valueOf(System.currentTimeMillis()));
+                        userMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
 
-                            //Add to user
-                            FirebaseFirestore.getInstance()
-                                    .collection("Users")
-                                    .document(id)
-                                    .collection("Friend_Requests")
-                                    .document(documentSnapshot.getString("id"))
-                                    .set(userMap)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
+                        //Add to user
+                        FirebaseFirestore.getInstance()
+                                .collection("Users")
+                                .document(id)
+                                .collection("Friend_Requests")
+                                .document(documentSnapshot.getString("id"))
+                                .set(userMap)
+                                .addOnSuccessListener(aVoid -> {
 
-                                            //Add for notification data
-                                            FirebaseFirestore.getInstance()
-                                                    .collection("Notifications")
-                                                    .document(id)
-                                                    .collection("Friend_Requests")
-                                                    .document(email)
-                                                    .set(userMap)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-
-                                                            addToNotification(id,
-                                                                    userId,
-                                                                    documentSnapshot.getString("image"),
-                                                                    documentSnapshot.getString("username"),
-                                                                    "Sent you friend request",
-                                                                    "friend_req");
-
-                                                        }
-                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.e("Error", e.getMessage());
-                                                }
-                                            });
+                                    //Add for notification data
+                                    FirebaseFirestore.getInstance()
+                                            .collection("Notifications")
+                                            .document(id)
+                                            .collection("Friend_Requests")
+                                            .document(email)
+                                            .set(userMap)
+                                            .addOnSuccessListener(aVoid1 -> addToNotification(id,
+                                                    userId,
+                                                    documentSnapshot.getString("image"),
+                                                    documentSnapshot.getString("username"),
+                                                    "Sent you friend request",
+                                                    "friend_req")).addOnFailureListener(e -> Log.e("Error", e.getMessage()));
 
 
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.e("Error", e.getMessage());
-                                }
-                            });
+                                }).addOnFailureListener(e -> Log.e("Error", e.getMessage()));
 
-                        }
                     });
 
         }
@@ -950,12 +844,7 @@ public class FriendProfile extends AppCompatActivity {
                             });
 
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.e("Error", e.getMessage());
-                }
-            });
+            }).addOnFailureListener(e -> Log.e("Error", e.getMessage()));
 
         }
 
@@ -1011,9 +900,10 @@ public class FriendProfile extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("NullableProblems")
     private static class SendNotificationAsyncTask extends AsyncTask<Void, Void, Void> {
         final APIService apiService;
-        Notification notification;
+        final Notification notification;
 
         private SendNotificationAsyncTask(Notification notification) {
             this.notification = notification;
@@ -1030,10 +920,6 @@ public class FriendProfile extends AppCompatActivity {
                     apiService.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
                         @Override
                         public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
-                            if (response.code() == 200) {
-                                if (response.body().success != 1) {
-                                }
-                            }
                         }
 
                         @Override

@@ -1,7 +1,6 @@
 package org.jhm69.battle_of_quiz.ui.activities.post;
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -23,34 +22,28 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.repository.UserRepository;
 import org.jhm69.battle_of_quiz.utils.MathView;
 import org.jhm69.battle_of_quiz.utils.RichEditor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 import es.dmoral.toasty.Toasty;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 public class PostText extends AppCompatActivity {
     FirebaseFirestore mFirestore;
@@ -130,18 +123,18 @@ public class PostText extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
         latexText = findViewById(R.id.latex_equation);
         type = findViewById(R.id.spinner_type);
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.item_type_x));
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.item_type_x));
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_expandable_list_item_1);
         type.setAdapter(arrayAdapter);
         type.setOnItemSelectedListener(new TypeXSpinnerClass());
 
         try {
-            getSupportActionBar().setTitle("Text Post (3 xp)");
+            Objects.requireNonNull(getSupportActionBar()).setTitle("Text Post (3 xp)");
             toolbar.setTitleTextColor(Color.WHITE);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
 
         mFirestore = FirebaseFirestore.getInstance();
@@ -149,11 +142,9 @@ public class PostText extends AppCompatActivity {
         mCurrentUser = mAuth.getCurrentUser();
         FrameLayout mImageholder = findViewById(R.id.image_holder);
         mRichEd = findViewById(R.id.editPost);
-        setUpLaTexEditor(mRichEd, getApplicationContext(), null, 200);
+        setUpLaTexEditor(mRichEd, null, 200);
 
-        if (StringUtils.isNotEmpty(getIntent().getStringExtra("preText"))) {
-
-        }
+        StringUtils.isNotEmpty(getIntent().getStringExtra("preText"));
 
 
     }
@@ -182,55 +173,42 @@ public class PostText extends AppCompatActivity {
         mDialog.setCancelable(false);
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.show();
-        mFirestore.collection("Users").document(mCurrentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (tag != null) {
-                    try {
-                        String postID = getSaltString();
-                        Map<String, Object> postMap = new HashMap<>();
-                        postMap.put("userId", documentSnapshot.getString("id"));
-                        postMap.put("username", documentSnapshot.getString("username"));
-                        postMap.put("name", documentSnapshot.getString("name"));
-                        postMap.put("institute", documentSnapshot.getString("institute"));
-                        postMap.put("dept", documentSnapshot.getString("dept"));
-                        postMap.put("userimage", documentSnapshot.getString("image"));
-                        postMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
-                        postMap.put("image_count", 0);
-                        postMap.put("description", mRichEd.getHtml());
-                        postMap.put("postId", postID);
-                        postMap.put("tag", tag);
-                        postMap.put("liked_count", 0);
-                        Map<String, Object> postMapFinal = new HashMap<>();
-                        postMapFinal.put(postID, postMap);
+        mFirestore.collection("Users").document(mCurrentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
+            if (tag != null) {
+                try {
+                    String postID = getSaltString();
+                    Map<String, Object> postMap = new HashMap<>();
+                    postMap.put("userId", documentSnapshot.getString("id"));
+                    postMap.put("username", documentSnapshot.getString("username"));
+                    postMap.put("name", documentSnapshot.getString("name"));
+                    postMap.put("institute", documentSnapshot.getString("institute"));
+                    postMap.put("dept", documentSnapshot.getString("dept"));
+                    postMap.put("userimage", documentSnapshot.getString("image"));
+                    postMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
+                    postMap.put("image_count", 0);
+                    postMap.put("description", mRichEd.getHtml());
+                    postMap.put("postId", postID);
+                    postMap.put("tag", tag);
+                    postMap.put("liked_count", 0);
+                    Map<String, Object> postMapFinal = new HashMap<>();
+                    postMapFinal.put(postID, postMap);
 
-                        mFirestore.collection("PendingPosts")
-                                .document(postID)
-                                .set(postMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                updateXP();
+                    mFirestore.collection("PendingPosts")
+                            .document(postID)
+                            .set(postMap).addOnSuccessListener(aVoid -> {
                                 mDialog.dismiss();
                                 Toasty.success(PostText.this, "Post is sent to admin for review", Toasty.LENGTH_SHORT, true).show();
                                 finish();
-                            }
-                        });
-                    } catch (NullPointerException j) {
-                    }
-                } else {
-                    Toasty.error(getApplicationContext(), "Select a tag", Toast.LENGTH_SHORT).show();
+                            });
+                } catch (NullPointerException ignored) {
                 }
+            } else {
+                Toasty.error(getApplicationContext(), "Select a tag", Toast.LENGTH_SHORT).show();
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                mDialog.dismiss();
-            }
-        });
+        }).addOnFailureListener(e -> mDialog.dismiss());
     }
 
-    public void setUpLaTexEditor(RichEditor mEditor, Context context, MathView mathView, int height) {
-        String data;
+    public void setUpLaTexEditor(RichEditor mEditor, MathView mathView, int height) {
         mEditor.setEditorHeight(height);
         mEditor.setEditorFontSize(18);
         TypedValue typedValue = new TypedValue();
@@ -246,103 +224,32 @@ public class PostText extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.action_undo).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.undo();
-            }
-        });
+        findViewById(R.id.action_undo).setOnClickListener(v -> mEditor.undo());
 
-        findViewById(R.id.action_redo).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        findViewById(R.id.action_redo).setOnClickListener(v -> mEditor.redo());
+        findViewById(R.id.action_bold).setOnClickListener(v -> mEditor.setBold());
 
-                mEditor.redo();
-            }
-        });
-        findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setBold();
-            }
-        });
+        findViewById(R.id.action_italic).setOnClickListener(v -> mEditor.setItalic());
 
-        findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setItalic();
-            }
-        });
+        findViewById(R.id.action_subscript).setOnClickListener(v -> mEditor.setSubscript());
 
-        findViewById(R.id.action_subscript).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setSubscript();
-            }
-        });
+        findViewById(R.id.action_superscript).setOnClickListener(v -> mEditor.setSuperscript());
 
-        findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setSuperscript();
-            }
-        });
+        findViewById(R.id.action_strikethrough).setOnClickListener(v -> mEditor.setStrikeThrough());
 
-        findViewById(R.id.action_strikethrough).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setStrikeThrough();
-            }
-        });
+        findViewById(R.id.action_underline).setOnClickListener(v -> mEditor.setUnderline());
 
-        findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setUnderline();
-            }
-        });
+        findViewById(R.id.action_heading1).setOnClickListener(v -> mEditor.setHeading(1));
 
-        findViewById(R.id.action_heading1).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setHeading(1);
-            }
-        });
+        findViewById(R.id.action_heading2).setOnClickListener(v -> mEditor.setHeading(2));
 
-        findViewById(R.id.action_heading2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setHeading(2);
-            }
-        });
+        findViewById(R.id.action_heading3).setOnClickListener(v -> mEditor.setHeading(3));
 
-        findViewById(R.id.action_heading3).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setHeading(3);
-            }
-        });
+        findViewById(R.id.action_heading4).setOnClickListener(v -> mEditor.setHeading(4));
 
-        findViewById(R.id.action_heading4).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setHeading(4);
-            }
-        });
+        findViewById(R.id.action_heading5).setOnClickListener(v -> mEditor.setHeading(5));
 
-        findViewById(R.id.action_heading5).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setHeading(5);
-            }
-        });
-
-        findViewById(R.id.action_heading6).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setHeading(6);
-            }
-        });
+        findViewById(R.id.action_heading6).setOnClickListener(v -> mEditor.setHeading(6));
 
         findViewById(R.id.action_txt_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
@@ -364,253 +271,78 @@ public class PostText extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setIndent();
-            }
-        });
+        findViewById(R.id.action_indent).setOnClickListener(v -> mEditor.setIndent());
 
-        findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setOutdent();
-            }
-        });
+        findViewById(R.id.action_outdent).setOnClickListener(v -> mEditor.setOutdent());
 
-        findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setAlignLeft();
-            }
-        });
+        findViewById(R.id.action_align_left).setOnClickListener(v -> mEditor.setAlignLeft());
 
-        findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setAlignCenter();
-            }
-        });
+        findViewById(R.id.action_align_center).setOnClickListener(v -> mEditor.setAlignCenter());
 
-        findViewById(R.id.action_align_right).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setAlignRight();
-            }
-        });
+        findViewById(R.id.action_align_right).setOnClickListener(v -> mEditor.setAlignRight());
 
-        findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setBlockquote();
-            }
-        });
+        findViewById(R.id.action_blockquote).setOnClickListener(v -> mEditor.setBlockquote());
 
-        findViewById(R.id.action_insert_bullets).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setBullets();
-            }
-        });
+        findViewById(R.id.action_insert_bullets).setOnClickListener(v -> mEditor.setBullets());
 
-        findViewById(R.id.action_insert_numbers).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setNumbers();
-            }
-        });
+        findViewById(R.id.action_insert_numbers).setOnClickListener(v -> mEditor.setNumbers());
         View latexView = findViewById(R.id.latext_editor);
-        findViewById(R.id.insert_latex).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (latexView.getVisibility() == View.GONE) {
-                    latexView.setVisibility(View.VISIBLE);
+        findViewById(R.id.insert_latex).setOnClickListener(view -> {
+            if (latexView.getVisibility() == View.GONE) {
+                latexView.setVisibility(View.VISIBLE);
 
-                    MathView mathView = findViewById(R.id.mathView);
-                    latexText.addTextChangedListener(new TextWatcher() {
-                        @Override
-                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        }
+                MathView mathView1 = findViewById(R.id.mathView);
+                latexText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
 
-                        @Override
-                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                            mathView.setDisplayText("\\(" + charSequence.toString() + "\\)");
-                        }
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        mathView1.setDisplayText("\\(" + charSequence.toString() + "\\)");
+                    }
 
-                        @Override
-                        public void afterTextChanged(Editable editable) {
+                    @Override
+                    public void afterTextChanged(Editable editable) {
 
-                        }
-                    });
-                    findViewById(R.id.submit_latex).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            String data = latexText.getText().toString();
-                            data = data.replace(" ", "");
-                            //Toast.makeText(PostText.this, data, Toast.LENGTH_SHORT).show();
-                            insertData(data, mEditor);
-                            latexText.setText("");
-                            data = "";
-                            latexView.setVisibility(View.GONE);
-                        }
-                    });
-                    findViewById(R.id.action_frac).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\frac{a}{b}", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_power).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("a^2", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_sub).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("a_2", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_root).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\sqrt{a}", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_alpha).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\alpha", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_diff).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\frac{d}{dx}(y)", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_int).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\int_{a}^{b}", latexText);
-                        }
-                    });
-
-                    findViewById(R.id.action_therefore).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\therefore", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_theta).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\theta", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_mu).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\mu", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_pi).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\pi", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_lanbda).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\lambda", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_ohm).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\ohm", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_omega).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\omega", latexText);
-                        }
-                    });
-
-                    findViewById(R.id.action_hat).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\hat{A}", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_over).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\Overthrow{A}", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_enter).setOnClickListener(new View.OnClickListener() {
-                        @Override
-
-                        public void onClick(View view) {
-                            addExtraLatex("\\\\", latexText);
-                        }
-                    });
-                    findViewById(R.id.action_space).setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            addExtraLatex("\\;", latexText);
-                        }
-                    });
-
-
-                } else {
-                    latexView.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        findViewById(R.id.insert_code).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.setCode();
-            }
-        });
-        findViewById(R.id.action_insert_checkbox).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEditor.insertTodo();
-            }
-        });
-    }
-
-    private void updateXP() {
-        FirebaseFirestore.getInstance().collection("Users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    int scoreOld = documentSnapshot.getLong("reward").intValue();
-                    int newScore = scoreOld + (-3);
-                    HashMap<String, Object> scoreMap = new HashMap<>();
-                    scoreMap.put("reward", newScore);
-                    FirebaseFirestore.getInstance()
-                            .collection("Users")
-                            .document(userId)
-                            .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @SuppressLint({"CheckResult", "DefaultLocale"})
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            new UserRepository((Application) getApplicationContext()).updateXp(-3);
-                            //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-                            //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
-                        }
-                    });
+                    }
                 });
+                findViewById(R.id.submit_latex).setOnClickListener(view115 -> {
+                    String data1 = latexText.getText().toString();
+                    data1 = data1.replace(" ", "");
+                    //Toast.makeText(PostText.this, data, Toast.LENGTH_SHORT).show();
+                    insertData(data1, mEditor);
+                    latexText.setText("");
+                    data1 = "";
+                    latexView.setVisibility(View.GONE);
+                });
+                findViewById(R.id.action_frac).setOnClickListener(view116 -> addExtraLatex("\\frac{}{}", latexText));
+                findViewById(R.id.action_power).setOnClickListener(view117 -> addExtraLatex("^", latexText));
+                findViewById(R.id.action_sub).setOnClickListener(view118 -> addExtraLatex("_", latexText));
+                findViewById(R.id.action_root).setOnClickListener(view119 -> addExtraLatex("\\sqrt{a}", latexText));
+                findViewById(R.id.action_alpha).setOnClickListener(view114 -> addExtraLatex("\\alpha", latexText));
+                findViewById(R.id.action_diff).setOnClickListener(view113 -> addExtraLatex("\\frac{d}{dx}()", latexText));
+                findViewById(R.id.action_int).setOnClickListener(view112 -> addExtraLatex("\\int_{}^{}", latexText));
+                findViewById(R.id.action_therefore).setOnClickListener(view111 -> addExtraLatex("\\therefore", latexText));
+                findViewById(R.id.action_theta).setOnClickListener(view110 -> addExtraLatex("\\theta", latexText));
+                findViewById(R.id.action_mu).setOnClickListener(view19 -> addExtraLatex("\\mu", latexText));
+                findViewById(R.id.action_pi).setOnClickListener(view18 -> addExtraLatex("\\pi", latexText));
+                findViewById(R.id.action_lanbda).setOnClickListener(view17 -> addExtraLatex("\\lambda", latexText));
+                findViewById(R.id.action_ohm).setOnClickListener(view16 -> addExtraLatex("\\ohm", latexText));
+                findViewById(R.id.action_omega).setOnClickListener(view15 -> addExtraLatex("\\omega", latexText));
+                findViewById(R.id.action_hat).setOnClickListener(view13 -> addExtraLatex("\\hat{A}", latexText));
+                findViewById(R.id.action_over).setOnClickListener(view14 -> addExtraLatex("\\vec{A}", latexText));
+                findViewById(R.id.action_enter).setOnClickListener(view12 -> addExtraLatex("\\\\", latexText));
+                findViewById(R.id.action_space).setOnClickListener(view1 -> addExtraLatex("\\;", latexText));
+            } else {
+                latexView.setVisibility(View.GONE);
+            }
+        });
 
+        findViewById(R.id.insert_code).setOnClickListener(v -> mEditor.setCode());
+        findViewById(R.id.action_insert_checkbox).setOnClickListener(v -> mEditor.insertTodo());
     }
+
 
     class TypeXSpinnerClass implements AdapterView.OnItemSelectedListener {
         public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {

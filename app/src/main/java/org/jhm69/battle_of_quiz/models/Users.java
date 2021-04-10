@@ -10,6 +10,7 @@ import java.io.Serializable;
 /**
  * Created by Jahangir .
  */
+@SuppressWarnings("NotNullFieldNotInitialized")
 @Entity
 public class Users implements Serializable {
     @PrimaryKey()
@@ -46,7 +47,7 @@ public class Users implements Serializable {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 

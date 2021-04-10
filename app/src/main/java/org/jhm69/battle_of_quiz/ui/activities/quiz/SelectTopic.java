@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +33,7 @@ import java.util.Objects;
 import es.dmoral.toasty.Toasty;
 
 public class SelectTopic extends AppCompatActivity {
-    List<String> topics = new ArrayList<>();
+    final List<String> topics = new ArrayList<>();
     long ty;
     private RecyclerView recyclerView;
     //  private RecyclerView.LayoutManager layoutManager;
@@ -97,11 +96,8 @@ public class SelectTopic extends AppCompatActivity {
                             itemsRef.addListenerForSingleValueEvent(eventListener);
                         }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
+                    .addOnFailureListener(e -> {
 
-                        }
                     });
         } else {
             String type = getType(ty);

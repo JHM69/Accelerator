@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="loading_name">Loading Name…</string>
+    <string name="loading_name">Loading…</string>
 
     <string name="default_bio" translatable="false">Hey there, I am using Battle of Quiz</string>
     <string name="s_peopl_have_smiled_for_this_post" translatable="false"> %d </string>
@@ -8,7 +8,7 @@
     <string name="s_peopl_have_commented_this_post" translatable="false"> %d </string>
     <string name="view_profile">View profile</string>
     <string name="username">Username</string>
-    <string name="web_client_id" tools:ignore="TypographyDashes">547449529390-nn47v1510j90lom974en9o24j4is9q2c.apps.googleusercontent.com</string>
+    <string name="web_client_id" tools:ignore="TypographyDashes">482041872937-4fg8mk8lftghegpqlfmb447ip7kov06b.apps.googleusercontent.com</string>
     <string name="group_or_subject">Group</string>
     <string name="class_level">Class Level*</string>
     <string name="location">Location</string>

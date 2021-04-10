@@ -36,6 +36,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("IntegerDivisionInFloatingPointContext")
 public class StepView extends View {
 
     public static final int ANIMATION_LINE = 0;
@@ -196,6 +197,7 @@ public class StepView extends View {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         final boolean superResult = super.onTouchEvent(event);
@@ -204,14 +206,14 @@ public class StepView extends View {
             if (action == MotionEvent.ACTION_UP) {
                 float x = event.getX();
                 float y = event.getY();
-                int step = getStepByPointer(x, y);
+                int step = getStepByPointer(x);
                 onStepClickListener.onStepClick(step);
             }
         }
         return superResult;
     }
 
-    protected int getStepByPointer(float x, float y) {
+    protected int getStepByPointer(float x) {
         int count = getStepCount();
         for (int i = 0; i < constraints.length; i++) {
             float constraint = constraints[i];
@@ -286,12 +288,9 @@ public class StepView extends View {
         if (animator == null) {
             return;
         }
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                animatedFraction = valueAnimator.getAnimatedFraction();
-                invalidate();
-            }
+        animator.addUpdateListener(valueAnimator -> {
+            animatedFraction = valueAnimator.getAnimatedFraction();
+            invalidate();
         });
         animator.addListener(new AnimatorListener() {
             @Override
@@ -685,23 +684,20 @@ public class StepView extends View {
                         int alpha = (int) (animatedFraction * 255);
                         paint.setAlpha(alpha);
                         paint.setTextSize(stepNumberTextSize * animatedFraction);
-                        drawNumber(canvas, number, circleCenterX, paint);
                     } else {
                         paint.setTextSize(stepNumberTextSize);
                         paint.setColor(nextTextColor);
-                        drawNumber(canvas, number, circleCenterX, paint);
                     }
                 } else {
                     paint.setTextSize(stepNumberTextSize);
                     paint.setColor(nextTextColor);
-                    drawNumber(canvas, number, circleCenterX, paint);
                 }
+                drawNumber(canvas, number, circleCenterX, paint);
 
                 textPaint.setTextSize(textSize);
                 textPaint.setColor(nextTextColor);
                 int alpha = (int) Math.max(Color.alpha(nextTextColor), animatedFraction * 255);
                 textPaint.setAlpha(alpha);
-                drawText(canvas, text, textY, step);
             } else {
                 if (nextStepCircleEnabled && nextStepCircleColor != 0) {
                     paint.setColor(nextStepCircleColor);
@@ -715,8 +711,8 @@ public class StepView extends View {
 
                 textPaint.setTextSize(textSize);
                 textPaint.setColor(nextTextColor);
-                drawText(canvas, text, textY, step);
             }
+            drawText(canvas, text, textY, step);
         }
     }
 

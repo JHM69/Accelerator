@@ -50,7 +50,7 @@ public class ResultActivity extends AppCompatActivity {
     public ProgressDialog mDialog;
     String winnerId = "draw";
     Button playAgain;
-    List<QuestionEachResult> questionEachResultList = new ArrayList<>();
+    final List<QuestionEachResult> questionEachResultList = new ArrayList<>();
     RecyclerView mRecyclerView;
     ResultEachQuestionAdapter resultEachQuestionAdapter;
     private BattleModel battlep;
@@ -169,14 +169,18 @@ public class ResultActivity extends AppCompatActivity {
                         .get()
                         .addOnSuccessListener(documentSnapshot -> {
                             name.setText(documentSnapshot.getString("username"));
-                            setLevelByScore(level, Integer.parseInt(String.valueOf(documentSnapshot.getLong("score"))));
-                            Glide.with(getApplicationContext())
-                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
-                                    .load(documentSnapshot.getString("image"))
-                                    .into(proPic);
+                            try {
+                                setLevelByScore(level, Integer.parseInt(String.valueOf(documentSnapshot.getLong("score"))));
+                                Glide.with(getApplicationContext())
+                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                        .load(documentSnapshot.getString("image"))
+                                        .into(proPic);
+                            }catch (Exception ignored){
+
+                            }
                         });
             }
-        } catch (NullPointerException h) {
+        } catch (NullPointerException ignored) {
 
         }
         name.setOnClickListener(v -> FriendProfile.startActivity(getApplicationContext(), uid));
@@ -356,5 +360,10 @@ public class ResultActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
         super.onBackPressed();
+    }
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }

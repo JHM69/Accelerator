@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#29272E">
+    android:layout_height="match_parent">
 
     <org.jhm69.battle_of_quiz.utils.TouchImageView
         android:id="@+id/photo_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="#302733"
         android:scaleType="fitCenter"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -51,7 +51,7 @@ import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 public class Dashboard extends Fragment {
     private final int[] tabIcons = {
             R.drawable.ic_flash_on_black_24dp,
-            R.drawable.ic_image_post,
+            R.drawable.ic_notes_black_24dp,
             R.drawable.ic_notifications_black_24dp
     };
     private TabAdapter adapter;
@@ -88,7 +88,7 @@ public class Dashboard extends Fragment {
         highLightCurrentTab(0);
         try {
             viewPager.setOffscreenPageLimit(adapter.getCount());
-        } catch (IllegalStateException d) {
+        } catch (IllegalStateException ignored) {
 
         }
 
@@ -114,43 +114,37 @@ public class Dashboard extends Fragment {
 
         int count = Objects.requireNonNull(getActivity()).getSharedPreferences("Notifications", MODE_PRIVATE).getInt("count", 0);
         final int[] newSize = new int[1];
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                FirebaseFirestore.getInstance().collection("Users")
-                        .document(userId)
-                        .collection("Info_Notifications")
-                        .orderBy("timestamp", Query.Direction.DESCENDING)
-                        .get()
-                        .addOnSuccessListener(queryDocumentSnapshots -> {
-                            newSize[0] = queryDocumentSnapshots.size();
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()) {
-                                    if (documentChange.getType() == DocumentChange.Type.ADDED) {
-                                        Notification notification = documentChange.getDocument().toObject(Notification.class).withId(documentChange.getDocument().getId());
-                                        if (notification.getType().equals("play")) {
-                                            if (!viewModel.resultExistsForSecondPlayer(notification.getAction_id())) {
-                                                new PlayAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play");
-                                            }
-                                        } else if (notification.getType().equals("play_result")) {
-                                            if (!viewModel.resultExists(notification.getAction_id())) {
-                                                new PlayResultAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play_result");
-                                            }
-                                        }
+        AsyncTask.execute(() -> FirebaseFirestore.getInstance().collection("Users")
+                .document(userId)
+                .collection("Info_Notifications")
+                .orderBy("timestamp", Query.Direction.DESCENDING).limit(7)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    newSize[0] = queryDocumentSnapshots.size();
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()) {
+                            if (documentChange.getType() == DocumentChange.Type.ADDED) {
+                                Notification notification = documentChange.getDocument().toObject(Notification.class).withId(documentChange.getDocument().getId());
+                                if (notification.getType().equals("play")) {
+                                    if (!viewModel.resultExistsForSecondPlayer(notification.getAction_id())) {
+                                        new PlayAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play");
+                                    }
+                                } else if (notification.getType().equals("play_result")) {
+                                    if (!viewModel.resultExists(notification.getAction_id())) {
+                                        new PlayResultAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play_result");
                                     }
                                 }
                             }
-                        });
-            }
-        });
+                        }
+                    }
+                }));
 
         if (newSize[0] > count) {
             TabLayout.Tab tab = tabLayout.getTabAt(2);
             Objects.requireNonNull(tab).setCustomView(null);
             tab.setCustomView(adapter.setNotifications(5));
-        } else {
-            // badge_count.setVisibility(View.GONE);
-        }
+        }  // badge_count.setVisibility(View.GONE);
+
     }
 
     private void highLightCurrentTab(int position) {
@@ -179,27 +173,31 @@ public class Dashboard extends Fragment {
 
     @SuppressLint("CheckResult")
     private void updateScore(int reScore, int seScore) {
-        UserViewModel userViewModel = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(UserViewModel.class);
-        if (reScore > seScore) {
-            // Toasty.success(context, "Congo, you won!", Toasty.LENGTH_LONG);
-            userViewModel.updateWin(1);
-            userViewModel.updateScore(5);
-            userViewModel.updateXp(20);
-        } else if (seScore > reScore) {
-            // Toasty.error(context, "Damn, you lost", Toasty.LENGTH_LONG);
-            userViewModel.updateLose(1);
-        } else {
-            userViewModel.updateScore(2);
-            // Toasty.info(context, "Match Drawn", Toasty.LENGTH_LONG);
-            userViewModel.updateDraw(1);
+        try {
+            UserViewModel userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
+            if (reScore > seScore) {
+                // Toasty.success(context, "Congo, you won!", Toasty.LENGTH_LONG);
+                userViewModel.updateWin(1);
+                userViewModel.updateScore(5);
+                userViewModel.updateXp(20);
+            } else if (seScore > reScore) {
+                // Toasty.error(context, "Damn, you lost", Toasty.LENGTH_LONG);
+                userViewModel.updateLose(1);
+            } else {
+                userViewModel.updateScore(2);
+                // Toasty.info(context, "Match Drawn", Toasty.LENGTH_LONG);
+                userViewModel.updateDraw(1);
+            }
+        }catch (Exception ignored){
+
         }
     }
 
     @SuppressLint("StaticFieldLeak")
     private static class PlayAsyncTask extends AsyncTask<String, Void, Void> {
-        ResultViewModel viewModel;
-        BattleViewModel battleViewModel;
-        String id;
+        final ResultViewModel viewModel;
+        final BattleViewModel battleViewModel;
+        final String id;
 
         public PlayAsyncTask(ResultViewModel viewModel, BattleViewModel battleViewModel, String id) {
             this.viewModel = viewModel;
@@ -250,9 +248,9 @@ public class Dashboard extends Fragment {
 
     @SuppressLint("StaticFieldLeak")
     private class PlayResultAsyncTask extends AsyncTask<String, Void, Void> {
-        ResultViewModel viewModel;
-        BattleViewModel battleViewModel;
-        String id;
+        final ResultViewModel viewModel;
+        final BattleViewModel battleViewModel;
+        final String id;
 
         public PlayResultAsyncTask(ResultViewModel viewModel, BattleViewModel battleViewModel, String id) {
             this.viewModel = viewModel;

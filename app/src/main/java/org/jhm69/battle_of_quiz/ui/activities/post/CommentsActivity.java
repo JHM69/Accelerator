@@ -36,8 +36,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.github.marlonlom.utilities.timeago.TimeAgo;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -51,10 +49,10 @@ import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.SendNotificationPack.APIService;
-import org.jhm69.battle_of_quiz.SendNotificationPack.Client;
-import org.jhm69.battle_of_quiz.SendNotificationPack.MyResponse;
-import org.jhm69.battle_of_quiz.SendNotificationPack.NotificationSender;
+import org.jhm69.battle_of_quiz.notification.APIService;
+import org.jhm69.battle_of_quiz.notification.Client;
+import org.jhm69.battle_of_quiz.notification.MyResponse;
+import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.adapters.CommentsAdapter;
 import org.jhm69.battle_of_quiz.adapters.PostPhotosAdapter;
 import org.jhm69.battle_of_quiz.models.Comment;
@@ -86,6 +84,7 @@ import retrofit2.Response;
 import static org.jhm69.battle_of_quiz.adapters.PostViewHolder.updateLike;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
+@SuppressWarnings("ConstantConditions")
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class CommentsActivity extends AppCompatActivity {
     @SuppressLint("NewApi")
@@ -162,12 +161,7 @@ public class CommentsActivity extends AppCompatActivity {
         if (!approved && ADMIN_UID_LIST.contains(userId)) {
             Toast.makeText(this, "Approve or Delete this Post", Toast.LENGTH_SHORT).show();
             adminActivity.setVisibility(View.VISIBLE);
-            findViewById(R.id.approvePost).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    approvePost(post);
-                }
-            });
+            findViewById(R.id.approvePost).setOnClickListener(view -> approvePost(post));
             findViewById(R.id.deletePost).setOnClickListener(view -> deletePost(post.getPostId()));
         } else {
             adminActivity.setVisibility(View.GONE);
@@ -250,15 +244,12 @@ public class CommentsActivity extends AppCompatActivity {
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.show();
         mFirestore.collection("PendingPosts")
-                .document(Id).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                addToNotification("An Admin Deleted Your Post, Try posting good contents only.", "");
-                mDialog.dismiss();
-                Toasty.success(getApplicationContext(), "Done", Toasty.LENGTH_SHORT, true).show();
-                finish();
-            }
-        });
+                .document(Id).delete().addOnSuccessListener(aVoid -> {
+                    addToNotification("An Admin Deleted Your Post, Try posting good contents only.", "");
+                    mDialog.dismiss();
+                    Toasty.success(getApplicationContext(), "Done", Toasty.LENGTH_SHORT, true).show();
+                    finish();
+                });
     }
 
 
@@ -289,15 +280,12 @@ public class CommentsActivity extends AppCompatActivity {
             indicator2.setViewPager(pager);
 
             final Handler handler = new Handler();
-            final Runnable slide = new Runnable() {
-                @Override
-                public void run() {
-                    if (pager.getCurrentItem() == multipleImages.size()) {
-                        pager.setCurrentItem(0, true);
-                        return;
-                    }
-                    pager.setCurrentItem(pager.getCurrentItem() + 1, true);
+            final Runnable slide = () -> {
+                if (pager.getCurrentItem() == multipleImages.size()) {
+                    pager.setCurrentItem(0, true);
+                    return;
                 }
+                pager.setCurrentItem(pager.getCurrentItem() + 1, true);
             };
             Timer slideTimer = new Timer();
             slideTimer.schedule(new TimerTask() {
@@ -433,60 +421,49 @@ public class CommentsActivity extends AppCompatActivity {
                         }
 
                         if (isOnline()) {
-                            like_btn.setOnFavoriteChangeListener(new MaterialFavoriteButton.OnFavoriteChangeListener() {
-                                @Override
-                                public void onFavoriteChanged(MaterialFavoriteButton buttonView, boolean favorite) {
-                                    Map<String, Object> likeMap = new HashMap<>();
-                                    if (favorite) {
-                                        likeMap.put("liked", true);
+                            like_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
+                                Map<String, Object> likeMap = new HashMap<>();
+                                if (favorite) {
+                                    likeMap.put("liked", true);
 
-                                        try {
-                                            updateLike(true, post.getPostId());
-                                            mFirestore.collection("Posts")
-                                                    .document(post.getPostId())
-                                                    .collection("Liked_Users")
-                                                    .document(mCurrentUser.getUid())
-                                                    .set(likeMap)
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        likCo++;
-                                                        likeCount.setText(String.valueOf(likCo));
-                                                        addToNotification("Liked in your Post", "like");
+                                    try {
+                                        updateLike(true, post.getPostId());
+                                        mFirestore.collection("Posts")
+                                                .document(post.getPostId())
+                                                .collection("Liked_Users")
+                                                .document(mCurrentUser.getUid())
+                                                .set(likeMap)
+                                                .addOnSuccessListener(aVoid -> {
+                                                    likCo++;
+                                                    likeCount.setText(String.valueOf(likCo));
+                                                    addToNotification("Liked in your Post", "like");
 
 
-                                                    })
-                                                    .addOnFailureListener(e -> Log.e("Error like", e.getMessage()));
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    } else {
-                                        likeMap.put("liked", false);
+                                                })
+                                                .addOnFailureListener(e -> Log.e("Error like", e.getMessage()));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    likeMap.put("liked", false);
 
-                                        try {
-                                            updateLike(false, post.getPostId());
-                                            mFirestore.collection("Posts")
-                                                    .document(post.getPostId())
-                                                    .collection("Liked_Users")
-                                                    .document(mCurrentUser.getUid())
-                                                    //.set(likeMap)
-                                                    .delete()
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            likCo--;
-                                                            likeCount.setText(String.valueOf(likCo));
-                                                            //holder.like_count.setText(String.valueOf(Integer.parseInt(holder.like_count.getText().toString())-1));
-                                                            //Toast.makeText(context, "Unliked post '" + post.postId, Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.e("Error unlike", e.getMessage());
-                                                        }
-                                                    });
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
+                                    try {
+                                        updateLike(false, post.getPostId());
+                                        mFirestore.collection("Posts")
+                                                .document(post.getPostId())
+                                                .collection("Liked_Users")
+                                                .document(mCurrentUser.getUid())
+                                                //.set(likeMap)
+                                                .delete()
+                                                .addOnSuccessListener(aVoid -> {
+                                                    likCo--;
+                                                    likeCount.setText(String.valueOf(likCo));
+                                                    //holder.like_count.setText(String.valueOf(Integer.parseInt(holder.like_count.getText().toString())-1));
+                                                    //Toast.makeText(context, "Unliked post '" + post.postId, Toast.LENGTH_SHORT).show();
+                                                })
+                                                .addOnFailureListener(e -> Log.e("Error unlike", e.getMessage()));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
                                 }
                             });
@@ -494,13 +471,8 @@ public class CommentsActivity extends AppCompatActivity {
 
 
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e("Error Like", e.getMessage());
-                        }
-                    });
-        } catch (NullPointerException j) {
+                    .addOnFailureListener(e -> Log.e("Error Like", e.getMessage()));
+        } catch (NullPointerException ignored) {
 
         }
 
@@ -592,12 +564,7 @@ public class CommentsActivity extends AppCompatActivity {
                                                             .set(postMap)
                                                             .addOnSuccessListener(aVoid12 -> {
                                                                 // Toast.makeText(context, "Added to Saved_Posts, post '" + post.postId, Toast.LENGTH_SHORT).show();
-                                                            }).addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.e("Error add fav", e.getMessage());
-                                                        }
-                                                    });
+                                                            }).addOnFailureListener(e -> Log.e("Error add fav", e.getMessage()));
                                                 })
                                                 .addOnFailureListener(e -> Log.e("Error fav", e.getMessage()));
                                     } catch (Exception e) {
@@ -637,7 +604,7 @@ public class CommentsActivity extends AppCompatActivity {
                         }
                     })
                     .addOnFailureListener(e -> Log.e("Error Fav", e.getMessage()));
-        } catch (NullPointerException j) {
+        } catch (NullPointerException ignored) {
         }
     }
 
@@ -661,9 +628,7 @@ public class CommentsActivity extends AppCompatActivity {
                                         .document(post.getPostId())
                                         .collection("Comments")
                                         .get()
-                                        .addOnSuccessListener(queryDocumentSnapshots3 -> {
-                                            comCo = queryDocumentSnapshots3.size();
-                                        })
+                                        .addOnSuccessListener(queryDocumentSnapshots3 -> comCo = queryDocumentSnapshots3.size())
                                         .addOnFailureListener(Throwable::printStackTrace);
                             })
                             .addOnFailureListener(Throwable::printStackTrace);
@@ -691,10 +656,7 @@ public class CommentsActivity extends AppCompatActivity {
                                     .document(post.getUserId())
                                     .collection("Info_Notifications")
                                     .document(notification.getId()).set(notification)
-                                    .addOnSuccessListener(documentReference -> {
-                                        new SendNotificationAsyncTask(notification).execute();
-
-                                    })
+                                    .addOnSuccessListener(documentReference -> new SendNotificationAsyncTask(notification).execute())
                                     .addOnFailureListener(e -> Log.e("Error", e.getLocalizedMessage()));
                         }
 
@@ -746,6 +708,7 @@ public class CommentsActivity extends AppCompatActivity {
                         e.printStackTrace();
                         return;
                     }
+                    assert querySnapshot != null;
                     if (!querySnapshot.isEmpty()) {
                         for (DocumentChange doc : querySnapshot.getDocumentChanges()) {
                             if (doc.getDocument().exists()) {
@@ -772,7 +735,7 @@ public class CommentsActivity extends AppCompatActivity {
 
     private static class SendNotificationAsyncTask extends AsyncTask<Void, Void, Void> {
         final APIService apiService;
-        Notification notification;
+        final Notification notification;
 
         private SendNotificationAsyncTask(Notification notification) {
             this.notification = notification;
@@ -789,14 +752,10 @@ public class CommentsActivity extends AppCompatActivity {
                     apiService.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
                         @Override
                         public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
-                            if (response.code() == 200) {
-                                if (response.body().success != 1) {
-                                }
-                            }
                         }
 
                         @Override
-                        public void onFailure(@NonNull Call<MyResponse> call, Throwable t) {
+                        public void onFailure(@NonNull Call<MyResponse> call, @NonNull Throwable t) {
 
                         }
                     });

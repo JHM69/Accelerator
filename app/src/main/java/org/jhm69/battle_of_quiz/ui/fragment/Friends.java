@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -15,13 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.adapters.viewFriends.ViewFriendAdapter;
@@ -29,6 +25,7 @@ import org.jhm69.battle_of_quiz.models.ViewFriends;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
 
@@ -38,6 +35,7 @@ import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
  * Created by jhm69
  */
 
+@SuppressWarnings("NullableProblems")
 public class Friends extends Fragment {
 
     private List<ViewFriends> usersList;
@@ -54,52 +52,46 @@ public class Friends extends Fragment {
     public void startListening() {
         usersList.clear();
         usersAdapter.notifyDataSetChanged();
-        getView().findViewById(R.id.default_item).setVisibility(View.GONE);
+        Objects.requireNonNull(getView()).findViewById(R.id.default_item).setVisibility(View.GONE);
         refreshLayout.setRefreshing(true);
         firestore.collection("Users")
                 .document(userId)
                 .collection("Friends")
                 .orderBy("name", Query.Direction.ASCENDING)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                .addOnSuccessListener(queryDocumentSnapshots -> {
 
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                if (doc.getType() == DocumentChange.Type.ADDED) {
-                                    ViewFriends users = doc.getDocument().toObject(ViewFriends.class);
-                                    usersList.add(users);
-                                    usersAdapter.notifyDataSetChanged();
-                                    refreshLayout.setRefreshing(false);
-                                }
-                            }
-
-                            if (usersList.isEmpty()) {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                            if (doc.getType() == DocumentChange.Type.ADDED) {
+                                ViewFriends users = doc.getDocument().toObject(ViewFriends.class);
+                                usersList.add(users);
+                                usersAdapter.notifyDataSetChanged();
                                 refreshLayout.setRefreshing(false);
-                                getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
-                            }
-
-                        } else {
-                            try {
-                                refreshLayout.setRefreshing(false);
-                                getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
-                            } catch (NullPointerException jh) {
-
                             }
                         }
 
+                        if (usersList.isEmpty()) {
+                            refreshLayout.setRefreshing(false);
+                            getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
+                        }
+
+                    } else {
+                        try {
+                            refreshLayout.setRefreshing(false);
+                            getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
+                        } catch (NullPointerException ignored) {
+
+                        }
                     }
+
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                .addOnFailureListener(e -> {
 
-                        refreshLayout.setRefreshing(false);
-                        Toasty.error(getView().getContext(), "Some technical error occurred", Toasty.LENGTH_SHORT, true).show();
-                        Log.w("Error", "listen:error", e);
+                    refreshLayout.setRefreshing(false);
+                    Toasty.error(getView().getContext(), "Some technical error occurred", Toasty.LENGTH_SHORT, true).show();
+                    Log.w("Error", "listen:error", e);
 
-                    }
                 });
     }
 
@@ -111,7 +103,7 @@ public class Friends extends Fragment {
         firestore = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-        RecyclerView mRecyclerView = getView().findViewById(R.id.recyclerView);
+        RecyclerView mRecyclerView = Objects.requireNonNull(getView()).findViewById(R.id.recyclerView);
         refreshLayout = getView().findViewById(R.id.refreshLayout);
 
         usersList = new ArrayList<>();
@@ -124,12 +116,7 @@ public class Friends extends Fragment {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL));
         mRecyclerView.setAdapter(usersAdapter);
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                startListening();
-            }
-        });
+        refreshLayout.setOnRefreshListener(this::startListening);
 
         startListening();
 

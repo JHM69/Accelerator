@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/mpo"
     android:layout_height="match_parent"
-    android:id="@+id/srsest"
-    tools:context=".ui.activities.Splash">
+    tools:context=".ui.activities.Splash"
+    tools:ignore="MergeRootFrame">
 
     <androidx.constraintlayout.motion.widget.MotionLayout
         android:id="@+id/ertyu"
@@ -44,10 +45,10 @@
 
 
         <ImageView
-            android:id="@+id/imageView"
             android:layout_width="0dp"
             android:layout_height="0.0001dp"
             android:visibility="visible"
+            android:id="@+id/feafea"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

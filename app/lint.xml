@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="IconLocation">
+        <ignore path="src/main/res/drawable/bg_color.png" />
+        <ignore path="src/main/res/drawable/h1.png" />
+        <ignore path="src/main/res/drawable/h2.png" />
+        <ignore path="src/main/res/drawable/h3.png" />
+        <ignore path="src/main/res/drawable/h4.png" />
+        <ignore path="src/main/res/drawable/h5.png" />
+        <ignore path="src/main/res/drawable/h6.png" />
+        <ignore path="src/main/res/drawable/ic_power.png" />
+        <ignore path="src/main/res/drawable/ic_sub.png" />
+        <ignore path="src/main/res/drawable/redo.png" />
+        <ignore path="src/main/res/drawable/strikethrough.png" />
+        <ignore path="src/main/res/drawable/subscript.png" />
+        <ignore path="src/main/res/drawable/superscript.png" />
+        <ignore path="src/main/res/drawable/superscript.png" />
+        <ignore path="src/main/res/drawable/txt_color.png" />
+        <ignore path="src/main/res/drawable/underline.png" />
+    </issue>
+</lint>

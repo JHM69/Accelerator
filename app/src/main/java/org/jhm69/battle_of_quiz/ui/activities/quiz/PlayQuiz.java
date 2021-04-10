@@ -59,7 +59,7 @@ public class PlayQuiz extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         firestore = FirebaseFirestore.getInstance();
@@ -106,7 +106,7 @@ public class PlayQuiz extends Fragment {
                 return new PlayerAdapter.ViewHolder(view);
             }
 
-            @SuppressLint("SetTextI18n")
+            @SuppressLint({"SetTextI18n", "CheckResult"})
             @Override
             protected void onBindViewHolder(@NonNull PlayerAdapter.ViewHolder holder, int position, @NonNull Player user) {
                 //holder.bind(post, holder, position,  mmBottomSheetDialog, statsheetView);
@@ -116,22 +116,18 @@ public class PlayQuiz extends Fragment {
                 holder.institute.setText(user.getDept() + ", " + user.getInstitute());
                 int score = (int) user.getScore();
                 holder.level.setText(String.valueOf(score));
-                Glide.with(getContext())
+                Glide.with(Objects.requireNonNull(getContext()))
                         .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
                         .load(user.getImage())
                         .into(holder.image);
 
-                holder.mView.setOnClickListener(new View.OnClickListener() {
-                    @SuppressLint("CheckResult")
-                    @Override
-                    public void onClick(View view) {
-                        if (Objects.equals(FirebaseAuth.getInstance().getUid(), user.getId())) {
-                            Toasty.error(getContext(), "You can't play with yourself. Select someone else", Toasty.LENGTH_SHORT, true);
-                        } else {
-                            Intent goBattle = new Intent(getContext(), SelectTopic.class);
-                            goBattle.putExtra("otherUid", user.getId());
-                            getContext().startActivity(goBattle);
-                        }
+                holder.mView.setOnClickListener(view -> {
+                    if (Objects.equals(FirebaseAuth.getInstance().getUid(), user.getId())) {
+                        Toasty.error(getContext(), "You can't play with yourself. Select someone else", Toasty.LENGTH_SHORT, true);
+                    } else {
+                        Intent goBattle = new Intent(getContext(), SelectTopic.class);
+                        goBattle.putExtra("otherUid", user.getId());
+                        getContext().startActivity(goBattle);
                     }
                 });
             }
@@ -152,7 +148,7 @@ public class PlayQuiz extends Fragment {
 
                     case LOADED:
                         if (getItemCount() == 0) {
-                            getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
+                            Objects.requireNonNull(getView()).findViewById(R.id.default_item).setVisibility(View.VISIBLE);
                         }
                         refreshLayout.setRefreshing(false);
                         break;

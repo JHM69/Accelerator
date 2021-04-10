@@ -1,4 +1,4 @@
-package org.jhm69.battle_of_quiz.SendNotificationPack;
+package org.jhm69.battle_of_quiz.notification;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;

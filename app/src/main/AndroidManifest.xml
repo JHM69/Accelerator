@@ -124,17 +124,19 @@
             android:exported="false"
             android:permission="TODO" />
         <service
-            android:name=".SendNotificationPack.MyFireBaseMessagingService"
+            android:name=".notification.MyFireBaseMessagingService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false"
+            android:permission="TODO">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
         <service
-            android:name=".SendNotificationPack.MyFirebaseIdService"
+            android:name=".notification.MyFirebaseIdService"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false"
+            android:permission="TODO">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>

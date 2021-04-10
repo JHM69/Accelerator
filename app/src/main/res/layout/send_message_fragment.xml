@@ -51,11 +51,11 @@
                     android:layout_height="200dp"
                     android:layout_marginBottom="5dp"
                     android:src="@drawable/ic_logo_icon"
-                    tools:srcCompat="@drawable/ic_logo_icon" />
+                    tools:srcCompat="@drawable/ic_logo_icon"
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/default_title"
-                    fontPath="fonts/GoogleSans_Bold.ttf"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"

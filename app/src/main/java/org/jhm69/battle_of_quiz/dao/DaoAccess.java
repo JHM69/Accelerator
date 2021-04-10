@@ -21,7 +21,7 @@ public interface DaoAccess {
 
     //--------------for user handing
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    Long insert(Users member);
+    void insert(Users member);
 
     @Query("SELECT * FROM Users WHERE id =:id")
     Users getTask(String id);
@@ -68,8 +68,8 @@ public interface DaoAccess {
     @Query("SELECT * FROM BattleModel ORDER BY timestamp")
     LiveData<List<BattleModel>> getAllResult();
 
-    @Delete
-    void deleteResult(BattleModel result);
+    @Query("DELETE FROM BattleModel WHERE battleId = :result")
+    void deleteResult(String result);
 
 
     //------------Offline quize result handling
@@ -107,4 +107,6 @@ public interface DaoAccess {
 
     @Query("SELECT * FROM Result WHERE `action` =:x ORDER BY timestamp")
     LiveData<List<Result>> getAllInvites(int x);
+    @Query("SELECT * FROM Result WHERE `battleId` =:battleIdNew")
+    Result getNewResult(String battleIdNew);
 }

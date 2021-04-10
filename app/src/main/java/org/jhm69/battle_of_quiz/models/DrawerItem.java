@@ -25,6 +25,7 @@ public abstract class DrawerItem<T extends DrawerAdapter.ViewHolder> {
         return this;
     }
 
+    @SuppressWarnings("SameReturnValue")
     public boolean isSelectable() {
         return true;
     }

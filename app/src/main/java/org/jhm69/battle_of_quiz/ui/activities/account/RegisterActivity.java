@@ -20,25 +20,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -67,7 +56,7 @@ public class RegisterActivity extends AppCompatActivity {
     public Uri imageUri = Uri.parse("android.resource://org.jhm69.battle_of_quiz/" + R.drawable.ic_logo);
     public StorageReference storageReference;
     public ProgressDialog mDialog;
-    public String name_, pass_, email_, username_, institute_, dept_, location_;
+    public String name_, pass_, email_, institute_, dept_, location_;
     TextInputLayout deptT;
     private EditText name, email, institute, dept, password;
     private CircleImageView profile_image;
@@ -90,7 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         if (report.isAnyPermissionPermanentlyDenied()) {
-                            // Toasty.info(RegisterActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG, true).show();
+                             Toasty.info(RegisterActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG, true).show();
                         }
                     }
 
@@ -114,7 +103,6 @@ public class RegisterActivity extends AppCompatActivity {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
         askPermission();
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference().child("images");
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -259,83 +247,58 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
+    @SuppressLint("CheckResult")
     private void registerUser() {
-        mAuth.createUserWithEmailAndPassword(email_, pass_).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull final Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    Objects.requireNonNull(task.getResult()
-                            .getUser())
-                            .sendEmailVerification()
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    final String userUid = task.getResult().getUser().getUid();
-                                    final StorageReference user_profile = storageReference.child(userUid + ".png");
-                                    user_profile.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                user_profile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                    @Override
-                                                    public void onSuccess(final Uri uri) {
-                                                        Map<String, Object> userMap = new HashMap<>();
-                                                        userMap.put("id", userUid);
-                                                        userMap.put("name", name_);
-                                                        userMap.put("institute", institute_);
-                                                        userMap.put("dept", dept_);
-                                                        userMap.put("image", uri.toString());
-                                                        userMap.put("email", email_);
-                                                        userMap.put("bio", getString(R.string.default_bio));
-                                                        userMap.put("username", getNickName(name_));
-                                                        userMap.put("location", location_);
-                                                        userMap.put("score", 500);
-                                                        userMap.put("win", 0);
-                                                        userMap.put("lose", 0);
-                                                        userMap.put("draw", 0);
-                                                        userMap.put("type", type);
-                                                        userMap.put("reward", 500);
-                                                        userMap.put("solved", 0);
-                                                        userMap.put("answers", 0);
-                                                        userMap.put("vote", 0);
-                                                        userMap.put("lastTimestamp", System.currentTimeMillis());
-                                                        firebaseFirestore.collection("Users").document(userUid).set(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @SuppressLint("CheckResult")
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                mDialog.dismiss();
-                                                                Toasty.success(getApplicationContext(), "Signing up success!, Check your email to verify.", Toasty.LENGTH_SHORT, true);
-                                                                finish();
-                                                            }
-                                                        });
-                                                    }
-                                                }).addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        mDialog.dismiss();
-                                                    }
-                                                });
+        mAuth.createUserWithEmailAndPassword(email_, pass_).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Objects.requireNonNull(task.getResult()
+                        .getUser())
+                        .sendEmailVerification()
+                        .addOnSuccessListener(aVoid -> {
+                            final String userUid = task.getResult().getUser().getUid();
+                            final StorageReference user_profile = storageReference.child(userUid + ".png");
+                            user_profile.putFile(imageUri).addOnCompleteListener(task1 -> {
+                                if (task1.isSuccessful()) {
+                                    user_profile.getDownloadUrl().addOnSuccessListener(uri -> {
+                                        Map<String, Object> userMap = new HashMap<>();
+                                        userMap.put("id", userUid);
+                                        userMap.put("name", name_);
+                                        userMap.put("institute", institute_);
+                                        userMap.put("dept", dept_);
+                                        userMap.put("image", uri.toString());
+                                        userMap.put("email", email_);
+                                        userMap.put("bio", getString(R.string.default_bio));
+                                        userMap.put("username", getNickName(name_));
+                                        userMap.put("location", location_);
+                                        userMap.put("score", 500);
+                                        userMap.put("win", 0);
+                                        userMap.put("lose", 0);
+                                        userMap.put("draw", 0);
+                                        userMap.put("type", type);
+                                        userMap.put("reward", 500);
+                                        userMap.put("solved", 0);
+                                        userMap.put("answers", 0);
+                                        userMap.put("vote", 0);
+                                        userMap.put("lastTimestamp", System.currentTimeMillis());
+                                        firebaseFirestore.collection("Users").document(userUid).set(userMap).addOnCompleteListener(task11 -> {
+                                            mDialog.dismiss();
+                                            Toasty.success(getApplicationContext(), "Signing up success!, Check your email to verify.", Toasty.LENGTH_SHORT, true);
+                                            finish();
+                                        });
+                                    }).addOnFailureListener(e -> mDialog.dismiss());
 
 
-                                            } else {
-                                                mDialog.dismiss();
-                                            }
-                                        }
-                                    });
-
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    task.getResult().getUser().delete();
+                                } else {
+                                    mDialog.dismiss();
                                 }
                             });
 
-                } else {
-                    mDialog.dismiss();
-                    Toasty.error(RegisterActivity.this, "Error: " + task.getException().getMessage(), Toasty.LENGTH_SHORT, true).show();
-                }
+                        })
+                        .addOnFailureListener(e -> task.getResult().getUser().delete());
+
+            } else {
+                mDialog.dismiss();
+                Toasty.error(RegisterActivity.this, String.format("Error: %s", Objects.requireNonNull(task.getException()).getMessage()), Toasty.LENGTH_SHORT, true).show();
             }
         });
 
@@ -367,11 +330,27 @@ public class RegisterActivity extends AppCompatActivity {
                 profile_image.setImageURI(imageUri);
 
             } else if (resultCode == UCrop.RESULT_ERROR) {
-                Log.e("Error", "Crop error:" + UCrop.getError(data).getMessage());
+                Log.e("Error", "Crop error:" + Objects.requireNonNull(UCrop.getError(data)).getMessage());
             }
         }
 
 
+    }
+
+    public void setProfilepic() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Profile Picture"), PICK_IMAGE);
+    }
+
+    public void onLogin() {
+        onBackPressed();
+    }
+
+    public String getNickName(String fullname_) {
+        String[] arr = fullname_.split(" ", 2);
+        return arr[0];
     }
 
     public void setProfilepic(View view) {
@@ -384,10 +363,4 @@ public class RegisterActivity extends AppCompatActivity {
     public void onLogin(View view) {
         onBackPressed();
     }
-
-    public String getNickName(String fullname_) {
-        String[] arr = fullname_.split(" ", 2);
-        return arr[0];
-    }
-
 }

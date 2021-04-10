@@ -1,6 +1,5 @@
 package org.jhm69.battle_of_quiz.service;
 
-import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -16,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -43,11 +41,6 @@ public class UploadService extends Service {
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
     private static final String TAG_FOREGROUND_SERVICE = UploadService.class.getSimpleName();
     private int count;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -80,11 +73,6 @@ public class UploadService extends Service {
             }
         }
         return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     @Nullable
@@ -365,22 +353,18 @@ public class UploadService extends Service {
                 .document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    int scoreOld = documentSnapshot.getLong("reward").intValue();
+                    int scoreOld = Objects.requireNonNull(documentSnapshot.getLong("reward")).intValue();
                     int newScore = scoreOld + (-3);
                     HashMap<String, Object> scoreMap = new HashMap<>();
                     scoreMap.put("reward", newScore);
                     FirebaseFirestore.getInstance()
                             .collection("Users")
                             .document(userId)
-                            .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @SuppressLint({"CheckResult", "DefaultLocale"})
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            new UserRepository((Application) getApplicationContext()).updateXp(-3);
-                            //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-                            //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
-                        }
-                    });
+                            .update(scoreMap).addOnSuccessListener(aVoid -> {
+                                new UserRepository((Application) getApplicationContext()).updateXp(-3);
+                                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
+                                //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
+                            });
                 });
 
     }

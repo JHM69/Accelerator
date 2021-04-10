@@ -1,4 +1,4 @@
-package org.jhm69.battle_of_quiz.SendNotificationPack;
+package org.jhm69.battle_of_quiz.notification;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -9,7 +9,7 @@ public interface APIService {
     @Headers(
             {
                     "Content-Type:application/json",
-                    "Authorization:key=AAAAf3aI5C4:APA91bEpOnZMs-BO9XiTIz3_RK3T7epSJtxN5Ew8oTFYHU8MccBXI9WQz7_aq833GPda06BHiIZFJttWBuOR6kUAl0pLROPgOmPlPSDTiRvfsIM5AwXhkvEptbfVe-6qPjkx490dTxmN"
+                    "Authorization:key=AAAAcDvvQik:APA91bEZQY_fjBThPHDPzfDcmh6opOQ6syB6hj4Gh7ZVJjW15PKkAJc48X7l5PZK55XTmX3-IOoQSBm-krGrx2ke6GkA3wQrM1zyLLvL7t6pBg6dRHDX7NR1raLRTr2ZwmmxRgfVa5w0"
             }
     )
 

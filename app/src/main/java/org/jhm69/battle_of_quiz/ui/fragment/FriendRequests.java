@@ -16,12 +16,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.adapters.FriendRequestAdapter;
@@ -49,50 +46,44 @@ public class FriendRequests extends Fragment {
         requestList.clear();
         requestAdapter.notifyDataSetChanged();
 
-        getView().findViewById(R.id.default_item).setVisibility(View.GONE);
+        Objects.requireNonNull(getView()).findViewById(R.id.default_item).setVisibility(View.GONE);
         refreshLayout.setRefreshing(true);
 
         mFirestore.collection("Users")
                 .document(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())
                 .collection("Friend_Requests")
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                .addOnSuccessListener(queryDocumentSnapshots -> {
 
-                        if (!queryDocumentSnapshots.isEmpty()) {
+                    if (!queryDocumentSnapshots.isEmpty()) {
 
-                            for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
 
-                                if (doc.getType() == DocumentChange.Type.ADDED) {
-                                    FriendRequest friendRequest = doc.getDocument().toObject(FriendRequest.class).withId(doc.getDocument().getId());
-                                    requestList.add(friendRequest);
-                                    requestAdapter.notifyDataSetChanged();
-                                    refreshLayout.setRefreshing(false);
-                                }
-
-                            }
-
-                            if (requestList.isEmpty()) {
+                            if (doc.getType() == DocumentChange.Type.ADDED) {
+                                FriendRequest friendRequest = doc.getDocument().toObject(FriendRequest.class).withId(doc.getDocument().getId());
+                                requestList.add(friendRequest);
+                                requestAdapter.notifyDataSetChanged();
                                 refreshLayout.setRefreshing(false);
-                                getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
                             }
 
-                        } else {
+                        }
+
+                        if (requestList.isEmpty()) {
                             refreshLayout.setRefreshing(false);
                             getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
                         }
 
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                    } else {
                         refreshLayout.setRefreshing(false);
-                        Toast.makeText(getView().getContext(), "Some error occurred", Toast.LENGTH_SHORT).show();
-                        Log.w("Error", "listen:error", e);
-
+                        getView().findViewById(R.id.default_item).setVisibility(View.VISIBLE);
                     }
+
+                })
+                .addOnFailureListener(e -> {
+                    refreshLayout.setRefreshing(false);
+                    Toast.makeText(getView().getContext(), "Some error occurred", Toast.LENGTH_SHORT).show();
+                    Log.w("Error", "listen:error", e);
+
                 });
     }
 
@@ -103,7 +94,7 @@ public class FriendRequests extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         mFirestore = FirebaseFirestore.getInstance();

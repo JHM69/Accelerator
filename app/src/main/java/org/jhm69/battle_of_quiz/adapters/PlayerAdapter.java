@@ -68,13 +68,10 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
                 .load(usersList.get(position).getImage())
                 .into(holder.image);
         final String userid = usersList.get(position).getId();
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent goBattle = new Intent(context, SelectTopic.class);
-                goBattle.putExtra("otherUid", userid);
-                context.startActivity(goBattle);
-            }
+        holder.mView.setOnClickListener(view -> {
+            Intent goBattle = new Intent(context, SelectTopic.class);
+            goBattle.putExtra("otherUid", userid);
+            context.startActivity(goBattle);
         });
     }
 
@@ -107,10 +104,13 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public View mView;
-        public CircleImageView image;
-        public TextView name, institute, level, rank;
-        public ConstraintLayout back;
+        public final View mView;
+        public final CircleImageView image;
+        public final TextView name;
+        public final TextView institute;
+        public final TextView level;
+        public final TextView rank;
+        public final ConstraintLayout back;
 
         public ViewHolder(View itemView) {
             super(itemView);

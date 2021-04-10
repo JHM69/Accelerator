@@ -37,7 +37,7 @@ public class SearchFriendAdapter extends RecyclerView.Adapter<SearchFriendAdapte
     private final Context context;
     int lastPosition = -1;
 
-    public SearchFriendAdapter(List<Friends> usersList, Context context, View view) {
+    public SearchFriendAdapter(List<Friends> usersList, Context context) {
         this.usersList = usersList;
         this.context = context;
     }
@@ -71,7 +71,7 @@ public class SearchFriendAdapter extends RecyclerView.Adapter<SearchFriendAdapte
                     .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
                     .load(usersList.get(position).getImage())
                     .into(holder.image);
-        } catch (NullPointerException buzdiuc) {
+        } catch (NullPointerException ignored) {
 
         }
         holder.mView.setOnClickListener(view -> FriendProfile.startActivity(context, usersList.get(holder.getAdapterPosition()).getId()));
@@ -149,9 +149,11 @@ public class SearchFriendAdapter extends RecyclerView.Adapter<SearchFriendAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public CircleImageView image;
-        View mView;
-        TextView name, username, levelTv;
+        public final CircleImageView image;
+        final View mView;
+        final TextView name;
+        final TextView username;
+        final TextView levelTv;
         ImageView friend_icon;
 
         ViewHolder(View itemView) {

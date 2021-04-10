@@ -52,7 +52,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/image_holder"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/post_desc" />
+            app:layout_constraintTop_toTopOf="@+id/post_desc"
+            tools:ignore="ContentDescription" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/top"
@@ -106,7 +107,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/post_timestamp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="#989898" />
+                app:tint="#989898"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/post_timestamp"

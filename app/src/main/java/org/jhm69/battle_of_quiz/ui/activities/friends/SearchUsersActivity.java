@@ -11,10 +11,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -26,20 +28,25 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.adapters.PostPhotosAdapter;
+import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
 import org.jhm69.battle_of_quiz.adapters.searchFriends.SearchFriendAdapter;
 import org.jhm69.battle_of_quiz.models.Friends;
+import org.jhm69.battle_of_quiz.models.Post;
+import org.jhm69.battle_of_quiz.ui.fragment.SavedFragment;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
@@ -52,6 +59,14 @@ public class SearchUsersActivity extends AppCompatActivity {
     private SearchFriendAdapter usersAdapter;
     private ListenerRegistration mRegistration;
     private ProgressDialog dialog;
+    private String searchTextData;
+    String tag="User";
+    RecyclerView mRecyclerView;
+    SearchUsersActivity.PostPhotosAdapter postPhotosAdapter;
+    private View statsheetView;
+    private BottomSheetDialog mmBottomSheetDialog;
+    private List<Post> posts;
+    private PostViewHolder postViewHolder;
 
     public static void startActivity(Activity activity, Context context, View view) {
         Intent intent = new Intent(context, SearchUsersActivity.class);
@@ -99,7 +114,7 @@ public class SearchUsersActivity extends AppCompatActivity {
         return super.onSupportNavigateUp();
     }
 
-    private void startListening(String searchQuery) {
+    private void startListeningUser(String searchQuery) {
         dialog = new ProgressDialog(this);
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
@@ -107,33 +122,56 @@ public class SearchUsersActivity extends AppCompatActivity {
         dialog.show();
         usersList.clear();
         Query mQuery = mFirestore.collection("Users");
-        mQuery.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot documentSnapshots) {
-                for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
-                    final String docId = doc.getDocument().getId();
-                    if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
-                        mFirestore.collection("Users").document(docId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (Objects.requireNonNull(documentSnapshot.getString("name")).toLowerCase().contains(searchQuery.toLowerCase())) {
-                                    Friends friends = documentSnapshot.toObject(Friends.class);
-                                    usersList.add(friends);
-                                    usersAdapter.notifyDataSetChanged();
-                                } else {
-                                    Toasty.error(getApplicationContext(), "No Result Found", R.drawable.ic_error_outline_white_24dp).show();
-                                }
-                                dialog.dismiss();
-                            }
-                        });
+        mQuery.get().addOnSuccessListener(documentSnapshots -> {
+            for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                final String docId = doc.getDocument().getId();
+                if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
+                    mFirestore.collection("Users").document(docId).get().addOnSuccessListener(documentSnapshot -> {
+                        if (Objects.requireNonNull(documentSnapshot.getString("name")).toLowerCase().contains(searchQuery.toLowerCase())) {
+                            Friends friends = documentSnapshot.toObject(Friends.class);
+                            usersList.add(friends);
+                            usersAdapter.notifyDataSetChanged();
+                        } else {
+                            Toasty.error(getApplicationContext(), "No Result Found", R.drawable.ic_error_outline_white_24dp).show();
+                        }
+                        dialog.dismiss();
+                    });
 
-                    }
                 }
-                dialog.dismiss();
             }
+            dialog.dismiss();
         });
     }
+    private void startListeningPost(String searchQuery) {
+        dialog = new ProgressDialog(this);
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setMessage("Searching Post....");
+        dialog.show();
+        usersList.clear();
+        Query mQuery = mFirestore.collection("Posts");
+        mQuery.get().addOnSuccessListener(documentSnapshots -> {
+            for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                final String docId = doc.getDocument().getId();
+                if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
+                    mFirestore.collection("Posts").document(docId).get().addOnSuccessListener(documentSnapshot -> {
+                        if (Objects.requireNonNull(documentSnapshot.getString("description")).toLowerCase().contains(searchQuery.toLowerCase())) {
+                            Post post = documentSnapshot.toObject(Post.class);
+                            posts.add(post);
+                            postPhotosAdapter.postListNow = posts;
+                            mRecyclerView.setAdapter(postPhotosAdapter);
+                            postPhotosAdapter.notifyDataSetChanged();
+                        } else {
+                            Toasty.error(getApplicationContext(), "No Post Found", R.drawable.ic_error_outline_white_24dp).show();
+                        }
+                        dialog.dismiss();
+                    });
 
+                }
+            }
+            dialog.dismiss();
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +187,7 @@ public class SearchUsersActivity extends AppCompatActivity {
 
         // getActionBar().setHomeButtonEnabled(true);
         // getActionBar().setDisplayHomeAsUpEnabled(true);
+
         Objects.requireNonNull(getSupportActionBar()).setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -157,15 +196,34 @@ public class SearchUsersActivity extends AppCompatActivity {
             getWindow().setNavigationBarColor(Color.parseColor("#212121"));
         }
 
-        RecyclerView mRecyclerView = findViewById(R.id.usersList);
+        mRecyclerView = findViewById(R.id.usersList);
         //  searchText = findViewById(R.id.searchText);
-
+        postPhotosAdapter = new SearchUsersActivity.PostPhotosAdapter(posts);
         mAuth = FirebaseAuth.getInstance();
         mFirestore = FirebaseFirestore.getInstance();
         // fab = findViewById(R.id.search_button);
         usersList = new ArrayList<>();
-        usersAdapter = new SearchFriendAdapter(usersList, this, findViewById(R.id.layout));
+        posts = new ArrayList<>();
+        usersAdapter = new SearchFriendAdapter(usersList, this);
+        statsheetView = SearchUsersActivity.this.getLayoutInflater().inflate(R.layout.stat_bottom_sheet_dialog, null);
+        mmBottomSheetDialog = new BottomSheetDialog(getApplicationContext());
+        mmBottomSheetDialog.setContentView(statsheetView);
+        mmBottomSheetDialog.setCanceledOnTouchOutside(true);
 
+        ChipGroup chipGroup = findViewById(R.id.filter_chip_SS_group);
+        chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            try {
+                Chip c = findViewById(checkedId);
+                tag = c.getText().toString();
+                if(tag.equals("Post")){
+                    startListeningPost(searchTextData);
+                }else{
+                    startListeningUser(searchTextData);
+                }
+            } catch (NullPointerException ignored) {
+
+            }
+        });
 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -202,8 +260,8 @@ public class SearchUsersActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_notifications, menu);
         MenuItem search_data = menu.findItem(R.id.action_search);
-//        search_data.expandActionView();
-//        search_data.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+        search_data.expandActionView();
+        search_data.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
         SearchView searchView = (SearchView) search_data.getActionView();
         searchView.setSubmitButtonEnabled(true);
         searchView.setMaxWidth(Integer.MAX_VALUE);
@@ -212,10 +270,17 @@ public class SearchUsersActivity extends AppCompatActivity {
         searchEditText.setTextColor(getResources().getColor(R.color.white));
         searchEditText.setHintTextColor(getResources().getColor(R.color.white));
         searchView.setVisibility(View.VISIBLE);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                startListening(query);
+                searchTextData = query;
+                if(tag.equals("Post")){
+                    startListeningPost(searchTextData);
+                }else{
+                    startListeningUser(searchTextData);
+                }
+
                 return false;
             }
 
@@ -226,5 +291,32 @@ public class SearchUsersActivity extends AppCompatActivity {
         });
         return super.onCreateOptionsMenu(menu);
     }
+    class PostPhotosAdapter extends RecyclerView.Adapter<PostViewHolder> {
+        private List<Post> postListNow;
+        public PostPhotosAdapter(List<Post> post) {
+            this.postListNow = post;
+        }
 
+        @NonNull
+        @Override
+        public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = getLayoutInflater().inflate(R.layout.item_feed_post, parent, false);
+            return new PostViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
+            try {
+                Post post1 = postListNow.get(position);
+                holder.bind(post1, holder, position, mmBottomSheetDialog, statsheetView, true);
+            } catch (IndexOutOfBoundsException ignored) {
+
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return posts.size();
+        }
+    }
 }

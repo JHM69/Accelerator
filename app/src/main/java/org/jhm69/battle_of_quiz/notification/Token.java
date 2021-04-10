@@ -1,4 +1,4 @@
-package org.jhm69.battle_of_quiz.SendNotificationPack;
+package org.jhm69.battle_of_quiz.notification;
 
 public class Token {
     private String token;

@@ -20,7 +20,7 @@ import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 public class UserRepository {
     private final Executor executor = Executors.newSingleThreadExecutor();
     private final DaoAccess resultDao;
-    QuizResultDatabase database;
+    final QuizResultDatabase database;
 
     public UserRepository(Application application) {
         database = QuizResultDatabase.getInstance(application);

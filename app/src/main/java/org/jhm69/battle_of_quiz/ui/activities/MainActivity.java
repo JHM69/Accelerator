@@ -5,14 +5,12 @@ import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,7 +22,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,12 +29,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -49,12 +43,11 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
@@ -69,22 +62,20 @@ import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.SendNotificationPack.Token;
+import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.adapters.DrawerAdapter;
 import org.jhm69.battle_of_quiz.models.DrawerItem;
 import org.jhm69.battle_of_quiz.models.SimpleItem;
-import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.ui.activities.account.EditProfile;
 import org.jhm69.battle_of_quiz.ui.activities.account.LoginActivity;
 import org.jhm69.battle_of_quiz.ui.activities.friends.SearchUsersActivity;
+import org.jhm69.battle_of_quiz.ui.activities.post.SinglePostView;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.Ranking;
 import org.jhm69.battle_of_quiz.ui.fragment.Dashboard;
 import org.jhm69.battle_of_quiz.ui.fragment.FriendsFragment;
 import org.jhm69.battle_of_quiz.ui.fragment.ProfileFragment;
 import org.jhm69.battle_of_quiz.ui.fragment.SavedFragment;
 import org.jhm69.battle_of_quiz.ui.fragment.admin.AdminFragment;
-import org.jhm69.battle_of_quiz.utils.Config;
-import org.jhm69.battle_of_quiz.viewmodel.ResultViewModel;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
 import java.util.Arrays;
@@ -107,9 +98,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int RANKING = 1;
     private static final int POS_FRIENDS = 2;
     private static final int SAVED_POST = 3;
-    //private static final int POS_SHARE = 4;
-    private static final int POS_LOGOUT = 4;
-    private static final int ADMIN = 5;
+    private static final int ABOUT_APP = 4;
+    private static final int POS_LOGOUT = 5;
+    private static final int ADMIN = 6;
     public static String userId;
     @SuppressLint({"StaticFieldLeak", "NewApi"})
     private final Set<String> ADMIN_UID_LIST = Set.of(
@@ -118,11 +109,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     public TextView username;
     public TextView rewardTv;
     public Fragment mCurrentFragment;
-    Toolbar mainToolbar;
-    DrawerAdapter adapter;
-    String edit = "d";
-    ResultViewModel resultViewModel;
-    UserViewModel userViewModel;
+    private Toolbar mainToolbar;
+    private DrawerAdapter adapter;
+    private String edit = "d";
+    private UserViewModel userViewModel;
     private FirebaseUser currentuser;
     private CircleImageView imageView;
     private String[] screenTitles;
@@ -152,20 +142,16 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         try {
                             String refreshToken = FirebaseInstanceId.getInstance().getToken();
                             Token token = new Token(refreshToken);
-                            FirebaseDatabase.getInstance().getReference("Tokens").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(token);
+                            FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
                             long timestamp = System.currentTimeMillis();
                             HashMap<String, Object> scoreMap = new HashMap<>();
                             scoreMap.put("lastTimestamp", timestamp);
                             FirebaseFirestore.getInstance()
                                     .collection("Users")
                                     .document(userId)
-                                    .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @SuppressLint("CheckResult")
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                }
-                            });
-                        } catch (NullPointerException j) {
+                                    .update(scoreMap).addOnSuccessListener(aVoid -> {
+                                    });
+                        } catch (NullPointerException ignored) {
 
                         }
                     }
@@ -190,13 +176,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                     FirebaseFirestore.getInstance()
                             .collection("Users")
                             .document(currentuser.getUid())
-                            .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @SuppressLint({"CheckResult", "DefaultLocale"})
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            userViewModel.updateXp(5);
-                        }
-                    });
+                            .update(scoreMap).addOnSuccessListener(aVoid -> userViewModel.updateXp(5));
                 });
     }
 
@@ -251,15 +231,13 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 if (edit.equals("sss")) {
                     startActivity(new Intent(getApplicationContext(), EditProfile.class));
                 }
-            } catch (NullPointerException h) {
+            } catch (NullPointerException ignored) {
             }
-            if (currentuser != null) {
-
-            } else {
+            if (currentuser == null) {
                 LoginActivity.startActivityy(this);
                 finish();
             }
-        } catch (IllegalArgumentException hg) {
+        } catch (Exception ignored) {
 
         }
     }
@@ -281,8 +259,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         edit = getIntent().getStringExtra("sss");
         mainToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(mainToolbar);
-        resultViewModel = ViewModelProviders.of(this)
-                .get(ResultViewModel.class);
         userViewModel = ViewModelProviders.of(this)
                 .get(UserViewModel.class);
         updateStatus();
@@ -298,21 +274,15 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         mAuth = FirebaseAuth.getInstance();
         currentuser = mAuth.getCurrentUser();
 
-        MobileAds.initialize(this, initializationStatus -> {
-        });
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Config.createNotificationChannels(this);
-        }
         mCurrentFragment = new Dashboard();
         if (currentuser == null) {
             LoginActivity.startActivityy(this);
             finish();
         } else {
             setUserProfile();
-            MobileAds.initialize(getApplicationContext(),
-                    "ca-app-pub-3940256099942544~3347511713");
-
+            MobileAds.initialize(this, initializationStatus -> {
+            });
             rewardedAd = new RewardedAd(getApplicationContext(),
                     "ca-app-pub-3940256099942544/5224354917");
 
@@ -329,10 +299,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             };
             rewardedAd.loadAd(new AdRequest.Builder().build(), adLoadCallback);
             FirebaseInstanceId.getInstance().getInstanceId()
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                        }
-                    });
+                    .addOnCompleteListener(Task::isSuccessful);
         }
         askPermission();
         userId = currentuser.getUid();
@@ -353,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         createItemFor(RANKING),
                         createItemFor(POS_FRIENDS),
                         createItemFor(SAVED_POST),
+                        createItemFor(ABOUT_APP),
                         createItemFor(POS_LOGOUT),
                         createItemFor(ADMIN)));
             } else {
@@ -361,6 +329,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         createItemFor(RANKING),
                         createItemFor(POS_FRIENDS),
                         createItemFor(SAVED_POST),
+                        createItemFor(ABOUT_APP),
                         createItemFor(POS_LOGOUT)));
             }
             adapter.setListener(MainActivity.this);
@@ -384,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        //Toasty.info(MainActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG,true).show();
+                        Toasty.info(MainActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG,true).show();
                     }
 
                     @Override
@@ -400,33 +369,24 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         FirebaseFirestore.getInstance()
                 .collection("Users")
                 .document(currentuser.getUid())
-                .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @SuppressLint("CheckResult")
-            @Override
-            public void onSuccess(Void aVoid) {
-            }
-        });
+                .update(scoreMap).addOnSuccessListener(aVoid -> {
+                });
         final ProgressDialog mDialog = new ProgressDialog(this);
         mDialog.setIndeterminate(true);
         mDialog.setMessage("Logging you out...");
         mDialog.setCancelable(false);
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.show();
-        SharedPreferences pref = getApplicationContext().getSharedPreferences(Config.SHARED_PREF, MODE_PRIVATE);
 
         Map<String, Object> tokenRemove = new HashMap<>();
-        tokenRemove.put("token_ids", FieldValue.arrayRemove(pref.getString("regId", "")));
 
-        firestore.collection("Users").document(userId).update(tokenRemove).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                userViewModel.delete();
-                Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).delete();
-                mAuth.signOut();
-                LoginActivity.startActivityy(MainActivity.this);
-                mDialog.dismiss();
-                finish();
-            }
+        firestore.collection("Users").document(userId).update(tokenRemove).addOnSuccessListener(aVoid -> {
+            userViewModel.delete();
+            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).delete();
+            mAuth.signOut();
+            LoginActivity.startActivityy(MainActivity.this);
+            mDialog.dismiss();
+            finish();
         }).addOnFailureListener(e -> {
             Toasty.error(MainActivity.this, "Error logging out", Toasty.LENGTH_SHORT, true).show();
             mDialog.dismiss();
@@ -438,56 +398,53 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     @SuppressLint("SetTextI18n")
     private void setUserProfile() {
         try {
-            userViewModel.user.observe(this, new Observer<Users>() {
-                @Override
-                public void onChanged(Users me) {
-                    if (me == null) {
-                        Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show();
-                        FirebaseAuth.getInstance().signOut();
-                        finish();
-                    }
-                    Log.d("iddr", userId);
-                    username = findViewById(R.id.username);
-                    imageView = findViewById(R.id.profile_image);
-                    rewardTv = findViewById(R.id.reaward);
-                    String nam = Objects.requireNonNull(me).getName(), imag = me.getImage();
-                    Button add = findViewById(R.id.button4);
-                    add.setOnClickListener(view -> loadAd());
-                    username.setText(nam);
-                    Glide.with(MainActivity.this)
-                            .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
-                            .load(imag)
-                            .into(imageView);
-                    Log.d("Reward", String.valueOf(me.getReward()));
-                    rewardTv.setText(me.getReward() + " xp");
-
-
-
-       /* darkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    Intent intent = getIntent();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            userViewModel.user.observe(this, me -> {
+                if (me == null) {
+                    Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show();
+                    FirebaseAuth.getInstance().signOut();
                     finish();
-                    startActivity(intent);
-
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    Intent intent = getIntent();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    finish();
-                    startActivity(intent);
                 }
+                Log.d("iddr", userId);
+                username = findViewById(R.id.username);
+                imageView = findViewById(R.id.profile_image);
+                rewardTv = findViewById(R.id.reaward);
+                String nam = Objects.requireNonNull(me).getName(), imag = me.getImage();
+                Button add = findViewById(R.id.button4);
+                add.setOnClickListener(view -> loadAd());
+                username.setText(nam);
+                Glide.with(MainActivity.this)
+                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                        .load(imag)
+                        .into(imageView);
+                Log.d("Reward", String.valueOf(me.getReward()));
+                rewardTv.setText(me.getReward() + " xp");
+
+
+
+   /* darkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                Intent intent = getIntent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                finish();
+                startActivity(intent);
+
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                Intent intent = getIntent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                finish();
+                startActivity(intent);
             }
-        });*/
+        }
+    });*/
 
-                }
             });
 
 
-        } catch (Exception g) {
+        } catch (Exception ignored) {
 
         }
     }
@@ -522,11 +479,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     @ColorInt
     private int color() {
         return ContextCompat.getColor(this, R.color.colorAccentt);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @SuppressLint("CheckResult")
@@ -570,6 +522,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 slidingRootNav.closeMenu(true);
                 return;
 
+            case ABOUT_APP:
+                startActivity(new Intent(getApplicationContext(), SinglePostView.class).putExtra("post_id", "about_app"));
+                return;
+
           /*  case POS_SHARE:
                 try {
                     doSocialShare("Share to get 20 XP", "Check out Battle of Quiz! Prove your skills by taking part in one to one battle of knowledge!", "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID);
@@ -585,32 +541,19 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                             .title("Logout")
                             .content("Are you sure do you want to logout from this account?")
                             .positiveText("Yes")
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            .onPositive((dialog, which) -> {
 
-                                    logout();
-                                    dialog.dismiss();
-                                }
+                                logout();
+                                dialog.dismiss();
                             }).negativeText("No")
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    dialog.dismiss();
-                                }
-                            }).show();
+                            .onNegative((dialog, which) -> dialog.dismiss()).show();
                 } else {
 
                     new MaterialDialog.Builder(this)
                             .title("Logout")
                             .content("A error occurred while logging you out, Check your network connection and try again.")
                             .positiveText("Done")
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                    dialog.dismiss();
-                                }
-                            }).show();
+                            .onPositive((dialog, which) -> dialog.dismiss()).show();
 
                 }
 
@@ -662,14 +605,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                             Map<String, Object> map = new HashMap<>();
                             map.put("image", uri.toString());
                             userDocument.update(map)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            userViewModel.updateUserImage(uri.toString());
-                                            // userHelper.updateContactImage(1, uri.toString());
-                                            Toasty.success(getApplicationContext(), "Successfully changed Profile image", Toasty.LENGTH_LONG, true).show();
-                                            Log.i("Update", "success");
-                                        }
+                                    .addOnSuccessListener(aVoid -> {
+                                        userViewModel.updateUserImage(uri.toString());
+                                        // userHelper.updateContactImage(1, uri.toString());
+                                        Toasty.success(getApplicationContext(), "Successfully changed Profile image", Toasty.LENGTH_LONG, true).show();
+                                        Log.i("Update", "success");
                                     })
                                     .addOnFailureListener(e -> Log.i("Update", "failed: " + e.getMessage()));
                         }).addOnFailureListener(e -> Log.e("Error", "listen", e));
@@ -707,9 +647,4 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     }
 
 
-    @Override
-    protected void onResumeFragments() {
-        super.onResumeFragments();
-        // handleIntent();
-    }
 }

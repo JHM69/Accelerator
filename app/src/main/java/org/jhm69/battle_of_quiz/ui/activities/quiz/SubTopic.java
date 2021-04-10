@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SubTopic extends AppCompatActivity {
-    List<SubTopicModel> subTopics = new ArrayList<SubTopicModel>();
+    final List<SubTopicModel> subTopics = new ArrayList<>();
     String topic, otherUid, type;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;

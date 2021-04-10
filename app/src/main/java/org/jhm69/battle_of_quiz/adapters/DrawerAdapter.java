@@ -17,6 +17,7 @@ import java.util.Map;
  * Created by jhm69
  */
 
+@SuppressWarnings("ConstantConditions")
 public class DrawerAdapter extends RecyclerView.Adapter<DrawerAdapter.ViewHolder> {
 
     private final List<DrawerItem> items;

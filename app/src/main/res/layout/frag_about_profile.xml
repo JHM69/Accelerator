@@ -113,7 +113,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_forum_black_24dp"
-            tools:ignore="KeyboardInaccessibleWidget" />
+            tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
 
         <ImageView
             android:id="@+id/playBtn"
@@ -272,7 +272,7 @@
                         android:id="@+id/posts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/posts_icon"
+                        android:drawableStart="@drawable/ic_notes_black_24dp"
                         android:drawableTint="@color/colorAccentt"
                         android:fontFamily="@font/regular"
                         android:gravity="center|center_vertical"
@@ -346,7 +346,7 @@
                         android:gravity="center"
                         android:orientation="horizontal"
                         android:padding="5dp"
-                        tools:ignore="UseCompoundDrawables"
+                        tools:ignore="UnusedAttribute,UseCompoundDrawables"
                         tools:targetApi="m">
 
                         <ImageView
@@ -355,7 +355,8 @@
                             android:layout_gravity="center"
                             android:backgroundTint="@color/colorAccentt"
                             android:src="@drawable/ic_baseline_assessment_24"
-                            app:tint="@color/colorAccentt" />
+                            app:tint="@color/colorAccentt"
+                            tools:ignore="ContentDescription" />
 
                         <TextView
                             android:id="@+id/levelJ"
@@ -380,7 +381,7 @@
                         android:gravity="center"
                         android:orientation="horizontal"
                         android:padding="5dp"
-                        tools:ignore="UseCompoundDrawables"
+                        tools:ignore="UnusedAttribute,UseCompoundDrawables"
                         tools:targetApi="m">
 
                         <ImageView
@@ -389,7 +390,8 @@
                             android:layout_gravity="center"
                             android:backgroundTint="@color/colorAccentt"
                             android:src="@drawable/ic_flash_on_black_24dp"
-                            app:tint="@color/colorAccentt" />
+                            app:tint="@color/colorAccentt"
+                            tools:ignore="ContentDescription" />
 
                         <TextView
                             android:id="@+id/scoreJ"

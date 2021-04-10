@@ -101,8 +101,7 @@ public class RichEditor extends WebView {
                 types.add(type);
             }
         }
-        file:
-///android_asset/prettify/prettify.js
+        ///android_asset/prettify/prettify.js
         if (mDecorationStateListener != null) {
             mDecorationStateListener.onStateChangeListener(state, types);
         }
@@ -379,12 +378,7 @@ public class RichEditor extends WebView {
         if (isReady) {
             load(trigger);
         } else {
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    exec(trigger);
-                }
-            }, 100);
+            postDelayed(() -> exec(trigger), 100);
         }
     }
 

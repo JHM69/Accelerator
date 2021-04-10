@@ -9,6 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jhm69.battle_of_quiz.R;
@@ -21,7 +22,7 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder
     private final List<String> topicNameList;
     private final String otherUid;
     private final String type;
-    Context context;
+    final Context context;
     int lastPosition = -1;
 
     public TopicAdapter(List<String> topicNameList, Context context, String otherUid, String type) {
@@ -31,6 +32,7 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder
         this.context = context;
     }
 
+    @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_topic, viewGroup, false);
@@ -65,7 +67,7 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder
 
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTV;
+        final TextView nameTV;
 
         public MyViewHolder(View itemView) {
             super(itemView);

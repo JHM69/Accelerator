@@ -76,7 +76,6 @@ public class MathView extends WebView {
         this.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
 
-        this.setWebChromeClient(this);
         settings.setJavaScriptEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setBuiltInZoomControls(false);
@@ -86,9 +85,7 @@ public class MathView extends WebView {
         Log.d(TAG, "Zoom in controls:" + false);
     }
 
-    private void setWebChromeClient(MathView mathView) {
 
-    }
 
 
     public void setDisplayText(String formula_text) {
@@ -181,7 +178,7 @@ public class MathView extends WebView {
         this.invalidate();
     }
 
-    @SuppressLint("NewApi")
+    @SuppressLint({"NewApi", "ClickableViewAccessibility"})
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (this.clickable && event.getAction() == MotionEvent.ACTION_DOWN) {

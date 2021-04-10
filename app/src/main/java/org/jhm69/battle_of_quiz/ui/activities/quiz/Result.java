@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
+@SuppressWarnings("NotNullFieldNotInitialized")
 @Entity
 public class Result implements Serializable {
     @PrimaryKey

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?colorPrimaryDark"
+    app:layoutDescription="@xml/activity_search_users_scene"
     tools:context="org.jhm69.battle_of_quiz.ui.activities.friends.SearchUsersActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -18,10 +18,10 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            app:popupTheme="@style/AppTheme"
-            app:theme="@style/ToolbarColoredBackArrow"
             android:layout_height="wrap_content"
             android:background="@color/colorAccentt"
+            app:popupTheme="@style/AppTheme"
+            app:theme="@style/ToolbarColoredBackArrow"
             app:title="Search Quizzers"
             app:titleTextColor="@color/white" />
 
@@ -31,10 +31,11 @@
         android:id="@+id/layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchLayout">
+        app:layout_constraintTop_toBottomOf="@+id/textView2">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/usersList"
@@ -43,17 +44,48 @@
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/searchLayout"
+    <HorizontalScrollView
+        android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/colorAccentt"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="0dp"
-        app:cardMaxElevation="15dp"
+        android:fontFamily="@font/regular"
+        android:scrollbars="none"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbar" />
+        app:layout_constraintTop_toBottomOf="@+id/appbar">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/filter_chip_SS_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginStart="10dp"
+                android:checked="true"
+                android:text="User"
+                app:checkedIconTint="#121212"
+                tools:ignore="HardcodedText" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginEnd="10dp"
+                android:text="Post"
+                tools:ignore="HardcodedText" />
+
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+
+</androidx.constraintlayout.motion.widget.MotionLayout>

@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -15,7 +14,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,18 +29,14 @@ import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
 import org.jhm69.battle_of_quiz.models.Post;
-import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.ui.activities.account.EditProfile;
 import org.jhm69.battle_of_quiz.ui.activities.notification.ImagePreviewSave;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
@@ -70,33 +64,26 @@ public class ProfileFragment extends Fragment {
         return inflater.inflate(R.layout.frag_profile_view, container, false);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadFragment(new AboutFragment());
         BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_nav);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (item.getItemId() == action_edit) {
-                    startActivity(new Intent(getActivity(), EditProfile.class));
-                } else {
-                    loadFragment(new AboutFragment());
-                }
-                return true;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            if (item.getItemId() == action_edit) {
+                startActivity(new Intent(getActivity(), EditProfile.class));
+            } else {
+                loadFragment(new AboutFragment());
             }
+            return true;
         });
 
-        bottomNavigationView.setOnNavigationItemReselectedListener(new BottomNavigationView.OnNavigationItemReselectedListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public void onNavigationItemReselected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.action_profile:
-                    case action_edit:
-                        break;
-                }
+        bottomNavigationView.setOnNavigationItemReselectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.action_profile:
+                case action_edit:
+                    break;
             }
         });
 
@@ -112,6 +99,7 @@ public class ProfileFragment extends Fragment {
     }
 
 
+    @SuppressWarnings("StatementWithEmptyBody")
     public static class AboutFragment extends Fragment {
         private TextView post;
         private TextView friend;
@@ -123,7 +111,7 @@ public class ProfileFragment extends Fragment {
         private BottomSheetDialog mmBottomSheetDialog;
 
 
-        @SuppressLint("SetTextI18n")
+        @SuppressLint({"SetTextI18n", "InflateParams"})
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -141,7 +129,7 @@ public class ProfileFragment extends Fragment {
             TextView bio = rootView.findViewById(R.id.bio);
             scoreTv = rootView.findViewById(R.id.scoreJ);
             statsheetView = getActivity().getLayoutInflater().inflate(R.layout.stat_bottom_sheet_dialog, null);
-            mmBottomSheetDialog = new BottomSheetDialog(getContext());
+            mmBottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()));
             mmBottomSheetDialog.setContentView(statsheetView);
             mmBottomSheetDialog.setCanceledOnTouchOutside(true);
 
@@ -155,53 +143,37 @@ public class ProfileFragment extends Fragment {
             pieChart = rootView.findViewById(R.id.pieChart);
             pieChart.setNoDataText("");
             mFirestore.collection("Users")
-                    .document(mAuth.getCurrentUser().getUid())
+                    .document(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())
                     .collection("Friends")
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot documentSnapshots) {
-                            //Total Friends
-                            friend.setText(String.format(Locale.ENGLISH, "Total Friends : %d", documentSnapshots.size()));
-                        }
+                    .addOnSuccessListener(documentSnapshots -> {
+                        //Total Friends
+                        friend.setText(String.format(Locale.ENGLISH, "Total Friends : %d", documentSnapshots.size()));
                     });
             try {
-                profileView.user.observe(getViewLifecycleOwner(), new Observer<Users>() {
-                    @Override
-                    public void onChanged(Users users) {
-                        name.setText(users.getName());
-                        instituteTV.setText(users.getInstitute());
-                        email.setText(users.getEmail());
-                        location.setText(users.getLocation());
-                        bio.setText(users.getBio());
-                        scoreTv.setText(String.valueOf(users.getScore()));
-                        setUpChartData(pieChart, users.getWin(), users.getLose(), users.getDraw());
-                        Glide.with(rootView.getContext())
-                                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
-                                .load(users.getImage())
-                                .into(profile_pic);
-                        profile_pic.setOnLongClickListener(new View.OnLongClickListener() {
-                            @Override
-                            public boolean onLongClick(View v) {
-                                rootView.getContext().startActivity(new Intent(rootView.getContext(), ImagePreviewSave.class)
-                                        .putExtra("url", users.getImage()));
-                                return false;
-                            }
-                        });
-                    }
+                profileView.user.observe(getViewLifecycleOwner(), users -> {
+                    name.setText(users.getName());
+                    instituteTV.setText(users.getInstitute());
+                    email.setText(users.getEmail());
+                    location.setText(users.getLocation());
+                    bio.setText(users.getBio());
+                    scoreTv.setText(String.valueOf(users.getScore()));
+                    setUpChartData(pieChart, users.getWin(), users.getLose(), users.getDraw());
+                    Glide.with(rootView.getContext())
+                            .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                            .load(users.getImage())
+                            .into(profile_pic);
+                    profile_pic.setOnLongClickListener(v -> {
+                        rootView.getContext().startActivity(new Intent(rootView.getContext(), ImagePreviewSave.class)
+                                .putExtra("url", users.getImage()));
+                        return false;
+                    });
                 });
                 FirebaseFirestore.getInstance().collection("Posts")
                         .whereEqualTo("userId", mAuth.getCurrentUser().getUid())
                         .get()
-                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot querySnapshot) {
-
-                                post.setText(String.format(Locale.ENGLISH, "Total Posts : %d", querySnapshot.size()));
-
-                            }
-                        });
-            } catch (NullPointerException nh) {
+                        .addOnSuccessListener(querySnapshot -> post.setText(String.format(Locale.ENGLISH, "Total Posts : %d", querySnapshot.size())));
+            } catch (NullPointerException ignored) {
 
             }
 

@@ -39,10 +39,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.SendNotificationPack.APIService;
-import org.jhm69.battle_of_quiz.SendNotificationPack.Client;
-import org.jhm69.battle_of_quiz.SendNotificationPack.MyResponse;
-import org.jhm69.battle_of_quiz.SendNotificationPack.NotificationSender;
+import org.jhm69.battle_of_quiz.notification.APIService;
+import org.jhm69.battle_of_quiz.notification.Client;
+import org.jhm69.battle_of_quiz.notification.MyResponse;
+import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.models.MultipleImage;
 import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.ui.activities.notification.ImagePreviewSave;
@@ -202,9 +202,7 @@ public class PostPhotosAdapter extends PagerAdapter {
                     .document(admin_id)
                     .collection("Info_Notifications")
                     .document(notification.getId()).set(notification)
-                    .addOnSuccessListener(documentReference -> {
-                        new SendNotificationAsyncTask(notification).execute();
-                    })
+                    .addOnSuccessListener(documentReference -> new SendNotificationAsyncTask(notification).execute())
                     .addOnFailureListener(e -> Log.e("Error", e.getLocalizedMessage()));
         }
     }
@@ -305,7 +303,7 @@ public class PostPhotosAdapter extends PagerAdapter {
 
     private static class SendNotificationAsyncTask extends AsyncTask<Void, Void, Void> {
         final APIService apiService;
-        Notification notification;
+        final Notification notification;
 
         private SendNotificationAsyncTask(Notification notification) {
             this.notification = notification;
@@ -322,14 +320,11 @@ public class PostPhotosAdapter extends PagerAdapter {
                     apiService.sendNotifcation(sender).enqueue(new Callback<MyResponse>() {
                         @Override
                         public void onResponse(@NonNull Call<MyResponse> call, @NonNull Response<MyResponse> response) {
-                            if (response.code() == 200) {
-                                if (response.body().success != 1) {
-                                }
-                            }
+
                         }
 
                         @Override
-                        public void onFailure(@NonNull Call<MyResponse> call, Throwable t) {
+                        public void onFailure(@NonNull Call<MyResponse> call, @NonNull Throwable t) {
 
                         }
                     });

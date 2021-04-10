@@ -22,6 +22,7 @@ import org.jhm69.battle_of_quiz.models.Users;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -92,8 +93,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                 .addOnSuccessListener(documentSnapshot -> {
 
                     try {
-                        if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName()) &&
-                                !documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                        if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName()) &&
+                                !Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                             Map<String, Object> user = new HashMap<>();
                             user.put("name", documentSnapshot.getString("name"));
@@ -115,7 +116,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                     .into(holder.image);
 
 
-                        } else if (!documentSnapshot.getString("name").equals(usersList.get(holder.getAdapterPosition()).getName())) {
+                        } else if (!Objects.requireNonNull(documentSnapshot.getString("name")).equals(usersList.get(holder.getAdapterPosition()).getName())) {
 
                             Map<String, Object> user = new HashMap<>();
                             user.put("name", documentSnapshot.getString("name"));
@@ -131,7 +132,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
                             holder.name.setText(documentSnapshot.getString("name"));
 
-                        } else if (!documentSnapshot.getString("image").equals(usersList.get(holder.getAdapterPosition()).getImage())) {
+                        } else if (!Objects.requireNonNull(documentSnapshot.getString("image")).equals(usersList.get(holder.getAdapterPosition()).getImage())) {
 
                             Map<String, Object> user = new HashMap<>();
                             user.put("image", documentSnapshot.getString("image"));
@@ -159,15 +160,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
         final String userid = usersList.get(position).getId();
 
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-              /* // Intent intent = new Intent(context, MessageActivity.class);
-                intent.putExtra("userid", usersList.get(position).getId());
-                intent.putExtra("name", usersList.get(position).getName());
-                intent.putExtra("image", usersList.get(position).getImage());
-                context.startActivity(intent);*/
-            }
+        holder.mView.setOnClickListener(view -> {
+          /* // Intent intent = new Intent(context, MessageActivity.class);
+            intent.putExtra("userid", usersList.get(position).getId());
+            intent.putExtra("name", usersList.get(position).getName());
+            intent.putExtra("image", usersList.get(position).getImage());
+            context.startActivity(intent);*/
         });
     }
 

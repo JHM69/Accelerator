@@ -36,11 +36,12 @@
                     android:layout_marginBottom="5dp"
                     app:srcCompat="@drawable/ic_logo_icon"
                     android:layout_width="100dp"
-                    android:layout_height="100dp" />
+                    android:layout_height="100dp"
+                    android:contentDescription="TODO"
+                    tools:ignore="ContentDescription,HardcodedText" />
 
                 <TextView
                     android:id="@+id/default_title"
-                    fontPath="fonts/GoogleSans_Bold.ttf"
                     android:textSize="19sp"
                     android:gravity="center"
                     android:textColor="?android:textColorPrimary"

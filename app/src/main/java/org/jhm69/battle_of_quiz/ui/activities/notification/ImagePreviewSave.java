@@ -18,12 +18,10 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -45,10 +43,10 @@ public class ImagePreviewSave extends AppCompatActivity {
 
 
     String intent_URL;
-    ArrayList<Long> list = new ArrayList<>();
+    final ArrayList<Long> list = new ArrayList<>();
 
 
-    public BroadcastReceiver onComplete = new BroadcastReceiver() {
+    public final BroadcastReceiver onComplete = new BroadcastReceiver() {
 
         public void onReceive(Context ctxt, Intent intent) {
 
@@ -160,32 +158,23 @@ public class ImagePreviewSave extends AppCompatActivity {
                 .content("Do you want to save this image?")
                 .positiveText("YES")
                 .negativeText("NO")
-                .onPositive(new MaterialDialog.SingleButtonCallback() {
-                    @Override
-                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(ImageURI));
-                        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
-                        request.setAllowedOverRoaming(true);
-                        request.setTitle("Battle of Quiz");
-                        request.setDescription("Downloading image...");
-                        request.setVisibleInDownloadsUi(true);
-                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "/battle_of_quiz Images/" + "/dt_" + System.currentTimeMillis() + ".jpeg");
-                        refid = downloadManager.enqueue(request);
-                        list.add(refid);
+                .onPositive((dialog, which) -> {
+                    DownloadManager.Request request = new DownloadManager.Request(Uri.parse(ImageURI));
+                    request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
+                    request.setAllowedOverRoaming(true);
+                    request.setTitle("Battle of Quiz");
+                    request.setDescription("Downloading image...");
+                    request.setVisibleInDownloadsUi(true);
+                    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "/battle_of_quiz Images/" + "/dt_" + System.currentTimeMillis() + ".jpeg");
+                    refid = downloadManager.enqueue(request);
+                    list.add(refid);
 
 
-                    }
-                }).onNegative(new MaterialDialog.SingleButtonCallback() {
-            @Override
-            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                dialog.dismiss();
-            }
-        }).show();
+                }).onNegative((dialog, which) -> dialog.dismiss()).show();
 
     }
 
-    public void saveImage(View view) {
-
+    public void saveImage(View v) {
         Dexter.withActivity(this)
                 .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
