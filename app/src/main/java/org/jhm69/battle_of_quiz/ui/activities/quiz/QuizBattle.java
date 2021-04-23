@@ -151,11 +151,15 @@ public class QuizBattle extends AppCompatActivity {
                 @Override
                 public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
                     long max = mutableData.getChildrenCount();
-                    for (MutableData data : mutableData.getChildren()) {
-                        Question node = data.getValue(Question.class);
-                        if (node != null) {
-                            node.setIndex((int) (Math.random() * max + 1));
-                            data.setValue(node);
+                    int n = 0;
+                    if(n<question_number) {
+                        for (MutableData data : mutableData.getChildren()) {
+                            Question node = data.getValue(Question.class);
+                            if (node != null) {
+                                node.setIndex((int) (Math.random() * max + 1));
+                                data.setValue(node);
+                            }
+                            n++;
                         }
                     }
                     return Transaction.success(mutableData);
@@ -264,137 +268,39 @@ public class QuizBattle extends AppCompatActivity {
 
     @SuppressLint("CheckResult")
     private void loadQuestionData() {
-        mDialog.show();
-        if (battleIdNew != null) {
-            try {
-                realBattle = battleViewModel.getBattle(battleIdNew);
-                topic = realBattle.topic;
-                topicTV.setText(topic);
-                mDialog.hide();
-                Result result = viewModel.getResult(battleIdNew);
-                if (result.getAction()==IN_STARTED){
-                    Intent intent = new Intent(this, QuizBattle.class);
-                    intent.putExtra("ofo", battleIdNew);
-                    startActivity(intent);
-                }else if(result.getAction()==COMPLETED){
-                    Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                    intent.putExtra("resultId", battleIdNew);
-                    startActivity(intent);
-                }
-                list = Objects.requireNonNull(realBattle).questionList;
-                question_number = realBattle.questionList.size();
-                if (realBattle.getWinner().length() > 4) {
-                    Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                    intent.putExtra("resultId", realBattle.battleId);
-                    Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
-                    startActivity(intent);
-                    finish();
-                }
-
+        try {
+            mDialog.show();
+            if (battleIdNew != null) {
                 try {
-                    playAnim(question, 0, list.get(position).getQuestion());
-                } catch (NullPointerException ignored) {
-                    Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
-                    finish();
-                }
-                try {
-                    stepView.getState()
-                            .animationType(StepView.ANIMATION_ALL)
-                            .nextStepCircleEnabled(true)
-                            .stepsNumber(list.size())
-                            .commit();
-                } catch (Exception ignored) {
-                    Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
-                    finish();
-                }
-                for (int i = 0; i < question_number; i++) {
-                    stepAnsList.add(false);
-                }
-                setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
-                SenderAnsList = realBattle.getSenderAnswerList();
-                otherUid = realBattle.getSenderUid();
-                offlineBattleSaving = realBattle;
-                offlineBattleSaving.setWinner("3");
-
-            } catch (NullPointerException h) {
-                DatabaseReference mDb = FirebaseDatabase.getInstance().getReference();
-                Query query = mDb.child("Play").orderByChild("battleId").equalTo(battleIdNew);
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @SuppressLint("CheckResult")
-                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        try {
-
-                            for (DataSnapshot data : snapshot.getChildren()) {
-                                realBattle = data.getValue(BattleModel.class);
-                            }
-                            list = Objects.requireNonNull(realBattle).questionList;
-                            question_number = realBattle.questionList.size();
-                            if (!realBattle.getWinner().equals("0")) {
-                                Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                                intent.putExtra("resultId", realBattle.battleId);
-                                Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
-                                startActivity(intent);
-                                finish();
-                            }
-                            setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
-                            try {
-                                playAnim(question, 0, list.get(position).getQuestion());
-                            } catch (NullPointerException ignored) {
-                                Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
-                                finish();
-                            }
-                            try {
-                                stepView.getState()
-                                        .animationType(StepView.ANIMATION_ALL)
-                                        .nextStepCircleEnabled(true)
-                                        .stepsNumber(list.size())
-                                        .commit();
-                            } catch (Exception ignored) {
-                                Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
-                                finish();
-                            }
-
-                            SenderAnsList = realBattle.senderAnswerList;
-                            otherUid = realBattle.getSenderUid();
-                            offlineBattleSaving = realBattle;
-                            offlineBattleSaving.setWinner("3");
-                        }catch (NullPointerException h){
-                            finish();
-                        }
+                    realBattle = battleViewModel.getBattle(battleIdNew);
+                    topic = realBattle.topic;
+                    topicTV.setText(topic);
+                    mDialog.hide();
+                    Result result = viewModel.getResult(battleIdNew);
+                    if (result.getAction() == IN_STARTED) {
+                        Intent intent = new Intent(this, QuizBattle.class);
+                        intent.putExtra("ofo", battleIdNew);
+                        startActivity(intent);
+                    } else if (result.getAction() == COMPLETED) {
+                        Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                        intent.putExtra("resultId", battleIdNew);
+                        startActivity(intent);
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-                for (int i = 0; i < question_number; i++) {
-                    stepAnsList.add(false);
-                }
-            }
-
-        } else if (offlideID != null) {
-            try {
-                Toast.makeText(this, "Resuming battle...", Toast.LENGTH_SHORT).show();
-                realBattle = battleViewModel.getBattle(offlideID);
-                mDialog.hide();
-                topic = realBattle.topic;
-                topicTV.setText(topic);
-                if (realBattle.getWinner().equals("3")) {
-                    position = realBattle.getReceiverList().size();
-                    score = getScoreCount(realBattle.getReceiverList());
-                    thisScore.setText(String.valueOf(score));
-                    otherScore.setText("-");
                     list = Objects.requireNonNull(realBattle).questionList;
                     question_number = realBattle.questionList.size();
-                    setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.getSenderUid(), false);
+                    if (realBattle.getWinner().length() > 4) {
+                        Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                        intent.putExtra("resultId", realBattle.battleId);
+                        Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
+                        startActivity(intent);
+                        finish();
+                    }
 
                     try {
                         playAnim(question, 0, list.get(position).getQuestion());
                     } catch (NullPointerException ignored) {
-
+                        Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                        finish();
                     }
                     try {
                         stepView.getState()
@@ -403,107 +309,216 @@ public class QuizBattle extends AppCompatActivity {
                                 .stepsNumber(list.size())
                                 .commit();
                     } catch (Exception ignored) {
-
+                        Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                        finish();
                     }
-                    SenderAnsList = realBattle.senderAnswerList;
-                    reciverAnsList = realBattle.receiverList;
                     for (int i = 0; i < question_number; i++) {
                         stepAnsList.add(false);
                     }
-                    for (int i = 0; i < position; i++) {
-                        stepAnsList.add(i, realBattle.getReceiverList().get(i));
-                    }
-                    stepView.go(position, true, true);
+                    setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
+                    SenderAnsList = realBattle.getSenderAnswerList();
                     otherUid = realBattle.getSenderUid();
                     offlineBattleSaving = realBattle;
                     offlineBattleSaving.setWinner("3");
 
-                } else if (realBattle.getWinner().equals("2")) {
+                } catch (NullPointerException h) {
+                    DatabaseReference mDb = FirebaseDatabase.getInstance().getReference();
+                    Query query = mDb.child("Play").orderByChild("battleId").equalTo(battleIdNew);
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @SuppressLint("CheckResult")
+                        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            try {
 
-                    position = realBattle.getSenderAnswerList().size();
-                    score = getScoreCount(realBattle.getSenderAnswerList());
-                    thisScore.setText(String.valueOf(score));
-                    list = Objects.requireNonNull(realBattle).questionList;
-                    question_number = realBattle.questionList.size();
-                    setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.receiverUid, false);
+                                for (DataSnapshot data : snapshot.getChildren()) {
+                                    realBattle = data.getValue(BattleModel.class);
+                                }
+                                list = Objects.requireNonNull(realBattle).questionList;
+                                question_number = realBattle.questionList.size();
+                                if (!realBattle.getWinner().equals("0")) {
+                                    Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                                    intent.putExtra("resultId", realBattle.battleId);
+                                    Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                                setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
+                                try {
+                                    playAnim(question, 0, list.get(position).getQuestion());
+                                } catch (NullPointerException ignored) {
+                                    Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                                    finish();
+                                }
+                                try {
+                                    stepView.getState()
+                                            .animationType(StepView.ANIMATION_ALL)
+                                            .nextStepCircleEnabled(true)
+                                            .stepsNumber(list.size())
+                                            .commit();
+                                } catch (Exception ignored) {
+                                    Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                                    finish();
+                                }
 
-                    try {
-                        playAnim(question, 0, list.get(position).getQuestion());
-                    } catch (NullPointerException ignored) {
+                                SenderAnsList = realBattle.senderAnswerList;
+                                otherUid = realBattle.getSenderUid();
+                                offlineBattleSaving = realBattle;
+                                offlineBattleSaving.setWinner("3");
+                            } catch (NullPointerException h) {
+                                finish();
+                            }
+                        }
 
-                    }
-                    try {
-                        stepView.getState()
-                                .animationType(StepView.ANIMATION_ALL)
-                                .nextStepCircleEnabled(true)
-                                .stepsNumber(list.size())
-                                .commit();
-                    } catch (Exception ignored) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                    SenderAnsList = realBattle.senderAnswerList;
+                        }
+                    });
                     for (int i = 0; i < question_number; i++) {
                         stepAnsList.add(false);
                     }
-                    for (int i = 0; i < position; i++) {
-                        stepAnsList.add(i, realBattle.getSenderAnswerList().get(i));
-                    }
-                    stepView.go(position, true, true);
-                    otherUid = realBattle.getReceiverUid();
-                    offlineBattleSaving = realBattle;
-                    offlineBattleSaving.setWinner("2");
                 }
-            } catch (NullPointerException ignored) {
+
+            } else if (offlideID != null) {
+                try {
+                    Toast.makeText(this, "Resuming battle...", Toast.LENGTH_SHORT).show();
+                    realBattle = battleViewModel.getBattle(offlideID);
+                    mDialog.hide();
+                    topic = realBattle.topic;
+                    topicTV.setText(topic);
+                    if (realBattle.getWinner().equals("3")) {
+                        position = realBattle.getReceiverList().size();
+                        score = getScoreCount(realBattle.getReceiverList());
+                        thisScore.setText(String.valueOf(score));
+                        otherScore.setText("-");
+                        list = Objects.requireNonNull(realBattle).questionList;
+                        question_number = realBattle.questionList.size();
+                        setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.getSenderUid(), false);
+
+                        try {
+                            playAnim(question, 0, list.get(position).getQuestion());
+                        } catch (Exception vhjkj) {
+                            Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                        try {
+                            stepView.getState()
+                                    .animationType(StepView.ANIMATION_ALL)
+                                    .nextStepCircleEnabled(true)
+                                    .stepsNumber(list.size())
+                                    .commit();
+                        } catch (Exception xcz) {
+                            Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                        SenderAnsList = realBattle.senderAnswerList;
+                        reciverAnsList = realBattle.receiverList;
+                        for (int i = 0; i < question_number; i++) {
+                            stepAnsList.add(false);
+                        }
+                        for (int i = 0; i < position; i++) {
+                            stepAnsList.add(i, realBattle.getReceiverList().get(i));
+                        }
+                        stepView.go(position, true, true);
+                        otherUid = realBattle.getSenderUid();
+                        offlineBattleSaving = realBattle;
+                        offlineBattleSaving.setWinner("3");
+
+                    } else if (realBattle.getWinner().equals("2")) {
+
+                        position = realBattle.getSenderAnswerList().size();
+                        score = getScoreCount(realBattle.getSenderAnswerList());
+                        thisScore.setText(String.valueOf(score));
+                        list = Objects.requireNonNull(realBattle).questionList;
+                        question_number = realBattle.questionList.size();
+                        setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.receiverUid, false);
+
+                        try {
+                            playAnim(question, 0, list.get(position).getQuestion());
+                        } catch (Exception dc) {
+                            Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                        try {
+                            stepView.getState()
+                                    .animationType(StepView.ANIMATION_ALL)
+                                    .nextStepCircleEnabled(true)
+                                    .stepsNumber(list.size())
+                                    .commit();
+                        } catch (Exception ignored) {
+                            Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                        SenderAnsList = realBattle.senderAnswerList;
+                        for (int i = 0; i < question_number; i++) {
+                            stepAnsList.add(false);
+                        }
+                        for (int i = 0; i < position; i++) {
+                            stepAnsList.add(i, realBattle.getSenderAnswerList().get(i));
+                        }
+                        stepView.go(position, true, true);
+                        otherUid = realBattle.getReceiverUid();
+                        offlineBattleSaving = realBattle;
+                        offlineBattleSaving.setWinner("2");
+                    }
+                } catch (Exception fd) {
+                    Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            } else {
+                try {
+                    String type = "bcs";
+                    type = getIntent().getStringExtra("type");
+                    Query query = mainDB.child("Topics").child(type).child(topic).child(subtopic)
+                            .orderByChild("index")
+                            .limitToFirst(question_number);
+                    query.addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            list.add(snapshot.getValue(Question.class));
+                            stepAnsList.add(false);
+                            mDialog.dismiss();
+                            playAnim(question, 0, list.get(position).getQuestion());
+                            stepView.getState()
+                                    .animationType(StepView.ANIMATION_ALL)
+                                    .nextStepCircleEnabled(true)
+                                    .stepsNumber(list.size())
+                                    .commit();
+                        }
+
+                        @Override
+                        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                        }
+
+                        @Override
+                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                        }
+
+                        @Override
+                        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                    otherUid = getIntent().getStringExtra("otherUid");
+                    setUserData(otherUserImage, otherUserName, otherUserLevel, otherUid, false);
+                    offlineBattleSaving = new BattleModel(thisUid, otherUid, list, SenderAnsList, reciverAnsList, timestamp, "0", battleId, topic, false);
+                } catch (NullPointerException jj) {
+                    Log.d("SSSF", jj.getMessage());
+                    finish();
+                    Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                }
             }
-        } else {
-            try {
-                String type = "bcs";
-                type = getIntent().getStringExtra("type");
-                Query query = mainDB.child("Topics").child(type).child(topic).child(subtopic)
-                        .orderByChild("index")
-                        .limitToFirst(question_number);
-                query.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                        list.add(snapshot.getValue(Question.class));
-                        stepAnsList.add(false);
-                        mDialog.dismiss();
-                        playAnim(question, 0, list.get(position).getQuestion());
-                        stepView.getState()
-                                .animationType(StepView.ANIMATION_ALL)
-                                .nextStepCircleEnabled(true)
-                                .stepsNumber(list.size())
-                                .commit();
-                    }
-
-                    @Override
-                    public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-                otherUid = getIntent().getStringExtra("otherUid");
-                setUserData(otherUserImage, otherUserName, otherUserLevel, otherUid, false);
-                offlineBattleSaving = new BattleModel(thisUid, otherUid, list, SenderAnsList, reciverAnsList, timestamp, "0", battleId, topic, false);
-            } catch (NullPointerException jj) {
-                Log.d("SSSF", jj.getMessage());
-                finish();
-                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
-            }
+        }catch (Exception h){
+            Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -575,25 +590,7 @@ public class QuizBattle extends AppCompatActivity {
         return gradientDrawable;
     }
 
-    private void addScore(String uid) {
-        try {
-            FirebaseFirestore.getInstance().collection("Users")
-                    .document(uid)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        int scoreOld = Objects.requireNonNull(documentSnapshot.getLong("score")).intValue();
-                        int newScore = scoreOld + (-3);
-                        HashMap<String, Object> scoreMap = new HashMap<>();
-                        scoreMap.put("score", newScore);
-                        FirebaseFirestore.getInstance()
-                                .collection("Users")
-                                .document(uid)
-                                .update(scoreMap).addOnSuccessListener(aVoid -> new UserRepository((Application) getApplicationContext()).updateScore(-3));
-                    });
-        } catch (NullPointerException ignored) {
 
-        }
-    }
 
     public void onPause() {
         super.onPause();
@@ -790,8 +787,7 @@ public class QuizBattle extends AppCompatActivity {
         }
         next.setOnClickListener(v -> {
             if (position < 1) {
-                addScore(userId);
-                Toast.makeText(getApplicationContext(), "3 point reduced", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "5 XP reduced", Toast.LENGTH_SHORT).show();
             }
             position++;
             goToNext(position);
@@ -803,7 +799,7 @@ public class QuizBattle extends AppCompatActivity {
 
         adView.setAdSize(AdSize.BANNER);
 
-        adView.setAdUnitId("ca-app-pub-3940256099942544/6300978111");
+        adView.setAdUnitId("ca-app-pub-1812307912459750/8036969559");
 
         adView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();

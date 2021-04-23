@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,7 +102,7 @@ public class ProfileFragment extends Fragment {
 
     @SuppressWarnings("StatementWithEmptyBody")
     public static class AboutFragment extends Fragment {
-        private TextView post;
+        private TextView post, play;
         private TextView friend;
         private TextView scoreTv;
         private PieChart pieChart;
@@ -109,13 +110,13 @@ public class ProfileFragment extends Fragment {
         private RecyclerView rcv;
         private View statsheetView;
         private BottomSheetDialog mmBottomSheetDialog;
-
-
+        float total;
+        ImageView playMatchs;
         @SuppressLint({"SetTextI18n", "InflateParams"})
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            rootView = inflater.inflate(R.layout.frag_about_profile, container, false);
+            rootView = inflater.inflate(R.layout.fragmengt_about, container, false);
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
             FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
             UserViewModel profileView = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(UserViewModel.class);
@@ -125,6 +126,7 @@ public class ProfileFragment extends Fragment {
             TextView email = rootView.findViewById(R.id.email);
             TextView location = rootView.findViewById(R.id.location);
             post = rootView.findViewById(R.id.posts);
+            play = rootView.findViewById(R.id.win);
             friend = rootView.findViewById(R.id.friends);
             TextView bio = rootView.findViewById(R.id.bio);
             scoreTv = rootView.findViewById(R.id.scoreJ);
@@ -132,13 +134,15 @@ public class ProfileFragment extends Fragment {
             mmBottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()));
             mmBottomSheetDialog.setContentView(statsheetView);
             mmBottomSheetDialog.setCanceledOnTouchOutside(true);
-
+            playMatchs = rootView.findViewById(R.id.playBtn);
             rcv = rootView.findViewById(R.id.hdrh);
             rcv.setVisibility(View.VISIBLE);
             LinearLayoutManager layoutManager = new LinearLayoutManager(rootView.getContext());
             rcv.setHasFixedSize(true);
             rcv.setLayoutManager(layoutManager);
             loadPosts();
+
+            playMatchs.setVisibility(View.GONE);
 
             pieChart = rootView.findViewById(R.id.pieChart);
             pieChart.setNoDataText("");
@@ -147,13 +151,14 @@ public class ProfileFragment extends Fragment {
                     .collection("Friends")
                     .get()
                     .addOnSuccessListener(documentSnapshots -> {
-                        //Total Friends
-                        friend.setText(String.format(Locale.ENGLISH, "Total Friends : %d", documentSnapshots.size()));
+                        friend.setText(String.valueOf(documentSnapshots.size()));
                     });
             try {
                 profileView.user.observe(getViewLifecycleOwner(), users -> {
                     name.setText(users.getName());
+
                     instituteTV.setText(users.getInstitute());
+
                     email.setText(users.getEmail());
                     location.setText(users.getLocation());
                     bio.setText(users.getBio());
@@ -163,16 +168,15 @@ public class ProfileFragment extends Fragment {
                             .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
                             .load(users.getImage())
                             .into(profile_pic);
-                    profile_pic.setOnLongClickListener(v -> {
+                    profile_pic.setOnClickListener(v -> {
                         rootView.getContext().startActivity(new Intent(rootView.getContext(), ImagePreviewSave.class)
                                 .putExtra("url", users.getImage()));
-                        return false;
                     });
                 });
                 FirebaseFirestore.getInstance().collection("Posts")
                         .whereEqualTo("userId", mAuth.getCurrentUser().getUid())
                         .get()
-                        .addOnSuccessListener(querySnapshot -> post.setText(String.format(Locale.ENGLISH, "Total Posts : %d", querySnapshot.size())));
+                        .addOnSuccessListener(querySnapshot -> post.setText(String.format(Locale.ENGLISH, "%d", querySnapshot.size())));
             } catch (NullPointerException ignored) {
 
             }
@@ -246,7 +250,8 @@ public class ProfileFragment extends Fragment {
         }
 
         void setUpChartData(PieChart pieChart, float win, float lose, float draw) {
-            if (win == 0 && lose == 0 && draw == 0) {
+            float total = win + draw + lose;
+            if (total == 0) {
                 pieChart.setVisibility(View.INVISIBLE);
             } else {
                 pieChart.setVisibility(View.VISIBLE);
@@ -254,34 +259,35 @@ public class ProfileFragment extends Fragment {
                 description.setText("");
                 pieChart.setDescription(description);
                 Map<String, Float> scoreData = new HashMap<>();
-                scoreData.put("Win", win);
-                scoreData.put("Draw:", draw);
-                scoreData.put("Lose:", lose);
+                scoreData.put("win", win);
+                scoreData.put("draw:", draw);
+                scoreData.put("lose:", lose);
                 ArrayList<PieEntry> entries = new ArrayList<>();
                 if (win == 0) {
                     //entries.add(new PieEntry(win, "Win: " + win));
                 } else {
-                    entries.add(new PieEntry(win, "Win"));
+                    entries.add(new PieEntry(win, "win"));
                 }
                 if (draw == 0) {
                     //entries.add(new PieEntry(win, "Win: " + win));
                 } else {
-                    entries.add(new PieEntry(draw, "Draw"));
+                    entries.add(new PieEntry(draw, "draw"));
                 }
                 if (lose == 0) {
                     //entries.add(new PieEntry(win, "Win: " + win));
                 } else {
-                    entries.add(new PieEntry(lose, "Lose"));
+                    entries.add(new PieEntry(lose, "lose"));
                 }
-                PieDataSet pieDataSet = new PieDataSet(entries, " | Won:" + (win == 0 ? "0" : (int) win) + " | Drawn:" + (draw == 0 ? "0" : (int) draw) + " | Loosed:" + (lose == 0 ? "0" : (int) lose) + " | Total Played:" + ((win + draw + lose) == 0 ? "0" : (int) (win + draw + lose)));
-                pieDataSet.setColors(Color.parseColor("#00B311"), Color.parseColor("#2196f3"), Color.parseColor("#D32F2F"));
+                PieDataSet pieDataSet = new PieDataSet(entries, " | won:" + (win == 0 ? "0" : (int) win) + " | drawn:" + (draw == 0 ? "0" : (int) draw) + " | lost:" + (lose == 0 ? "0" : (int) lose) + " | total:" + ((win + draw + lose) == 0 ? "0" : (int) (win + draw + lose)));
+                pieDataSet.setColors(Color.parseColor("#41B843"), Color.parseColor("#AA6CEF"), Color.parseColor("#F45656"));
                 PieData pieData = new PieData(pieDataSet);
                 pieChart.setData(pieData);
                 pieData.setValueTextColor(Color.parseColor("#ffffff"));
-                pieData.setValueTextSize(8);
-                pieChart.setUsePercentValues(true);
+                pieData.setValueTextSize(10);
                 pieChart.animateXY(1500, 1500);
                 pieChart.invalidate();
+                play.setText(String.valueOf((int)total));
+
             }
         }
     }

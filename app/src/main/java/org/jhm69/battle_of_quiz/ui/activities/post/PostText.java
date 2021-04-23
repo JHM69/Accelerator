@@ -129,7 +129,7 @@ public class PostText extends AppCompatActivity {
         type.setOnItemSelectedListener(new TypeXSpinnerClass());
 
         try {
-            Objects.requireNonNull(getSupportActionBar()).setTitle("Text Post (3 xp)");
+            Objects.requireNonNull(getSupportActionBar()).setTitle("Text Post");
             toolbar.setTitleTextColor(Color.WHITE);
         } catch (Exception e) {
             e.printStackTrace();

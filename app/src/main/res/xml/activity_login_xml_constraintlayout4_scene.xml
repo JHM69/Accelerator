@@ -109,7 +109,6 @@
             android:visibility="visible"
             motion:layout_constraintBottom_toBottomOf="@+id/button3"
             motion:layout_constraintEnd_toEndOf="@+id/password_holder"
-            motion:layout_constraintStart_toEndOf="@+id/button3"
             motion:layout_constraintTop_toTopOf="@+id/button3" />
         <Constraint
             android:id="@+id/button"
@@ -118,7 +117,6 @@
             android:visibility="gone"
             motion:layout_constraintBottom_toBottomOf="@+id/button3"
             motion:layout_constraintEnd_toEndOf="@+id/password_holder"
-            motion:layout_constraintStart_toEndOf="@+id/button3"
             motion:layout_constraintTop_toTopOf="@+id/button3" />
         <Constraint
             android:id="@+id/button"

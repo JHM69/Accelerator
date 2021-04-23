@@ -14,8 +14,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.firebase.ui.auth.data.model.User;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.models.Player;
 import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.SelectTopic;
 
@@ -30,10 +32,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder> {
 
-    private final List<Users> usersList;
+    private final List<Player> usersList;
     private final Context context;
 
-    public PlayerAdapter(List<Users> usersList, Context context) {
+    public PlayerAdapter(List<Player> usersList, Context context) {
         this.usersList = usersList;
         this.context = context;
     }
@@ -58,16 +60,26 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+        Player users = usersList.get(position);
+        holder.name.setText(users.getName());
+        holder.institute.setText(users.getDept() + ", " + users.getInstitute());
+        String dept = users.getDept();
+        String institute = users.getInstitute();
+        if (!dept.equals("") && !institute.equals("")) {
+            holder.institute.setText(dept + ", " + institute);
+        } else if (institute.equals("")) {
+            holder.institute.setText(dept);
+        } else if (dept.equals("")) {
+            holder.institute.setText(institute);
+        }
 
-        holder.name.setText(usersList.get(position).getName());
-        holder.institute.setText(usersList.get(position).getDept() + ", " + usersList.get(position).getInstitute());
-        int score = (int) usersList.get(position).getScore();
+        int score = (int) users.getScore();
         holder.level.setText(String.valueOf(getLevelNum(score)));
         Glide.with(context)
                 .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
-                .load(usersList.get(position).getImage())
+                .load(users.getImage())
                 .into(holder.image);
-        final String userid = usersList.get(position).getId();
+        final String userid = users.getId();
         holder.mView.setOnClickListener(view -> {
             Intent goBattle = new Intent(context, SelectTopic.class);
             goBattle.putExtra("otherUid", userid);

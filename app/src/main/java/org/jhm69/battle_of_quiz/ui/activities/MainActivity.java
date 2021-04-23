@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     public static String userId;
     @SuppressLint({"StaticFieldLeak", "NewApi"})
     private final Set<String> ADMIN_UID_LIST = Set.of(
-            "zjQh2f1tn7O8tKDolnhBq9AqtcH3"
+            "0h9MvJiFvFWRBiOoHzUcGlqJe2m2", "eSW24hxmW6YmbaInd2OlrsWx0Rw1"
     );
     public TextView username;
     public TextView rewardTv;
@@ -284,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             MobileAds.initialize(this, initializationStatus -> {
             });
             rewardedAd = new RewardedAd(getApplicationContext(),
-                    "ca-app-pub-3940256099942544/5224354917");
+                    "ca-app-pub-1812307912459750/3167786256");
 
             RewardedAdLoadCallback adLoadCallback = new RewardedAdLoadCallback() {
                 @Override
@@ -338,12 +338,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             list.setLayoutManager(new LinearLayoutManager(this));
             list.setAdapter(adapter);
             adapter.setSelected(POS_DASHBOARD);
-
-
         });
-
     }
-
 
     private void askPermission() {
         Dexter.withActivity(this)
@@ -353,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        Toasty.info(MainActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG,true).show();
+                       // Toasty.info(MainActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG,true).show();
                     }
 
                     @Override

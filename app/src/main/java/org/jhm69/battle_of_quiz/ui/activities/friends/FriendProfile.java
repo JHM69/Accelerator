@@ -114,18 +114,6 @@ public class FriendProfile extends AppCompatActivity {
 
         String id = getIntent().getStringExtra("f_id");
 
-        FirebaseFirestore.getInstance().collection("Users")
-                .document(id)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    toolbar.setTitle(documentSnapshot.getString("name"));
-                    getSupportActionBar().setTitle(documentSnapshot.getString("name"));
-                })
-                .addOnFailureListener(e -> {
-                    toolbar.setTitle("Friend Profile");
-                    getSupportActionBar().setTitle("Friend Profile");
-                    e.printStackTrace();
-                });
 
         final Bundle bundle = new Bundle();
         bundle.putString("id", id);
@@ -176,7 +164,7 @@ public class FriendProfile extends AppCompatActivity {
         private FirebaseFirestore mFirestore;
         private FirebaseUser currentUser;
         private String friend_name, friend_email, friend_image;
-        private TextView name, email, institute, location, post, friend, bio, req_sent, scoreTV, levelTV;
+        private TextView name, email, institute, location, post, friend, totalP ,bio, req_sent, scoreTV, levelTV;
         private CircleImageView profile_pic;
         private Button add_friend, remove_friend, accept, decline;
         private LinearLayout req_layout;
@@ -193,7 +181,7 @@ public class FriendProfile extends AppCompatActivity {
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            rootView = inflater.inflate(R.layout.frag_about_profile, container, false);
+            rootView = inflater.inflate(R.layout.fragmengt_about, container, false);
 
             Bundle bundle = this.getArguments();
             if (bundle != null) {
@@ -209,6 +197,7 @@ public class FriendProfile extends AppCompatActivity {
             profile_pic = rootView.findViewById(R.id.profile_pic);
             name = rootView.findViewById(R.id.name);
             email = rootView.findViewById(R.id.email);
+            totalP =  rootView.findViewById(R.id.win);
             location = rootView.findViewById(R.id.location);
             playMatchs = rootView.findViewById(R.id.playBtn);
             scoreTV = rootView.findViewById(R.id.scoreJ);
@@ -216,6 +205,7 @@ public class FriendProfile extends AppCompatActivity {
             post = rootView.findViewById(R.id.posts);
             friend = rootView.findViewById(R.id.friends);
             bio = rootView.findViewById(R.id.bio);
+
             req_sent = rootView.findViewById(R.id.friend_sent);
             add_friend = rootView.findViewById(R.id.friend_no);
             remove_friend = rootView.findViewById(R.id.friend_yes);
@@ -256,7 +246,6 @@ public class FriendProfile extends AppCompatActivity {
                             friend_image = documentSnapshot.getString("image");
                             type = Long.parseLong(Objects.requireNonNull(documentSnapshot.get("type")).toString());
 
-
                             float win = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("win")).toString());
                             float lose = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("lose")).toString());
                             float draw = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("draw")).toString());
@@ -266,20 +255,30 @@ public class FriendProfile extends AppCompatActivity {
                             int score = Objects.requireNonNull(documentSnapshot.getLong("score")).intValue();
                             scoreTV.setText(String.valueOf(score));
                             setLevelByScore(levelTV, score);
-                            location.setText(documentSnapshot.getString("location"));
+                            if(Objects.requireNonNull(documentSnapshot.getString("location")).length()<1){
+                                location.setVisibility(View.GONE);
+                            }else{
+                                location.setText(documentSnapshot.getString("location"));
+                            }
                             bio.setText(documentSnapshot.getString("bio"));
-                            institute.setText(documentSnapshot.getString("dept") + ", " + documentSnapshot.getString("institute"));
 
-                            if (documentSnapshot.getString("dept").equals("")) {
-                                institute.setText(documentSnapshot.getString("institute"));
-                            } else if (documentSnapshot.getString("institute").equals("")) {
-                                institute.setText(documentSnapshot.getString("institute"));
-                            } else {
-                                institute.setText(documentSnapshot.getString("dept") + ", " + documentSnapshot.getString("institute"));
+                            String dept = Objects.requireNonNull(documentSnapshot.getString("dept")) ;
+                            String institutee = Objects.requireNonNull(documentSnapshot.getString("institute")) ;
+
+
+                            if(dept.length() > 1 && institutee.length() > 1) {
+                                institute.setText(dept + ", " + institutee);
+                            }else if (dept.length()<1) {
+                                institute.setText(institutee);
+                            } else if (institutee.length()<1) {
+                                institute.setText(dept);
+                            }
+                            if(dept.length()<1 && institutee.length() < 1){
+                                institute.setVisibility(View.GONE);
                             }
 
                             Glide.with(Objects.requireNonNull(getActivity()))
-                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                     .load(friend_image)
                                     .into(profile_pic);
                         } catch (NullPointerException ignored) {
@@ -347,20 +346,28 @@ public class FriendProfile extends AppCompatActivity {
                     .get()
                     .addOnSuccessListener(documentSnapshots -> {
                         //Total Friends
-                        friend.setText(String.format(Locale.ENGLISH, "Total Friends : %d", documentSnapshots.size()));
+                        friend.setText(String.format(Locale.ENGLISH, "%d", documentSnapshots.size()));
                     });
 
             FirebaseFirestore.getInstance().collection("Posts")
                     .whereEqualTo("userId", id)
                     .get()
-                    .addOnSuccessListener(querySnapshot -> post.setText(String.format(Locale.ENGLISH, "Total Posts : %d", querySnapshot.size())));
+                    .addOnSuccessListener(querySnapshot -> post.setText(String.format(Locale.ENGLISH, "%d", querySnapshot.size())));
 
+
+            playMatchs.setOnClickListener(view -> {
+                Intent goBattle = new Intent(getActivity(), SelectTopic.class);
+                goBattle.putExtra("otherUid", id);
+                goBattle.putExtra("type", type);
+                Objects.requireNonNull(getActivity()).startActivity(goBattle);
+            });
 
             return rootView;
         }
 
         void setUpChartData(PieChart pieChart, float win, float lose, float draw) {
-            if (win == 0 && lose == 0 && draw == 0) {
+            float total = win + draw + lose;
+            if (total == 0) {
                 pieChart.setVisibility(View.INVISIBLE);
             } else {
                 pieChart.setVisibility(View.VISIBLE);
@@ -368,55 +375,56 @@ public class FriendProfile extends AppCompatActivity {
                 description.setText("");
                 pieChart.setDescription(description);
                 Map<String, Float> scoreData = new HashMap<>();
-                scoreData.put("Win", win);
-                scoreData.put("Draw:", draw);
-                scoreData.put("Lose:", lose);
+                scoreData.put("win", win);
+                scoreData.put("draw:", draw);
+                scoreData.put("lose:", lose);
                 ArrayList<PieEntry> entries = new ArrayList<>();
                 if (win == 0) {
                     //entries.add(new PieEntry(win, "Win: " + win));
                 } else {
-                    entries.add(new PieEntry(win, "Win"));
+                    entries.add(new PieEntry(win, "win"));
                 }
                 if (draw == 0) {
                     //entries.add(new PieEntry(win, "Win: " + win));
                 } else {
-                    entries.add(new PieEntry(draw, "Draw"));
+                    entries.add(new PieEntry(draw, "draw"));
                 }
                 if (lose == 0) {
                     //entries.add(new PieEntry(win, "Win: " + win));
                 } else {
-                    entries.add(new PieEntry(lose, "Lose"));
+                    entries.add(new PieEntry(lose, "lose"));
                 }
-                PieDataSet pieDataSet = new PieDataSet(entries, " | Won:" + (win == 0 ? "0" : (int) win) + " | Drawn:" + (draw == 0 ? "0" : (int) draw) + " | Loosed:" + (lose == 0 ? "0" : (int) lose) + " | Total Played:" + ((win + draw + lose) == 0 ? "0" : (int) (win + draw + lose)));
-                pieDataSet.setColors(Color.parseColor("#00B311"), Color.parseColor("#2196f3"), Color.parseColor("#D32F2F"));
+                PieDataSet pieDataSet = new PieDataSet(entries, " | won:" + (win == 0 ? "0" : (int) win) + " | drawn:" + (draw == 0 ? "0" : (int) draw) + " | lost:" + (lose == 0 ? "0" : (int) lose) + " | total:" + ((win + draw + lose) == 0 ? "0" : (int) (win + draw + lose)));
+                pieDataSet.setColors(Color.parseColor("#41B843"), Color.parseColor("#AA6CEF"), Color.parseColor("#F45656"));
                 PieData pieData = new PieData(pieDataSet);
                 pieChart.setData(pieData);
                 pieData.setValueTextColor(Color.parseColor("#ffffff"));
-                pieData.setValueTextSize(8);
-                pieChart.setUsePercentValues(true);
+                pieData.setValueTextSize(10);
                 pieChart.animateXY(1500, 1500);
                 pieChart.invalidate();
+                totalP.setText(String.valueOf((int)total));
+
             }
         }
 
         @SuppressLint("SetTextI18n")
         private void setLevelByScore(TextView levelTV, int score) {
             if (score <= 500) {
-                levelTV.setText("Level: 1");
+                levelTV.setText("1");
             } else if (score <= 1000) {
-                levelTV.setText("Level: 2");
+                levelTV.setText("2");
             } else if (score <= 1500) {
-                levelTV.setText("Level: 3");
+                levelTV.setText("3");
             } else if (score <= 2000) {
-                levelTV.setText("Level: 4");
+                levelTV.setText("4");
             } else if (score <= 2500) {
-                levelTV.setText("Level: 5");
+                levelTV.setText("5");
             } else if (score <= 3500) {
-                levelTV.setText("Level: 6");
+                levelTV.setText("6");
             } else if (score <= 5000) {
-                levelTV.setText("Level: 7");
+                levelTV.setText("7");
             } else {
-                levelTV.setText("Level: unknown");
+                levelTV.setText("0");
             }
         }
 
@@ -484,7 +492,6 @@ public class FriendProfile extends AppCompatActivity {
         }
 
         private void showRequestLayout() {
-
             req_layout.setVisibility(View.VISIBLE);
             req_layout.setAlpha(0.0f);
             req_layout.animate()
@@ -554,15 +561,6 @@ public class FriendProfile extends AppCompatActivity {
 
         private void showRemoveButton() {
             //sendMsg.setVisibility(View.VISIBLE);
-            playMatchs.setVisibility(View.VISIBLE);
-
-
-            playMatchs.setOnClickListener(view -> {
-                Intent goBattle = new Intent(getActivity(), SelectTopic.class);
-                goBattle.putExtra("otherUid", id);
-                goBattle.putExtra("type", type);
-                Objects.requireNonNull(getActivity()).startActivity(goBattle);
-            });
             remove_friend.setVisibility(View.VISIBLE);
             remove_friend.setAlpha(0.0f);
             remove_friend.animate()

@@ -353,7 +353,7 @@ public class PostImage extends AppCompatActivity {
                         .setNegativeButton("No", v -> {
                         })
                         .setTitle("Upload")
-                        .setMessage("Are you sure is this the content you want to upload? Upload post with image will cost 5 xp!")
+                        .setMessage("Are you sure is this the content you want to upload?")
                         .show();
             } else {
                 Toasty.error(this, "Select a tag", Toast.LENGTH_SHORT).show();

@@ -275,7 +275,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         userMap.put("lose", 0);
                                         userMap.put("draw", 0);
                                         userMap.put("type", type);
-                                        userMap.put("reward", 500);
+                                        userMap.put("reward", 100);
                                         userMap.put("solved", 0);
                                         userMap.put("answers", 0);
                                         userMap.put("vote", 0);

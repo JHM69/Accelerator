@@ -58,7 +58,7 @@ public class Dashboard extends Fragment {
     private TabLayout tabLayout;
     private BattleViewModel battleViewModel;
     private ResultViewModel viewModel;
-
+    private int nSize;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -113,14 +113,14 @@ public class Dashboard extends Fragment {
         battleViewModel = ViewModelProviders.of(getActivity()).get(BattleViewModel.class);
 
         int count = Objects.requireNonNull(getActivity()).getSharedPreferences("Notifications", MODE_PRIVATE).getInt("count", 0);
-        final int[] newSize = new int[1];
+
         AsyncTask.execute(() -> FirebaseFirestore.getInstance().collection("Users")
                 .document(userId)
                 .collection("Info_Notifications")
                 .orderBy("timestamp", Query.Direction.DESCENDING).limit(7)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    newSize[0] = queryDocumentSnapshots.size();
+                    nSize = queryDocumentSnapshots.size();
                     if (!queryDocumentSnapshots.isEmpty()) {
                         for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()) {
                             if (documentChange.getType() == DocumentChange.Type.ADDED) {
@@ -139,10 +139,11 @@ public class Dashboard extends Fragment {
                     }
                 }));
 
-        if (newSize[0] > count) {
+        if (nSize>count) {
+            Log.d("nCount", nSize+"  "+count);
             TabLayout.Tab tab = tabLayout.getTabAt(2);
             Objects.requireNonNull(tab).setCustomView(null);
-            tab.setCustomView(adapter.setNotifications(5));
+            tab.setCustomView(adapter.setNotifications(nSize-count));
         }  // badge_count.setVisibility(View.GONE);
 
     }
@@ -172,22 +173,26 @@ public class Dashboard extends Fragment {
     }
 
     @SuppressLint("CheckResult")
-    private void updateScore(int reScore, int seScore) {
+    private void updateScore() {
         try {
             UserViewModel userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
-            if (reScore > seScore) {
-                // Toasty.success(context, "Congo, you won!", Toasty.LENGTH_LONG);
-                userViewModel.updateWin(1);
-                userViewModel.updateScore(5);
-                userViewModel.updateXp(20);
-            } else if (seScore > reScore) {
-                // Toasty.error(context, "Damn, you lost", Toasty.LENGTH_LONG);
-                userViewModel.updateLose(1);
-            } else {
-                userViewModel.updateScore(2);
-                // Toasty.info(context, "Match Drawn", Toasty.LENGTH_LONG);
-                userViewModel.updateDraw(1);
-            }
+            FirebaseFirestore.getInstance().collection("Users")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        int score = Objects.requireNonNull(documentSnapshot.getLong("score")).intValue();
+                        int reward = Objects.requireNonNull(documentSnapshot.getLong("reward")).intValue();
+
+                        int win = Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("win")).toString());
+                        int lose = Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("lose")).toString());
+                        int draw = Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("draw")).toString());
+
+                        userViewModel.setWin(win);
+                        userViewModel.setLose(lose);
+                        userViewModel.setDraw(draw);
+                        userViewModel.setScore(score);
+                        userViewModel.setXp(reward);
+                    });
         }catch (Exception ignored){
 
         }
@@ -272,14 +277,18 @@ public class Dashboard extends Fragment {
                     }
                     Log.d("Reesult: ", "Downloaded Battle");
                     if (battlep[0] != null) {
-                        Result result = new Result(battlep[0].getBattleId(), battlep[0].getSenderUid(), battlep[0].getReceiverUid(), getScoreCount(battlep[0].getSenderAnswerList()), getScoreCount(battlep[0].getReceiverList()), battlep[0].topic, battlep[0].getTimestamp(), COMPLETED);
-                        Log.d("Reesult: ", "Downloaded Result");
-                        battleViewModel.insert(battlep[0]);
-                        Log.d("Reesult: ", "Inserted Battle and Inserting Result also updating score");
-                        Log.d("Reesult: ", ReflectionToStringBuilder.toString(result));
-                        viewModel.update(result);
-                        updateScore(Objects.requireNonNull(result).getMyScore(), result.getOtherScore());
-                        Log.d("Reesult: ", "Score updated and inserting Result");
+                        try {
+                            Result result = new Result(battlep[0].getBattleId(), battlep[0].getSenderUid(), battlep[0].getReceiverUid(), getScoreCount(battlep[0].getSenderAnswerList()), getScoreCount(battlep[0].getReceiverList()), battlep[0].topic, battlep[0].getTimestamp(), COMPLETED);
+                            Log.d("Reesult: ", "Downloaded Result");
+                            battleViewModel.insert(battlep[0]);
+                            Log.d("Reesult: ", "Inserted Battle and Inserting Result also updating score");
+                            Log.d("Reesult: ", ReflectionToStringBuilder.toString(result));
+                            viewModel.insert(result);
+                            updateScore();
+                            Log.d("Reesult: ", "Score updated and inserting Result");
+                        }catch (Exception ignored){
+
+                        }
                     }
                 }
 

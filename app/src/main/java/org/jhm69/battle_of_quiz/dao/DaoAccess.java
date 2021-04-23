@@ -53,6 +53,26 @@ public interface DaoAccess {
     @Query("UPDATE Users SET reward=reward+:score WHERE id = :id")
     void updateXp(int score, String id);
 
+
+
+    //-----------------------------------
+
+
+    @Query("UPDATE Users SET score=:score WHERE id = :id")
+    void setScore(int score, String id);
+
+    @Query("UPDATE Users SET win=:score WHERE id = :id")
+    void setWin(int score, String id);
+
+    @Query("UPDATE Users SET lose=:score WHERE id = :id")
+    void setLose(int score, String id);
+
+    @Query("UPDATE Users SET draw=:score WHERE id = :id")
+    void setDraw(int score, String id);
+
+    @Query("UPDATE Users SET reward=:score WHERE id = :id")
+    void setXp(int score, String id);
+
     //------------Offline quize result handling
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertResult(BattleModel battleModel);

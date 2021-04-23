@@ -187,11 +187,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                         setUpMessaging(users, intent);
                     }
-
                 }
             });
         } catch (Exception j) {
             mDialog.dismiss();
+            progressBar.setVisibility(View.GONE);
             Toast.makeText(activity, "Error Occurred", Toast.LENGTH_SHORT).show();
         }
     }
@@ -374,6 +374,8 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     }
 
     private void firebaseAuthWithGoogle(AuthCredential credential) {
+        progressBar.setVisibility(View.VISIBLE);
+
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
@@ -385,6 +387,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                         task.getException().printStackTrace();
                         Toasty.error(getApplicationContext(), "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
                     }
 
                 });
@@ -421,7 +424,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         String location = "";
         String bio = "I am a quizzer in BoQ";
         Users user1 = new Users(user.getUid(), 500, System.currentTimeMillis(),
-                0, 0, 0, 500, 3,
+                0, 0, 0, 100, 3,
                 name, Objects.requireNonNull(image),
                 institute, dept, email, bio, getNickName(name), location);
 

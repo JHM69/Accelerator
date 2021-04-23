@@ -1,5 +1,6 @@
 package org.jhm69.battle_of_quiz.service;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -41,6 +43,11 @@ public class UploadService extends Service {
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
     private static final String TAG_FOREGROUND_SERVICE = UploadService.class.getSimpleName();
     private int count;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -75,6 +82,11 @@ public class UploadService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -100,7 +112,7 @@ public class UploadService extends Service {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setTicker(message)
-                .setChannelId("other_channel")
+                .setChannelId("play")
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setProgress(100, progress, indeterminate)
                 .setVibrate(new long[100]);
@@ -122,7 +134,7 @@ public class UploadService extends Service {
             imageUri = Uri.fromFile(new File(imagesList.get(index).getPath()));
         }
 
-        final StorageReference fileToUpload = FirebaseStorage.getInstance().getReference().child("post_images").child("porua_" + System.currentTimeMillis() + "_" + imagesList.get(index).getName());
+        final StorageReference fileToUpload = FirebaseStorage.getInstance().getReference().child("post_images").child("boq" + System.currentTimeMillis() + "_" + imagesList.get(index).getName());
         fileToUpload.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> fileToUpload.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
@@ -181,7 +193,7 @@ public class UploadService extends Service {
                 notifyProgress(notification_id
                         ,
                         "Battle of Quiz"
-                        , "Sending post.."
+                        , "Uploading post.."
                         , getApplicationContext()
                         ,
                         0
@@ -256,11 +268,9 @@ public class UploadService extends Service {
                                             .edit()
                                             .putInt("count", --count).apply();
                                     // Uri.parse("android.resource://" + getApplicationContext().getPackageName() + "/" + R.raw.study_forum))
-                                    Toasty.success(getApplicationContext(), "Post added", Toasty.LENGTH_SHORT, true).show();
-                                    updateXP();
-                                    if (count == 0) {
-                                        stopForegroundService();
-                                    }
+                                    Toasty.success(getApplicationContext(), "Post added for Review.", Toasty.LENGTH_SHORT, true).show();
+                                    stopForegroundService();
+
                                 })
                                 .addOnFailureListener(e -> {
                                     Toasty.error(getApplicationContext(), "Error :" + e.getMessage(), Toasty.LENGTH_SHORT, true).show();
@@ -353,18 +363,22 @@ public class UploadService extends Service {
                 .document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    int scoreOld = Objects.requireNonNull(documentSnapshot.getLong("reward")).intValue();
+                    int scoreOld = documentSnapshot.getLong("reward").intValue();
                     int newScore = scoreOld + (-3);
                     HashMap<String, Object> scoreMap = new HashMap<>();
                     scoreMap.put("reward", newScore);
                     FirebaseFirestore.getInstance()
                             .collection("Users")
                             .document(userId)
-                            .update(scoreMap).addOnSuccessListener(aVoid -> {
-                                new UserRepository((Application) getApplicationContext()).updateXp(-3);
-                                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-                                //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
-                            });
+                            .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @SuppressLint({"CheckResult", "DefaultLocale"})
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            new UserRepository((Application) getApplicationContext()).updateXp(-3);
+                            //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
+                            //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
+                        }
+                    });
                 });
 
     }

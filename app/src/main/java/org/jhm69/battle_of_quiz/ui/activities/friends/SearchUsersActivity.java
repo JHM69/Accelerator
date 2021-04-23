@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,7 +68,7 @@ public class SearchUsersActivity extends AppCompatActivity {
     private BottomSheetDialog mmBottomSheetDialog;
     private List<Post> posts;
     private PostViewHolder postViewHolder;
-
+    boolean found;
     public static void startActivity(Activity activity, Context context, View view) {
         Intent intent = new Intent(context, SearchUsersActivity.class);
 
@@ -121,25 +122,33 @@ public class SearchUsersActivity extends AppCompatActivity {
         dialog.setMessage("Searching....");
         dialog.show();
         usersList.clear();
+
         Query mQuery = mFirestore.collection("Users");
         mQuery.get().addOnSuccessListener(documentSnapshots -> {
-            for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
-                final String docId = doc.getDocument().getId();
-                if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
-                    mFirestore.collection("Users").document(docId).get().addOnSuccessListener(documentSnapshot -> {
-                        if (Objects.requireNonNull(documentSnapshot.getString("name")).toLowerCase().contains(searchQuery.toLowerCase())) {
-                            Friends friends = documentSnapshot.toObject(Friends.class);
-                            usersList.add(friends);
-                            usersAdapter.notifyDataSetChanged();
-                        } else {
-                            Toasty.error(getApplicationContext(), "No Result Found", R.drawable.ic_error_outline_white_24dp).show();
-                        }
-                        dialog.dismiss();
-                    });
+            try {
+                for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                    final String docId = doc.getDocument().getId();
+                    if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
+                        mFirestore.collection("Users").document(docId).get().addOnSuccessListener(documentSnapshot -> {
+                            if (Objects.requireNonNull(documentSnapshot.getString("name")).toLowerCase().contains(searchQuery.toLowerCase())) {
+                                Friends friends = documentSnapshot.toObject(Friends.class);
+                                usersList.add(friends);
+                                usersAdapter.notifyDataSetChanged();
+                                found = true;
+                            }
+                            dialog.dismiss();
+                        });
 
+                    }
                 }
+                if (!found) {
+                    Toasty.error(getApplicationContext(), "No result found", Toast.LENGTH_SHORT).show();
+                }
+                dialog.dismiss();
+            }catch (Exception d){
+                Toasty.error(getApplicationContext(), "No result found", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
             }
-            dialog.dismiss();
         });
     }
     private void startListeningPost(String searchQuery) {
@@ -151,25 +160,32 @@ public class SearchUsersActivity extends AppCompatActivity {
         usersList.clear();
         Query mQuery = mFirestore.collection("Posts");
         mQuery.get().addOnSuccessListener(documentSnapshots -> {
-            for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
-                final String docId = doc.getDocument().getId();
-                if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
-                    mFirestore.collection("Posts").document(docId).get().addOnSuccessListener(documentSnapshot -> {
-                        if (Objects.requireNonNull(documentSnapshot.getString("description")).toLowerCase().contains(searchQuery.toLowerCase())) {
-                            Post post = documentSnapshot.toObject(Post.class);
-                            posts.add(post);
-                            postPhotosAdapter.postListNow = posts;
-                            mRecyclerView.setAdapter(postPhotosAdapter);
-                            postPhotosAdapter.notifyDataSetChanged();
-                        } else {
-                            Toasty.error(getApplicationContext(), "No Post Found", R.drawable.ic_error_outline_white_24dp).show();
-                        }
-                        dialog.dismiss();
-                    });
+            try {
+                for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
+                    final String docId = doc.getDocument().getId();
+                    if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
+                        mFirestore.collection("Posts").document(docId).get().addOnSuccessListener(documentSnapshot -> {
+                            if (Objects.requireNonNull(documentSnapshot.getString("description")).toLowerCase().contains(searchQuery.toLowerCase())) {
+                                Post post = documentSnapshot.toObject(Post.class);
+                                posts.add(post);
+                                postPhotosAdapter.postListNow = posts;
+                                mRecyclerView.setAdapter(postPhotosAdapter);
+                                postPhotosAdapter.notifyDataSetChanged();
+                                found = true;
+                            }
+                            dialog.dismiss();
+                        });
 
+                    }
                 }
+                if (!found) {
+                    Toasty.error(getApplicationContext(), "No Post Found", R.drawable.ic_error_outline_white_24dp).show();
+                }
+                dialog.dismiss();
+            }catch (Exception h){
+                dialog.dismiss();
+                Toasty.error(getApplicationContext(), "No Post Found", R.drawable.ic_error_outline_white_24dp).show();
             }
-            dialog.dismiss();
         });
     }
 

@@ -65,6 +65,32 @@ public class UserRepository {
     }
 
 
+    //---------------
+
+    public void setXp(int x) {
+        new UserRepository.SetXPAsyncTask(resultDao).execute(x);
+    }
+
+    public void setScore(int x) {
+        new UserRepository.SetScoreAsyncTask(resultDao).execute(x);
+    }
+
+    public void setWin(int x) {
+        new UserRepository.SetWinAsyncTask(resultDao).execute(x);
+    }
+
+    public void setLose(int x) {
+        new UserRepository.SetLoseAsyncTask(resultDao).execute(x);
+    }
+
+    public void setDraw(int x) {
+        new UserRepository.SetDrawAsyncTask(resultDao).execute(x);
+    }
+
+
+    //--------
+
+
     public void deleteDb() {
         database.clearAllTables();
     }
@@ -90,21 +116,6 @@ public class UserRepository {
             return null;
         }
     }
-
-    private static class InsertUserAsyncTask extends AsyncTask<Users, Void, Void> {
-        private final DaoAccess resultDao;
-
-        private InsertUserAsyncTask(DaoAccess resultDao) {
-            this.resultDao = resultDao;
-        }
-
-        @Override
-        protected Void doInBackground(Users... results) {
-            resultDao.insert(results[0]);
-            return null;
-        }
-    }
-
 
     private static class UpdateLoseAsyncTask extends AsyncTask<Integer, Void, Void> {
         private final DaoAccess resultDao;
@@ -165,6 +176,23 @@ public class UserRepository {
         }
     }
 
+    private static class InsertUserAsyncTask extends AsyncTask<Users, Void, Void> {
+        private final DaoAccess resultDao;
+
+        private InsertUserAsyncTask(DaoAccess resultDao) {
+            this.resultDao = resultDao;
+        }
+
+        @Override
+        protected Void doInBackground(Users... results) {
+            resultDao.insert(results[0]);
+            return null;
+        }
+    }
+
+
+
+
     private static class UpdateImageAsyncTask extends AsyncTask<String, Void, Void> {
         private final DaoAccess resultDao;
 
@@ -178,6 +206,82 @@ public class UserRepository {
             return null;
         }
     }
+
+
+
+    private static class SetScoreAsyncTask extends AsyncTask<Integer, Void, Void> {
+        private final DaoAccess resultDao;
+
+        private SetScoreAsyncTask(DaoAccess resultDao) {
+            this.resultDao = resultDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            resultDao.setScore(integers[0], userId);
+            return null;
+        }
+    }
+
+    private static class SetLoseAsyncTask extends AsyncTask<Integer, Void, Void> {
+        private final DaoAccess resultDao;
+
+        private SetLoseAsyncTask(DaoAccess resultDao) {
+            this.resultDao = resultDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            resultDao.setLose(integers[0], userId);
+            return null;
+        }
+    }
+
+
+    private static class SetDrawAsyncTask extends AsyncTask<Integer, Void, Void> {
+        private final DaoAccess resultDao;
+
+        private SetDrawAsyncTask(DaoAccess resultDao) {
+            this.resultDao = resultDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            resultDao.setDraw(integers[0], userId);
+            return null;
+        }
+    }
+
+
+    private static class SetWinAsyncTask extends AsyncTask<Integer, Void, Void> {
+        private final DaoAccess resultDao;
+
+        private SetWinAsyncTask(DaoAccess resultDao) {
+            this.resultDao = resultDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            resultDao.setWin(integers[0], userId);
+            return null;
+        }
+    }
+
+
+    private static class SetXPAsyncTask extends AsyncTask<Integer, Void, Void> {
+        private final DaoAccess resultDao;
+
+        private SetXPAsyncTask(DaoAccess resultDao) {
+            this.resultDao = resultDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            resultDao.setXp(integers[0], userId);
+            return null;
+        }
+    }
+
 
 
 }

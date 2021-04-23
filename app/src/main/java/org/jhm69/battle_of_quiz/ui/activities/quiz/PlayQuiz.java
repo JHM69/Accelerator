@@ -109,11 +109,17 @@ public class PlayQuiz extends Fragment {
             @SuppressLint({"SetTextI18n", "CheckResult"})
             @Override
             protected void onBindViewHolder(@NonNull PlayerAdapter.ViewHolder holder, int position, @NonNull Player user) {
-                //holder.bind(post, holder, position,  mmBottomSheetDialog, statsheetView);
                 usersId.add(user.getId());
                 Objects.requireNonNull(getView()).findViewById(R.id.default_item).setVisibility(View.GONE);
                 holder.name.setText(user.getName());
                 holder.institute.setText(user.getDept() + ", " + user.getInstitute());
+                if (user.getDept().equals("")) {
+                    holder.institute.setText(user.getInstitute());
+                } else if (user.getInstitute().equals("")) {
+                    holder.institute.setText(user.getDept());
+                } else {
+                    holder.institute.setText(user.getDept() + ", " + user.getInstitute());
+                }
                 int score = (int) user.getScore();
                 holder.level.setText(String.valueOf(score));
                 Glide.with(Objects.requireNonNull(getContext()))
@@ -123,7 +129,7 @@ public class PlayQuiz extends Fragment {
 
                 holder.mView.setOnClickListener(view -> {
                     if (Objects.equals(FirebaseAuth.getInstance().getUid(), user.getId())) {
-                        Toasty.error(getContext(), "You can't play with yourself. Select someone else", Toasty.LENGTH_SHORT, true);
+                        Toasty.error(requireActivity(), "You can't play with yourself. Select someone else", Toasty.LENGTH_SHORT, true);
                     } else {
                         Intent goBattle = new Intent(getContext(), SelectTopic.class);
                         goBattle.putExtra("otherUid", user.getId());

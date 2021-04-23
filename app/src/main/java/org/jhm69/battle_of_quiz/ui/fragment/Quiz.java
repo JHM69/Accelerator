@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -142,7 +143,7 @@ public class Quiz extends Fragment {
 
         adView.setAdSize(AdSize.BANNER);
 
-        adView.setAdUnitId("ca-app-pub-3940256099942544/6300978111");
+        adView.setAdUnitId("ca-app-pub-1812307912459750/4492476219");
 
         MobileAds.initialize(getContext(), initializationStatus -> {
         });
@@ -208,7 +209,6 @@ public class Quiz extends Fragment {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void setupAdapter(String tag) {
-
         switch (tag) {
             case "Invites":
                 mViewModel.getInvites().observe(Objects.requireNonNull(getActivity()), result -> {
@@ -268,7 +268,7 @@ public class Quiz extends Fragment {
                 mViewModel.results.observe(Objects.requireNonNull(getActivity()), result -> {
                     if (result.size() < 1) {
                         string = Objects.requireNonNull(getContext()).getString(R.string.let_s_challenge_others_in_battle_of_quiz);
-                        //Toasty.info(getContext(), "", Toast.LENGTH_LONG).show();
+                        Toasty.info(getContext(), string, Toast.LENGTH_LONG).show();
                     }
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
                     mRecyclerView.setAdapter(resultAdapter);

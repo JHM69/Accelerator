@@ -87,7 +87,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private final MathView post_desc;
     @SuppressLint("NewApi")
     private final Set<String> ADMIN_UID_LIST = Set.of(
-            "zjQh2f1tn7O8tKDolnhBq9AqtcH3"
+            "0h9MvJiFvFWRBiOoHzUcGlqJe2m2", "eSW24hxmW6YmbaInd2OlrsWx0Rw1"
     );
     private final MaterialFavoriteButton sav_button;
     private final MaterialFavoriteButton like_btn;
@@ -157,24 +157,24 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     @SuppressLint({"ResourceType", "SetTextI18n"})
     public void bind(Post post, final PostViewHolder holder, int position, BottomSheetDialog mmBottomSheetDialog, View statsheetView, boolean approved) {
-
-
+        Log.d("Approved", approved+" ");
         context = Home.context;
         this.position = position;
         getLikeandFav(post);
         user_name.setText(post.getName());
         user_name.setOnClickListener(v -> FriendProfile.startActivity(context, post.getUserId()));
-
-        if (post.getDept().equals("")) {
-            institute_dept.setText(post.getInstitute());
-        } else if (post.getInstitute().equals("")) {
-            institute_dept.setText(post.getInstitute());
-        } else {
-            institute_dept.setText(post.getDept() + ", " + post.getInstitute());
+        String dept = post.getDept();
+        String institute = post.getInstitute();
+        if (!dept.equals("") && !institute.equals("")) {
+            holder.institute_dept.setText(dept + ", " + institute);
+        } else if (institute.equals("")) {
+            holder.institute_dept.setText(dept);
+        } else if (dept.equals("")) {
+            holder.institute_dept.setText(institute);
         }
 
 
-        post_desc.setDisplayText(post.getDescription());
+        //post_desc.setDisplayText(post.getDescription());
         stat_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
 
             mmBottomSheetDialog.show();
@@ -250,7 +250,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                 pager_layout.setVisibility(View.VISIBLE);
                 post_desc.setVisibility(View.VISIBLE);
                 String desc = post.getDescription();
-                post_desc.setDisplayText((desc.length() > 497) ? desc.substring(0, 500) + "..." : desc);
+                post_desc.setDisplayText((desc.length() > 297) ? desc.substring(0, 300) + "..." : desc);
             } else {
                 ArrayList<MultipleImage> multipleImages = new ArrayList<>();
                 PostPhotosAdapter photosAdapter = new PostPhotosAdapter(Home.context, activity, multipleImages, false, post.getPostId(), like_btn, post.getUserId(), approved);

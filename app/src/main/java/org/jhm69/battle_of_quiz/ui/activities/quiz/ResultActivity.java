@@ -189,10 +189,14 @@ public class ResultActivity extends AppCompatActivity {
 
     private int getScoreCount(List<Boolean> scoreList) {
         int score = 0;
-        for (int i = 0; i < scoreList.size(); i++) {
-            if (scoreList.get(i)) {
-                score++;
+        try {
+            for (int i = 0; i < scoreList.size(); i++) {
+                if (scoreList.get(i)) {
+                    score++;
+                }
             }
+        }catch (Exception ignored){
+
         }
         return score;
     }
@@ -246,44 +250,48 @@ public class ResultActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void doThingsForMe(BattleModel battlePlay) {
         if (battlePlay.receiverUid.equals(userId)) {
-            int reScore, seScore;
-            reScore = getScoreCount(battlePlay.receiverList); //me
-            seScore = getScoreCount(battlePlay.senderAnswerList); //other
-            topic.setText(battlePlay.getTopic());
-            thisScore.setText(String.valueOf(reScore));
-            otherScore.setText(String.valueOf(seScore));
             try {
-                for (int i = 0; i < battlePlay.questionList.size(); i++) {
-                    QuestionEachResult questionEachResult = new QuestionEachResult(battlePlay.receiverList.get(i), battlePlay.senderAnswerList.get(i), battlePlay.questionList.get(i));
-                    questionEachResultList.add(questionEachResult);
-                    mRecyclerView.setAdapter(resultEachQuestionAdapter);
-                    resultEachQuestionAdapter.notifyDataSetChanged();
+                int reScore, seScore;
+                reScore = getScoreCount(battlePlay.receiverList); //me
+                seScore = getScoreCount(battlePlay.senderAnswerList); //other
+                topic.setText(battlePlay.getTopic());
+                thisScore.setText(String.valueOf(reScore));
+                otherScore.setText(String.valueOf(seScore));
+                try {
+                    for (int i = 0; i < battlePlay.questionList.size(); i++) {
+                        QuestionEachResult questionEachResult = new QuestionEachResult(battlePlay.receiverList.get(i), battlePlay.senderAnswerList.get(i), battlePlay.questionList.get(i));
+                        questionEachResultList.add(questionEachResult);
+                        mRecyclerView.setAdapter(resultEachQuestionAdapter);
+                        resultEachQuestionAdapter.notifyDataSetChanged();
+                    }
+                } catch (Exception ignored) {
+
                 }
-            } catch (NullPointerException ignored) {
+                setUserData(thisUserImage, thisUserName, thisUserLevel, battlePlay.receiverUid, true);
+                setUserData(otherUserImage, otherUserName, otherUserLevel, battlePlay.senderUid, false);
+                if (reScore > seScore) {
+                    resultText.setText("Congratulations, You Won!");
+                    winnerId = battlePlay.receiverUid;
+                    resultText.setTextColor(Color.parseColor("#4BBB4F"));
+                    pointText.setText("you have got 5 point and 5 XP");
+                } else if (seScore > reScore) {
+                    winnerId = battlePlay.senderUid;
+                    resultText.setText("Damn, You Lost!");
+                    resultText.setTextColor(Color.parseColor("#D32F2F"));
+                    pointText.setText("you have lost 5 point");
+                } else {
+                    resultText.setText("Match Drawn!");
+                    resultText.setTextColor(Color.parseColor("#5570A0"));
+                    pointText.setText("You were too close winning");
+                }
+                playAgain.setOnClickListener(view -> {
+                    Intent goBattle = new Intent(getApplicationContext(), SelectTopic.class);
+                    goBattle.putExtra("otherUid", battlePlay.senderUid);
+                    startActivity(goBattle);
+                });
+            }catch (Exception ignored){
 
             }
-            setUserData(thisUserImage, thisUserName, thisUserLevel, battlePlay.receiverUid, true);
-            setUserData(otherUserImage, otherUserName, otherUserLevel, battlePlay.senderUid, false);
-            if (reScore > seScore) {
-                resultText.setText("Congratulations, You Won!");
-                winnerId = battlePlay.receiverUid;
-                resultText.setTextColor(Color.parseColor("#4BBB4F"));
-                pointText.setText("you have got 5 point and 5 XP");
-            } else if (seScore > reScore) {
-                winnerId = battlePlay.senderUid;
-                resultText.setText("Damn, You Lost!");
-                resultText.setTextColor(Color.parseColor("#D32F2F"));
-                pointText.setText("you have lost 5 point");
-            } else {
-                resultText.setText("Match Drawn!");
-                resultText.setTextColor(Color.parseColor("#5570A0"));
-                pointText.setText("You were too close winning");
-            }
-            playAgain.setOnClickListener(view -> {
-                Intent goBattle = new Intent(getApplicationContext(), SelectTopic.class);
-                goBattle.putExtra("otherUid", battlePlay.senderUid);
-                startActivity(goBattle);
-            });
         } else {
             int reScore, seScore;
             reScore = getScoreCount(battlePlay.receiverList);
@@ -320,7 +328,7 @@ public class ResultActivity extends AppCompatActivity {
                     goBattle.putExtra("otherUid", battlePlay.receiverUid);
                     startActivity(goBattle);
                 });
-            } catch (NullPointerException | IndexOutOfBoundsException k) {
+            } catch (Exception k) {
                 for (int i = 0; i < battlePlay.questionList.size(); i++) {
                     QuestionEachResult questionEachResult = new QuestionEachResult(battlePlay.senderAnswerList.get(i), null, battlePlay.questionList.get(i));
                     questionEachResultList.add(questionEachResult);

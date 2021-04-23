@@ -84,12 +84,12 @@ import retrofit2.Response;
 import static org.jhm69.battle_of_quiz.adapters.PostViewHolder.updateLike;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
-@SuppressWarnings("ConstantConditions")
+
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class CommentsActivity extends AppCompatActivity {
     @SuppressLint("NewApi")
     private final Set<String> ADMIN_UID_LIST = Set.of(
-            "zjQh2f1tn7O8tKDolnhBq9AqtcH3"
+            "0h9MvJiFvFWRBiOoHzUcGlqJe2m2", "eSW24hxmW6YmbaInd2OlrsWx0Rw1"
     );
     String user_id, post_id;
     MathView post_desc;
@@ -176,7 +176,16 @@ public class CommentsActivity extends AppCompatActivity {
 
         user_id = post.getUserId();
         post_desc.setDisplayText(post.getDescription());
-        p_instTV.setText(post.getDept() + ", " + post.getInstitute());
+       // p_instTV.setText(post.getDept() + ", " + post.getInstitute());
+
+        if (!post.getDept().equals("") && !post.getInstitute().equals("")) {
+            p_instTV.setText(post.getDept() + ", " + post.getInstitute());
+        } else if (post.getInstitute().equals("")) {
+            p_instTV.setText(post.getDept());
+        } else if (post.getDept().equals("")) {
+            p_instTV.setText(post.getInstitute());
+        }
+
         p_nameTV.setText(post.getName());
         timestampTV.setText(TimeAgo.using(Long.parseLong(Objects.requireNonNull(post.getTimestamp()))));
         setupCommentView();
@@ -212,6 +221,7 @@ public class CommentsActivity extends AppCompatActivity {
                 .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                 .load(me.getImage())
                 .into(myImage);
+        Log.d("jhh", approved+" ");
 
     }
 
