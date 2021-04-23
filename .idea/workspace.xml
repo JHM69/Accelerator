@@ -24,10 +24,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8bfb8ece-f9bc-4cb6-b9ee-dd278e3e1c89" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/release/app-release.aab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_next.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/log_in.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/replay.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragmengt_about.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragmengt_about.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/fragmengt_about_scene.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/fragmengt_about_scene.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_edit_profile.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_edit_profile.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main_drawer.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main_drawer.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_post_comments.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_post_comments.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_result.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_result.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/bottom_sheet_dialog.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/bottom_sheet_dialog.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/item_result_question.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_result_question.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +132,7 @@
     <property name="project.structure.proportion" value="0.17" />
     <property name="project.structure.side.proportion" value="0.0" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
+    <property name="settings.editor.selected.configurable" value="vcs.Git" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -266,7 +275,14 @@
       <option name="project" value="LOCAL" />
       <updated>1619204793776</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="edited">
+      <created>1619207868541</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1619207868541</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -318,10 +334,10 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="494" y="176" key="AndroidCreateXmlResourceDialog/0.0.1366.738@0.0.1366.738" timestamp="1617946784919" />
-    <state x="0" y="55" key="CommitChangelistDialog2" timestamp="1619204783465">
+    <state x="0" y="55" key="CommitChangelistDialog2" timestamp="1619207867059">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="0" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1619204783465" />
+    <state x="0" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1619207867059" />
     <state x="463" y="110" key="FileChooserDialogImpl" timestamp="1618491315830">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
@@ -350,10 +366,14 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state width="1323" height="476" key="GridCell.Tab.0.right/0.0.1366.738@0.0.1366.738" timestamp="1619197454572" />
-    <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1618044443246">
+    <state x="214" y="13" key="SettingsEditor" timestamp="1619207965430">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1618044443246" />
+    <state x="214" y="13" key="SettingsEditor/0.0.1366.738@0.0.1366.738" timestamp="1619207965430" />
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1619208536157">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1619208536157" />
     <state x="366" y="80" width="634" height="578" key="find.popup" timestamp="1618474751949">
       <screen x="0" y="0" width="1366" height="738" />
     </state>

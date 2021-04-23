@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorAccentt"
+    android:background="#8A71A6"
     android:orientation="vertical"
     app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
@@ -18,8 +18,8 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
         android:padding="16dp"
-        tools:targetApi="m"
-        tools:ignore="UnusedAttribute">
+        tools:ignore="UnusedAttribute"
+        tools:targetApi="m">
 
         <ImageView
             android:layout_width="40dp"
@@ -70,8 +70,8 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:orientation="horizontal"
         android:padding="16dp"
-        tools:targetApi="m"
-        tools:ignore="UnusedAttribute">
+        tools:ignore="UnusedAttribute"
+        tools:targetApi="m">
 
         <ImageView
             android:layout_width="40dp"
