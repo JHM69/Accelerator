@@ -68,7 +68,6 @@ public class SearchUsersActivity extends AppCompatActivity {
     private BottomSheetDialog mmBottomSheetDialog;
     private List<Post> posts;
     private PostViewHolder postViewHolder;
-    boolean found;
     public static void startActivity(Activity activity, Context context, View view) {
         Intent intent = new Intent(context, SearchUsersActivity.class);
 
@@ -88,7 +87,6 @@ public class SearchUsersActivity extends AppCompatActivity {
     }
 
     public void stopListening() {
-
         if (mRegistration != null) {
             mRegistration.remove();
             mRegistration = null;
@@ -122,7 +120,7 @@ public class SearchUsersActivity extends AppCompatActivity {
         dialog.setMessage("Searching....");
         dialog.show();
         usersList.clear();
-
+        mRecyclerView.setAdapter(usersAdapter);
         Query mQuery = mFirestore.collection("Users");
         mQuery.get().addOnSuccessListener(documentSnapshots -> {
             try {
@@ -134,15 +132,11 @@ public class SearchUsersActivity extends AppCompatActivity {
                                 Friends friends = documentSnapshot.toObject(Friends.class);
                                 usersList.add(friends);
                                 usersAdapter.notifyDataSetChanged();
-                                found = true;
                             }
                             dialog.dismiss();
                         });
 
                     }
-                }
-                if (!found) {
-                    Toasty.error(getApplicationContext(), "No result found", Toast.LENGTH_SHORT).show();
                 }
                 dialog.dismiss();
             }catch (Exception d){
@@ -157,7 +151,8 @@ public class SearchUsersActivity extends AppCompatActivity {
         dialog.setCanceledOnTouchOutside(false);
         dialog.setMessage("Searching Post....");
         dialog.show();
-        usersList.clear();
+        posts.clear();
+        mRecyclerView.setAdapter(postPhotosAdapter);
         Query mQuery = mFirestore.collection("Posts");
         mQuery.get().addOnSuccessListener(documentSnapshots -> {
             try {
@@ -171,20 +166,17 @@ public class SearchUsersActivity extends AppCompatActivity {
                                 postPhotosAdapter.postListNow = posts;
                                 mRecyclerView.setAdapter(postPhotosAdapter);
                                 postPhotosAdapter.notifyDataSetChanged();
-                                found = true;
                             }
                             dialog.dismiss();
                         });
 
                     }
                 }
-                if (!found) {
-                    Toasty.error(getApplicationContext(), "No Post Found", R.drawable.ic_error_outline_white_24dp).show();
-                }
+
                 dialog.dismiss();
             }catch (Exception h){
                 dialog.dismiss();
-                Toasty.error(getApplicationContext(), "No Post Found", R.drawable.ic_error_outline_white_24dp).show();
+                Toasty.error(getApplicationContext(), "Error", R.drawable.ic_error_outline_white_24dp).show();
             }
         });
     }
@@ -233,7 +225,7 @@ public class SearchUsersActivity extends AppCompatActivity {
                 tag = c.getText().toString();
                 if(tag.equals("Post")){
                     startListeningPost(searchTextData);
-                }else{
+                }else if(tag.equals("User")){
                     startListeningUser(searchTextData);
                 }
             } catch (NullPointerException ignored) {
@@ -277,11 +269,14 @@ public class SearchUsersActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_notifications, menu);
         MenuItem search_data = menu.findItem(R.id.action_search);
         search_data.expandActionView();
-        search_data.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
+
         SearchView searchView = (SearchView) search_data.getActionView();
-        searchView.setSubmitButtonEnabled(true);
+        searchView.setIconifiedByDefault(true);
+        searchView.setFocusable(true);
+        searchView.setIconified(false);
+
+        searchView.requestFocusFromTouch();
         searchView.setMaxWidth(Integer.MAX_VALUE);
-        searchView.setIconifiedByDefault(false);
         EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
         searchEditText.setTextColor(getResources().getColor(R.color.white));
         searchEditText.setHintTextColor(getResources().getColor(R.color.white));
@@ -293,7 +288,7 @@ public class SearchUsersActivity extends AppCompatActivity {
                 searchTextData = query;
                 if(tag.equals("Post")){
                     startListeningPost(searchTextData);
-                }else{
+                }else if(tag.equals("User")){
                     startListeningUser(searchTextData);
                 }
 

@@ -151,16 +151,12 @@ public class QuizBattle extends AppCompatActivity {
                 @Override
                 public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
                     long max = mutableData.getChildrenCount();
-                    int n = 0;
-                    if(n<question_number) {
                         for (MutableData data : mutableData.getChildren()) {
                             Question node = data.getValue(Question.class);
                             if (node != null) {
                                 node.setIndex((int) (Math.random() * max + 1));
                                 data.setValue(node);
                             }
-                            n++;
-                        }
                     }
                     return Transaction.success(mutableData);
                 }
@@ -298,7 +294,7 @@ public class QuizBattle extends AppCompatActivity {
 
                     try {
                         playAnim(question, 0, list.get(position).getQuestion());
-                    } catch (NullPointerException ignored) {
+                    } catch (Exception ignored) {
                         Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
                         finish();
                     }
@@ -321,7 +317,7 @@ public class QuizBattle extends AppCompatActivity {
                     offlineBattleSaving = realBattle;
                     offlineBattleSaving.setWinner("3");
 
-                } catch (NullPointerException h) {
+                } catch (Exception h) {
                     DatabaseReference mDb = FirebaseDatabase.getInstance().getReference();
                     Query query = mDb.child("Play").orderByChild("battleId").equalTo(battleIdNew);
                     query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -792,14 +788,14 @@ public class QuizBattle extends AppCompatActivity {
             position++;
             goToNext(position);
         });
-        MobileAds.initialize(this, initializationStatus -> {
+        AdView adView = new AdView(getApplicationContext());
+        adView.setAdSize(AdSize.BANNER);
+        adView.setAdUnitId("ca-app-pub-1812307912459750/8036969559");
+
+        MobileAds.initialize(getApplicationContext(), initializationStatus -> {
         });
 
-        AdView adView = new AdView(this);
 
-        adView.setAdSize(AdSize.BANNER);
-
-        adView.setAdUnitId("ca-app-pub-1812307912459750/8036969559");
 
         adView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();

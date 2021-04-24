@@ -29,7 +29,7 @@
         tools:targetApi="m">
         <activity
             android:name=".ui.activities.account.EditProfile"
-            android:noHistory="true" />
+            />
         <activity
             android:name=".ui.activities.quiz.SelectTopic"
             android:noHistory="true" />
@@ -73,7 +73,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-1812307912459750~8721341741" />
         <!--  ca-app-pub-1812307912459750~8721341741-->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

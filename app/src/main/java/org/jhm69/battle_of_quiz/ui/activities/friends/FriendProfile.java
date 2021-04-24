@@ -236,6 +236,9 @@ public class FriendProfile extends AppCompatActivity {
             rcv.setAdapter(mAdapter);
             loadPosts();
 
+
+
+
             mFirestore.collection("Users")
                     .document(id)
                     .get()
@@ -361,6 +364,12 @@ public class FriendProfile extends AppCompatActivity {
                 goBattle.putExtra("type", type);
                 Objects.requireNonNull(getActivity()).startActivity(goBattle);
             });
+
+            levelTV.setOnClickListener(view -> Toasty.info(requireContext(), friend_name+"'s current level is "+levelTV.getText().toString(), Toast.LENGTH_SHORT).show());
+            scoreTV.setOnClickListener(view -> Toasty.info(requireContext(), friend_name+"'s current score is "+scoreTV.getText().toString(), Toast.LENGTH_SHORT).show());
+            friend.setOnClickListener(view -> Toasty.info(requireContext(), friend_name+"'s total friends count is  "+friend.getText().toString(), Toast.LENGTH_SHORT).show());
+            post.setOnClickListener(view -> Toasty.info(requireContext(), friend_name+"'s have posted total "+post.getText().toString() + " posts.", Toast.LENGTH_SHORT).show());
+            totalP.setOnClickListener(view -> Toasty.info(requireContext(), friend_name+"'s have played total "+totalP.getText().toString() + " battles.", Toast.LENGTH_SHORT).show());
 
             return rootView;
         }
@@ -787,11 +796,12 @@ public class FriendProfile extends AppCompatActivity {
                                 .collection("Users")
                                 .document(id)
                                 .collection("Friend_Requests")
-                                .document(documentSnapshot.getString("id"))
+                                .document(Objects.requireNonNull(documentSnapshot.getString("id")))
                                 .set(userMap)
                                 .addOnSuccessListener(aVoid -> {
 
                                     //Add for notification data
+                                    assert email != null;
                                     FirebaseFirestore.getInstance()
                                             .collection("Notifications")
                                             .document(id)

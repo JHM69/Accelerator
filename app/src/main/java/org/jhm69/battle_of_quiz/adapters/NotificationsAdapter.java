@@ -108,7 +108,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
                 holder.type_image.setImageResource(R.drawable.ic_flash_on_black_24dp);
                 break;
             case "play_result":
-                holder.type_image.setImageResource(R.drawable.ic_baseline_multiline_chart_24);
+                holder.type_image.setImageResource(R.drawable.ic_flash_on_black_24dp);
                 break;
             case "post":
                 holder.type_image.setImageResource(R.drawable.ic_image_post_black);

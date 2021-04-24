@@ -7,7 +7,9 @@
         android:icon="@drawable/ic_search"
         android:title="Search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="ifRoom"
+        app:showAsAction="ifRoom|collapseActionView"
         tools:ignore="HardcodedText" />
 
 </menu>
+
+

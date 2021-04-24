@@ -52,7 +52,7 @@ public class SearchFriendAdapter extends RecyclerView.Adapter<SearchFriendAdapte
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-
+        Friends friends = usersList.get(position);
         //checkIfReqSent(holder);
 
         Animation animation = AnimationUtils.loadAnimation(context,
@@ -62,21 +62,32 @@ public class SearchFriendAdapter extends RecyclerView.Adapter<SearchFriendAdapte
         lastPosition = position;
 
         // int lastPosition = -1;
-        holder.name.setText(usersList.get(position).getName());
-        holder.levelTv.setText(String.valueOf(getLevelNum(usersList.get(position).getScore())));
-        holder.username.setText(usersList.get(position).getDept() + ", " + usersList.get(position).getInstitute());
+        holder.name.setText(friends.getName());
+        holder.levelTv.setText(String.valueOf(getLevelNum(friends.getScore())));
+
+
+
+        if(friends.getDept().length() > 1 && friends.getInstitute().length() > 1) {
+            holder.username.setText(friends.getDept() + ", " + friends.getInstitute());
+        }else if (friends.getDept().length()<2) {
+            holder.username.setText(friends.getInstitute());
+        } else if (friends.getInstitute().length()<2) {
+            holder.username.setText(friends.getDept());
+        }
+        if(friends.getDept().length()<1 && friends.getInstitute().length() < 1){
+            holder.username.setVisibility(View.GONE);
+        }
+
 
         try {
             Glide.with(context)
-                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
-                    .load(usersList.get(position).getImage())
+                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
+                    .load(friends.getImage())
                     .into(holder.image);
         } catch (NullPointerException ignored) {
 
         }
-        holder.mView.setOnClickListener(view -> FriendProfile.startActivity(context, usersList.get(holder.getAdapterPosition()).getId()));
-
-
+        holder.mView.setOnClickListener(view -> FriendProfile.startActivity(context, friends.getId()));
     }
 
     private void checkIfReqSent(final ViewHolder holder) {

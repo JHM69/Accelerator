@@ -298,7 +298,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="4dp"
                     android:gravity="center"
-                    android:text="View All"
+                    android:text="View more"
                     android:textColor="@color/colorAccentt"
                     android:textColorHighlight="@color/colorAccentt"
                     android:textColorHint="@color/colorAccentt"

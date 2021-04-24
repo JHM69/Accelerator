@@ -44,6 +44,7 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
@@ -176,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                     FirebaseFirestore.getInstance()
                             .collection("Users")
                             .document(currentuser.getUid())
-                            .update(scoreMap).addOnSuccessListener(aVoid -> userViewModel.updateXp(5));
+                            .update(scoreMap).addOnSuccessListener(aVoid -> userViewModel.updateXp(20));
                 });
     }
 
@@ -405,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 imageView = findViewById(R.id.profile_image);
                 rewardTv = findViewById(R.id.reaward);
                 String nam = Objects.requireNonNull(me).getName(), imag = me.getImage();
-                Button add = findViewById(R.id.button4);
+                Chip add = findViewById(R.id.button4);
                 add.setOnClickListener(view -> loadAd());
                 username.setText(nam);
                 Glide.with(MainActivity.this)
@@ -586,42 +587,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && data != null) {
-            if (requestCode == 23) {
-                Uri imageUri = UCrop.getOutput(data);
-                Toasty.info(getApplicationContext(), "Updating...", Toasty.LENGTH_LONG, true).show();
-                final StorageReference user_profile = FirebaseStorage.getInstance().getReference().child("images").child(userId + ".png");
-                user_profile.putFile(Objects.requireNonNull(imageUri)).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        final DocumentReference userDocument = FirebaseFirestore.getInstance().collection("Users").document(userId);
-                        user_profile.getDownloadUrl().addOnSuccessListener(uri -> {
-                            Map<String, Object> map = new HashMap<>();
-                            map.put("image", uri.toString());
-                            userDocument.update(map)
-                                    .addOnSuccessListener(aVoid -> {
-                                        userViewModel.updateUserImage(uri.toString());
-                                        // userHelper.updateContactImage(1, uri.toString());
-                                        Toasty.success(getApplicationContext(), "Successfully changed Profile image", Toasty.LENGTH_LONG, true).show();
-                                        Log.i("Update", "success");
-                                    })
-                                    .addOnFailureListener(e -> Log.i("Update", "failed: " + e.getMessage()));
-                        }).addOnFailureListener(e -> Log.e("Error", "listen", e));
-
-                    } else {
-                        Log.e("Error", "listen", task.getException());
-                    }
-
-                });
-            } else if (requestCode == 667) {
-                Toasty.success(this, "Success", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toasty.error(getApplicationContext(), "Error", Toasty.LENGTH_SHORT).show();
-        }
-    }
 
 
     @SuppressLint("NonConstantResourceId")

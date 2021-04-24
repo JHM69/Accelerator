@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +33,7 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -49,6 +51,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import es.dmoral.toasty.Toasty;
 
 import static org.jhm69.battle_of_quiz.R.id.action_edit;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
@@ -69,26 +72,9 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Button edit = view.findViewById(R.id.editProfile);
+        edit.setOnClickListener(view1 -> startActivity(new Intent(getContext(), EditProfile.class)));
         loadFragment(new AboutFragment());
-        BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_nav);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == action_edit) {
-                startActivity(new Intent(getActivity(), EditProfile.class));
-            } else {
-                loadFragment(new AboutFragment());
-            }
-            return true;
-        });
-
-        bottomNavigationView.setOnNavigationItemReselectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.action_profile:
-                case action_edit:
-                    break;
-            }
-        });
-
-
     }
 
     private void loadFragment(Fragment fragment) {
@@ -99,12 +85,11 @@ public class ProfileFragment extends Fragment {
                 .commit();
     }
 
-
     @SuppressWarnings("StatementWithEmptyBody")
     public static class AboutFragment extends Fragment {
         private TextView post, play;
         private TextView friend;
-        private TextView scoreTv;
+        private TextView scoreTv, levelTv;
         private PieChart pieChart;
         private View rootView;
         private RecyclerView rcv;
@@ -130,6 +115,7 @@ public class ProfileFragment extends Fragment {
             friend = rootView.findViewById(R.id.friends);
             TextView bio = rootView.findViewById(R.id.bio);
             scoreTv = rootView.findViewById(R.id.scoreJ);
+            levelTv = rootView.findViewById(R.id.levelJ);
             statsheetView = getActivity().getLayoutInflater().inflate(R.layout.stat_bottom_sheet_dialog, null);
             mmBottomSheetDialog = new BottomSheetDialog(Objects.requireNonNull(getContext()));
             mmBottomSheetDialog.setContentView(statsheetView);
@@ -163,6 +149,7 @@ public class ProfileFragment extends Fragment {
                     location.setText(users.getLocation());
                     bio.setText(users.getBio());
                     scoreTv.setText(String.valueOf(users.getScore()));
+                    setLevelByScore(levelTv, (int) users.getScore());
                     setUpChartData(pieChart, users.getWin(), users.getLose(), users.getDraw());
                     Glide.with(rootView.getContext())
                             .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
@@ -180,10 +167,40 @@ public class ProfileFragment extends Fragment {
             } catch (NullPointerException ignored) {
 
             }
+            levelTv.setOnClickListener(view -> Toasty.info(requireContext(), "Your current level is "+levelTv.getText().toString(), Toast.LENGTH_SHORT).show());
+            scoreTv.setOnClickListener(view -> Toasty.info(requireContext(), "Your current score is "+scoreTv.getText().toString(), Toast.LENGTH_SHORT).show());
+            friend.setOnClickListener(view -> Toasty.info(requireContext(), "Your total friends count is  "+friend.getText().toString(), Toast.LENGTH_SHORT).show());
+            post.setOnClickListener(view -> Toasty.info(requireContext(), "You have posted total "+post.getText().toString() + " posts.", Toast.LENGTH_SHORT).show());
+            play.setOnClickListener(view -> Toasty.info(requireContext(), "You have played total "+play.getText().toString() + " battles.", Toast.LENGTH_SHORT).show());
+
+
 
             return rootView;
         }
 
+
+
+
+        @SuppressLint("SetTextI18n")
+        private void setLevelByScore(TextView levelTV, int score) {
+            if (score <= 500) {
+                levelTV.setText("1");
+            } else if (score <= 1000) {
+                levelTV.setText("2");
+            } else if (score <= 1500) {
+                levelTV.setText("3");
+            } else if (score <= 2000) {
+                levelTV.setText("4");
+            } else if (score <= 2500) {
+                levelTV.setText("5");
+            } else if (score <= 3500) {
+                levelTV.setText("6");
+            } else if (score <= 5000) {
+                levelTV.setText("7");
+            } else {
+                levelTV.setText("0");
+            }
+        }
 
         private void loadPosts() {
             PagedList.Config config = new PagedList.Config.Builder()
@@ -292,385 +309,7 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-   /* public static class EditFragment extends Fragment {
-        UserViewModel userViewModel;
-        private static final int PICK_IMAGE = 100;
-        private FirebaseAuth mAuth;
-        private FirebaseFirestore mFirestore;
-        //private UserHelper userHelper;
-        private TextInputEditText name, email, bio, location, institute, dept;
-        private AuthCredential credential;
-        private View rootView;
 
-        public EditFragment() {
-        }
-
-        @Override
-        public View onCreateView(@NonNull final LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            rootView = inflater.inflate(R.layout.frag_edit_profile, container, false);
-
-            mAuth = FirebaseAuth.getInstance();
-            mFirestore = FirebaseFirestore.getInstance();
-            userViewModel = ViewModelProviders.of(Objects.requireNonNull(getActivity())).get(UserViewModel.class);
-            name = rootView.findViewById(R.id.name);
-            email = rootView.findViewById(R.id.email);
-            bio = rootView.findViewById(R.id.bio);
-            institute = rootView.findViewById(R.id.institute);
-            dept = rootView.findViewById(R.id.dept);
-            location = rootView.findViewById(R.id.location);
-            CircleImageView profile_pic = rootView.findViewById(R.id.profile_pic);
-            Button updatebtn = rootView.findViewById(R.id.update);
-            ImageView updatepicture = rootView.findViewById(R.id.imageView12);
-
-            updatepicture.setOnClickListener(v -> {
-                if (isOnline()) {
-                    Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Select Profile Picture"), PICK_IMAGE);
-
-                } else {
-                    Toasty.error(rootView.getContext(), "Some technical error occurred", Toasty.LENGTH_SHORT, true).show();
-                }
-
-            });
-            if (!isOnline()) {
-                rootView.findViewById(R.id.h_username).animate()
-                        .alpha(0.0f)
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                super.onAnimationEnd(animation);
-                                rootView.findViewById(R.id.h_username).setVisibility(View.GONE);
-                            }
-                        }).start();
-
-                rootView.findViewById(R.id.h_email).animate()
-                        .alpha(0.0f)
-                        .setListener(new AnimatorListenerAdapter() {
-                            @Override
-                            public void onAnimationEnd(Animator animation) {
-                                super.onAnimationEnd(animation);
-                                rootView.findViewById(R.id.h_email).setVisibility(View.GONE);
-                            }
-                        }).start();
-
-            }
-            userViewModel.user.observe(getViewLifecycleOwner(), users -> {
-                name.setText(users.getName());
-                institute.setText(users.getInstitute());
-                email.setText(users.getEmail());
-                location.setText(users.getLocation());
-                bio.setText(users.getBio());
-
-                Glide.with(rootView.getContext())
-                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
-                        .load(users.getImage())
-                        .into(profile_pic);
-                profile_pic.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        rootView.getContext().startActivity(new Intent(rootView.getContext(), ImagePreviewSave.class)
-                                .putExtra("url", users.getImage()));
-                        return false;
-                    }
-                });
-            });
-
-
-            updatebtn.setOnClickListener(v -> {
-                Users users = userViewModel.user.getValue();
-                final ProgressDialog dialog = new ProgressDialog(getActivity());
-                dialog.setIndeterminate(true);
-                dialog.setCancelable(false);
-                dialog.setCanceledOnTouchOutside(false);
-                final DocumentReference userDocument = mFirestore.collection("Users").document(userId);
-                if (!Objects.requireNonNull(email.getText()).toString().equals(users.getEmail())) {
-                    dialog.setMessage("Updating Details....");
-                    new MaterialDialog.Builder(rootView.getContext())
-                            .title("Email changed")
-                            .content("It seems that you have changed your email, re-enter your password to change.")
-                            .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                            .input("Password", "", new MaterialDialog.InputCallback() {
-                                @Override
-                                public void onInput(@NonNull MaterialDialog mdialog, CharSequence input) {
-                                    if (!input.toString().equals("pass")) {
-                                        dialog.dismiss();
-                                        mdialog.show();
-                                        Toasty.error(rootView.getContext(), "Invalid password", Toasty.LENGTH_SHORT, true).show();
-                                    } else {
-
-                                        mdialog.dismiss();
-                                        final FirebaseUser currentuser = mAuth.getCurrentUser();
-
-                                        credential = EmailAuthProvider
-                                                .getCredential(currentuser.getEmail(), input.toString());
-
-                                        currentuser.reauthenticate(credential)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-
-                                                        currentuser.updateEmail(email.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-
-                                                                if (task.isSuccessful()) {
-
-                                                                    currentuser.sendEmailVerification().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                        @Override
-                                                                        public void onSuccess(Void aVoid) {
-
-                                                                            Map<String, Object> userMap = new HashMap<>();
-                                                                            userMap.put("email", email.getText().toString());
-
-                                                                            FirebaseFirestore.getInstance().collection("Users")
-                                                                                    .document(mAuth.getCurrentUser().getUid())
-                                                                                    .update(userMap)
-                                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                        @Override
-                                                                                        public void onSuccess(Void aVoid) {
-                                                                                            dialog.dismiss();
-                                                                                            users.setEmail(email.getText().toString());
-                                                                                            userViewModel.insert(users);
-                                                                                            Toasty.success(rootView.getContext(), "Verification email sent.", Toasty.LENGTH_SHORT, true).show();
-                                                                                            dialog.dismiss();
-                                                                                        }
-                                                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                                                @Override
-                                                                                public void onFailure(@NonNull Exception e) {
-                                                                                    dialog.dismiss();
-                                                                                    Log.e("Update", "failed: " + e.getLocalizedMessage());
-                                                                                }
-                                                                            });
-
-                                                                        }
-                                                                    }).addOnFailureListener(new OnFailureListener() {
-                                                                        @Override
-                                                                        public void onFailure(@NonNull Exception e) {
-                                                                            dialog.dismiss();
-                                                                            Log.e("Error", e.getLocalizedMessage());
-                                                                            dialog.dismiss();
-                                                                        }
-                                                                    });
-
-                                                                } else {
-
-                                                                    Log.e("Update email error", task.getException().getMessage() + "..");
-                                                                    dialog.dismiss();
-
-                                                                }
-
-                                                            }
-                                                        });
-
-                                                    }
-                                                });
-
-                                    }
-                                }
-                            })
-                            .positiveText("Done")
-                            .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog mdialog, @NonNull DialogAction which) {
-                                    dialog.show();
-                                    mdialog.dismiss();
-                                }
-                            })
-                            .negativeText("Don't change my email")
-                            .onNegative(new MaterialDialog.SingleButtonCallback() {
-                                @Override
-                                public void onClick(@NonNull MaterialDialog mdialog, @NonNull DialogAction which) {
-                                    dialog.dismiss();
-                                    mdialog.dismiss();
-                                }
-                            })
-                            .cancelable(false)
-                            .canceledOnTouchOutside(false)
-                            .show();
-
-
-                }
-
-                if (!name.getText().toString().equals(users.getName())) {
-
-                    dialog.setMessage("Updating Details....");
-                    dialog.show();
-
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("name", name.getText().toString());
-
-                    userDocument.update(map)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    users.setName(name.getText().toString());
-                                    userViewModel.insert(users);
-                                    dialog.dismiss();
-                                    Log.i("Update", "success");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.i("Update", "failed: " + e.getMessage());
-                                    dialog.dismiss();
-                                }
-                            });
-
-                }
-
-                if (!bio.getText().toString().equals(users.getBio())) {
-                    dialog.setMessage("Updating Details....");
-                    dialog.show();
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("bio", bio.getText().toString());
-                    userDocument.update(map)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    dialog.dismiss();
-                                    users.setBio(bio.getText().toString());
-                                    userViewModel.insert(users);
-                                    //userHelper.updateContactBio(1, bio.getText().toString());
-                                    Log.i("Update", "success");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    dialog.dismiss();
-                                    Log.i("Update", "failed: " + e.getMessage());
-                                }
-                            });
-
-                }
-
-                if (!location.getText().toString().equals(users.getLocation())) {
-                    dialog.setMessage("Updating Details....");
-                    dialog.show();
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("location", location.getText().toString());
-                    userDocument.update(map)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    dialog.dismiss();
-                                    users.setLocation(location.getText().toString());
-                                    userViewModel.insert(users);
-                                    Log.i("Update", "success");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    dialog.dismiss();
-                                    Log.i("Update", "failed: " + e.getMessage());
-
-                                }
-                            });
-
-                }
-                if (!institute.getText().toString().equals(users.getInstitute())) {
-
-                    dialog.setMessage("Updating Details....");
-                    dialog.show();
-
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("institute", institute.getText().toString());
-
-                    userDocument.update(map)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    dialog.dismiss();
-                                    users.setInstitute(institute.getText().toString());
-                                    userViewModel.insert(users);
-                                    Log.i("Update", "success");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    dialog.dismiss();
-                                    Log.i("Update", "failed: " + e.getMessage());
-
-                                }
-                            });
-
-                }
-                if (!dept.getText().toString().equals(users.getDept())) {
-
-                    dialog.setMessage("Updating Details....");
-                    dialog.show();
-
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("dept", dept.getText().toString());
-
-                    userDocument.update(map)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    dialog.dismiss();
-                                    users.setDept(dept.getText().toString());
-                                    userViewModel.insert(users);
-                                    //userHelper.updateContactDept(1, dept.getText().toString());
-                                    Log.i("Update", "success");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    dialog.dismiss();
-                                    Log.i("Update", "failed: " + e.getMessage());
-
-                                }
-                            });
-
-                }
-            });
-
-            return rootView;
-        }
-
-        public boolean isOnline() {
-            ConnectivityManager cm =
-                    (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = cm.getActiveNetworkInfo();
-            return netInfo != null && netInfo.isConnectedOrConnecting();
-        }
-
-        @Override
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-            if (data != null) {
-                Uri imageUri = null;
-                if (requestCode == PICK_IMAGE) {
-                    imageUri = data.getData();
-                    UCrop.Options options = new UCrop.Options();
-                    options.setCompressionFormat(Bitmap.CompressFormat.PNG);
-                    options.setCompressionQuality(50);
-                    options.withAspectRatio(1, 1);
-                    options.setShowCropGrid(true);
-                    UCrop.of(Objects.requireNonNull(imageUri), Uri.fromFile(new File(getActivity().getCacheDir(), userId + System.currentTimeMillis() + ".png")))
-                            .withOptions(options)
-                            .start(getActivity(), 23);
-                } else if (requestCode == 23) {
-                    try {
-                        imageUri = UCrop.getOutput(Objects.requireNonNull(data));
-                        Toasty.info(rootView.getContext(), "Profile picture uploaded, click Save details button to apply changes", Toasty.LENGTH_LONG, true).show();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toasty.info(rootView.getContext(), "error " + e.getLocalizedMessage(), Toasty.LENGTH_SHORT, true).show();
-                    }
-                }
-            }
-
-        }
-    }
-*/
 
 }
 

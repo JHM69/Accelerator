@@ -24,26 +24,43 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8bfb8ece-f9bc-4cb6-b9ee-dd278e3e1c89" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_next.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/log_in.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/replay.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/NotificationsAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/NotificationsAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/searchFriends/SearchFriendAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/searchFriends/SearchFriendAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/account/EditProfile.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/account/EditProfile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/friends/FriendProfile.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/friends/FriendProfile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/friends/SearchUsersActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/friends/SearchUsersActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/notification/NotificationFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/notification/NotificationFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/QuizBattle.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/QuizBattle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/Ranking.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/Ranking.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/ResultActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/ResultActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/fragment/ProfileFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/fragment/ProfileFragment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/fragment/Quiz.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/fragment/Quiz.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/bio.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/bio.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_baseline_school_24.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_baseline_school_24.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_edit_black_24dp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_edit_black_24dp.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/drawable/ic_location_on_black_24dp.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_location_on_black_24dp.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_edit_profile.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_edit_profile.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_login.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main_drawer.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main_drawer.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_post_comments.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_post_comments.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_register.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_result.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_result.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/bottom_sheet_dialog.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/bottom_sheet_dialog.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/item_result_question.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_result_question.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/frag_profile_view.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/frag_profile_view.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragmengt_about.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragmengt_about.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/fragment_quiz.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/fragment_quiz.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/item_feed_post.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/item_feed_post.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/ranking.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/ranking.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/menu_notifications.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/menu/menu_notifications.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/fragmengt_about_scene.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/fragmengt_about_scene.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/fragment_quiz_scene.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/fragment_quiz_scene.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[f000d3b7d83]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -282,7 +299,14 @@
       <option name="project" value="LOCAL" />
       <updated>1619207868541</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="edited">
+      <created>1619210331299</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1619210331299</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -334,10 +358,10 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="494" y="176" key="AndroidCreateXmlResourceDialog/0.0.1366.738@0.0.1366.738" timestamp="1617946784919" />
-    <state x="0" y="55" key="CommitChangelistDialog2" timestamp="1619207867059">
+    <state x="0" y="55" key="CommitChangelistDialog2" timestamp="1619210329126">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="0" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1619207867059" />
+    <state x="0" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1619210329126" />
     <state x="463" y="110" key="FileChooserDialogImpl" timestamp="1618491315830">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
@@ -350,30 +374,30 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="293" y="73" key="Github.UntrackedFilesDialog/0.0.1366.738@0.0.1366.738" timestamp="1617387968615" />
-    <state width="1323" height="476" key="GridCell.Tab.0.bottom" timestamp="1619197454572">
+    <state width="1323" height="295" key="GridCell.Tab.0.bottom" timestamp="1619261526872">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="476" key="GridCell.Tab.0.bottom/0.0.1366.738@0.0.1366.738" timestamp="1619197454572" />
-    <state width="1323" height="476" key="GridCell.Tab.0.center" timestamp="1619197454572">
+    <state width="1323" height="295" key="GridCell.Tab.0.bottom/0.0.1366.738@0.0.1366.738" timestamp="1619261526872" />
+    <state width="1323" height="295" key="GridCell.Tab.0.center" timestamp="1619261526872">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="476" key="GridCell.Tab.0.center/0.0.1366.738@0.0.1366.738" timestamp="1619197454572" />
-    <state width="1323" height="476" key="GridCell.Tab.0.left" timestamp="1619197454571">
+    <state width="1323" height="295" key="GridCell.Tab.0.center/0.0.1366.738@0.0.1366.738" timestamp="1619261526872" />
+    <state width="1323" height="295" key="GridCell.Tab.0.left" timestamp="1619261526872">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="476" key="GridCell.Tab.0.left/0.0.1366.738@0.0.1366.738" timestamp="1619197454571" />
-    <state width="1323" height="476" key="GridCell.Tab.0.right" timestamp="1619197454572">
+    <state width="1323" height="295" key="GridCell.Tab.0.left/0.0.1366.738@0.0.1366.738" timestamp="1619261526872" />
+    <state width="1323" height="295" key="GridCell.Tab.0.right" timestamp="1619261526872">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state width="1323" height="476" key="GridCell.Tab.0.right/0.0.1366.738@0.0.1366.738" timestamp="1619197454572" />
+    <state width="1323" height="295" key="GridCell.Tab.0.right/0.0.1366.738@0.0.1366.738" timestamp="1619261526872" />
     <state x="214" y="13" key="SettingsEditor" timestamp="1619207965430">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="214" y="13" key="SettingsEditor/0.0.1366.738@0.0.1366.738" timestamp="1619207965430" />
-    <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1619208536157">
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1619210346344">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1619208536157" />
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1619210346344" />
     <state x="366" y="80" width="634" height="578" key="find.popup" timestamp="1618474751949">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
@@ -382,5 +406,9 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="339" y="165" key="run.anything.popup/0.0.1366.738@0.0.1366.738" timestamp="1619197405057" />
+    <state x="346" y="59" width="672" height="678" key="search.everywhere.popup" timestamp="1619259527075">
+      <screen x="0" y="0" width="1366" height="738" />
+    </state>
+    <state x="346" y="59" width="672" height="678" key="search.everywhere.popup/0.0.1366.738@0.0.1366.738" timestamp="1619259527075" />
   </component>
 </project>

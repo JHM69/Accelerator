@@ -125,7 +125,7 @@ public class ResultActivity extends AppCompatActivity {
             try {
                 battleViewModel.get(battleIdNew).observe(this, battlep ->
                         doThingsForMe(requireNonNull(battlep)));
-            } catch (NullPointerException j) {
+            } catch (Exception j) {
                 if (battlep == null) {
                     mDialog.show();
                     DatabaseReference mDb = FirebaseDatabase.getInstance().getReference();
