@@ -7,11 +7,11 @@
     <string name="s_peopl_have_saved_this_post" translatable="false"> %d </string>
     <string name="s_peopl_have_commented_this_post" translatable="false"> %d </string>
     <string name="view_profile">View profile</string>
-    <string name="username">Username</string>
     <string name="web_client_id" tools:ignore="TypographyDashes">482041872937-4fg8mk8lftghegpqlfmb447ip7kov06b.apps.googleusercontent.com</string>
     <string name="group_or_subject">Group (Select Any)</string>
     <string name="class_level">Class Level* (select any)</string>
     <string name="location">Location (Select Zila)</string>
     <string name="_4">4</string>
-    <string name="let_s_challenge_others_in_battle_of_quiz">Let\'s Challenge others in Battle of Quiz</string>
+    <string name="let_s_challenge_others_in_battle_of_quiz">Let\'s Challenge others in Battle of Quiz. Currently no battle history found.</string>
+    <string name="sdf">Type Latex Equation, eg x^2+3\\pi=b_5</string>
 </resources>

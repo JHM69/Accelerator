@@ -31,9 +31,7 @@ import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -53,7 +51,6 @@ import java.util.Objects;
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.dmoral.toasty.Toasty;
 
-import static org.jhm69.battle_of_quiz.R.id.action_edit;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
@@ -136,9 +133,7 @@ public class ProfileFragment extends Fragment {
                     .document(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())
                     .collection("Friends")
                     .get()
-                    .addOnSuccessListener(documentSnapshots -> {
-                        friend.setText(String.valueOf(documentSnapshots.size()));
-                    });
+                    .addOnSuccessListener(documentSnapshots -> friend.setText(String.valueOf(documentSnapshots.size())));
             try {
                 profileView.user.observe(getViewLifecycleOwner(), users -> {
                     name.setText(users.getName());
@@ -155,10 +150,8 @@ public class ProfileFragment extends Fragment {
                             .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
                             .load(users.getImage())
                             .into(profile_pic);
-                    profile_pic.setOnClickListener(v -> {
-                        rootView.getContext().startActivity(new Intent(rootView.getContext(), ImagePreviewSave.class)
-                                .putExtra("url", users.getImage()));
-                    });
+                    profile_pic.setOnClickListener(v -> rootView.getContext().startActivity(new Intent(rootView.getContext(), ImagePreviewSave.class)
+                            .putExtra("url", users.getImage())));
                 });
                 FirebaseFirestore.getInstance().collection("Posts")
                         .whereEqualTo("userId", mAuth.getCurrentUser().getUid())

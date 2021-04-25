@@ -76,6 +76,7 @@ public class MathView extends WebView {
         this.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
         getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
 
+        this.setWebChromeClient(this);
         settings.setJavaScriptEnabled(true);
         settings.setAllowFileAccess(true);
         settings.setBuiltInZoomControls(false);
@@ -85,7 +86,8 @@ public class MathView extends WebView {
         Log.d(TAG, "Zoom in controls:" + false);
     }
 
-
+    private void setWebChromeClient(MathView mathView) {
+    }
 
 
     public void setDisplayText(String formula_text) {
@@ -108,8 +110,6 @@ public class MathView extends WebView {
                 "        <script type=\"text/javascript\" src=\"file:///android_asset/latex_parser.js\" ></script>\n" +
                 "        <meta name=\"viewport\" content=\"width=device-width\"/>\n" +
                 "        <link rel=\"stylesheet\" href=\"file:///android_asset/webviewstyle.css\"/>\n" +
-                "        <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css\"/>\n" +
-                // "        <link href=\"https://fonts.maateen.me/siyam-rupali/font.css\" rel=\"stylesheet\">\n" +
                 "        <style  onload=\"PR.prettyPrint()\" type='text/css'>" +
                 "@font-face {\n" +
                 "                font-family: myFirstFont;\n" +
@@ -123,42 +123,6 @@ public class MathView extends WebView {
                 "font-size:" + this.text_size + "px;" +
                 "color:" + getHexColor(this.text_color) + ";" +
                 " }" +
-                ".fa {\n" +
-                "  padding: 8px;\n" +
-                "  font-size: 18px;\n" +
-                "  width: 18px;\n" +
-                "  text-align: center;\n" +
-                "  text-decoration: none;\n" +
-                "  margin: 5px 2px;\n" +
-                "  border-radius: 50%;\n" +
-                "}\n" +
-                "\n" +
-                ".fa:hover {\n" +
-                "    opacity: 0.7;\n" +
-                "}\n" +
-                "\n" +
-                ".fa-facebook {\n" +
-                "  background: #3B5998;\n" +
-                "  color: white;\n" +
-                "}\n" +
-                "\n" +
-                ".fa-linkedin {\n" +
-                "  background: #007bb5;\n" +
-                "  color: white;\n" +
-                "}\n" +
-                "\n" +
-                ".fa-github {\n" +
-                "  background: #333;\n" +
-                "  color: white;\n" +
-                "}\n" +
-                ".image-container {\n" +
-                " height: auto;\n" +
-                " width: 220px;"+
-                " margin-left: 30px;"+
-                "justify-content: center;\n" +
-                "}"+
-
-
                 " </style>" +
                 "    </head>\n" +
                 "    <body>\n" +

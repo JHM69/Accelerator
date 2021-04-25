@@ -39,7 +39,6 @@
             motion:layout_constraintStart_toEndOf="@+id/button3"
             motion:layout_constraintTop_toTopOf="@+id/button3" />
         <Constraint
-            android:id="@+id/ghljoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -129,7 +128,6 @@
             motion:layout_constraintStart_toEndOf="@+id/button3"
             motion:layout_constraintTop_toTopOf="@+id/button3" />
         <Constraint
-            android:id="@+id/ghljoji"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"

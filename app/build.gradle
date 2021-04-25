@@ -7,8 +7,8 @@ android {
         applicationId "org.jhm69.battle_of_quiz"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 3
-        versionName "3.0"
+        versionCode 4
+        versionName "4.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -67,15 +67,15 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.google.firebase:firebase-perf:19.1.1'
     implementation 'com.google.firebase:firebase-firestore:22.1.2'
-    implementation 'com.google.firebase:firebase-auth:20.0.3'
+    implementation 'com.google.firebase:firebase-auth:20.0.4'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.google.firebase:firebase-storage:19.2.2'
 
-    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    implementation 'com.google.firebase:firebase-messaging:21.1.0'
     implementation 'com.squareup.retrofit2:retrofit:2.3.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
 
-    implementation 'com.google.firebase:firebase-core:18.0.2'
+    implementation 'com.google.firebase:firebase-core:18.0.3'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     implementation 'com.yarolegovich:sliding-root-nav:1.1.1'
@@ -101,6 +101,7 @@ dependencies {
     implementation 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
     implementation 'com.mikepenz:aboutlibraries:6.2.3'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    //noinspection GradleDependency
     implementation 'com.google.android.gms:play-services-ads:19.8.0'
     implementation "androidx.paging:paging-runtime:2.1.2"
     implementation 'com.shobhitpuri.custombuttons:google-signin:1.0.0'
@@ -112,7 +113,3 @@ apply plugin: 'com.google.gms.google-services'
 repositories {
     mavenCentral()
 }
-
-
-
-

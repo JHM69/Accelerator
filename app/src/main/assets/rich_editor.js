@@ -166,12 +166,13 @@ RE.insertImage = function(url, alt) {
     RE.insertHTML(html);
 }
 
-RE.setCode = function() {
-    if(window.getSelection().toString() != ""){
-        var code = window.getSelection().toString().replace(/</ig, '&lt;').replace(/>/ig, '&gt;');
-        var html ='<pre class="sf_code">'+code+'</pre><br>'
+RE.setCode = function(data) {
+    RE.restorerange();
+    if (data.toString().length != 0) {
+        var code = data.replace(/</ig, '&lt;').replace(/>/ig, '&gt;');
+        var temp ='<pre class="code">'+code+'</pre><br><br>'
+        document.execCommand("insertHTML",false, temp);
     }
-    editor.insertHTML(html);
 }
 RE.insertLatex = function(latex) {
         RE.restorerange();

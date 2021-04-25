@@ -227,16 +227,16 @@ public class ResultActivity extends AppCompatActivity {
                 resultText.setText("Congratulations, You Won!");
                 winnerId = battlePlay.receiverUid;
                 resultText.setTextColor(Color.parseColor("#4BBB4F"));
-                pointText.setText("you have got 5 point and 5 XP");
+                pointText.setText("you have got 5 point and 20 XP");
             } else if (seScore > reScore) {
                 winnerId = battlePlay.senderUid;
                 resultText.setText("Damn, You Lost!");
                 resultText.setTextColor(Color.parseColor("#D32F2F"));
-                pointText.setText("you have lost 5 point");
+                pointText.setText("Better luck next time");
             } else {
                 resultText.setText("Match Drawn!");
                 resultText.setTextColor(Color.parseColor("#5570A0"));
-                pointText.setText("You were too close winning");
+                pointText.setText("You were too close winning. got 2 point");
             }
             playAgain.setOnClickListener(view -> {
                 Intent goBattle = new Intent(getApplicationContext(), SelectTopic.class);
@@ -273,16 +273,16 @@ public class ResultActivity extends AppCompatActivity {
                     resultText.setText("Congratulations, You Won!");
                     winnerId = battlePlay.receiverUid;
                     resultText.setTextColor(Color.parseColor("#4BBB4F"));
-                    pointText.setText("you have got 5 point and 5 XP");
+                    pointText.setText("you have got 5 point and 20 XP");
                 } else if (seScore > reScore) {
                     winnerId = battlePlay.senderUid;
                     resultText.setText("Damn, You Lost!");
                     resultText.setTextColor(Color.parseColor("#D32F2F"));
-                    pointText.setText("you have lost 5 point");
+                    pointText.setText("Better luck next time");
                 } else {
                     resultText.setText("Match Drawn!");
                     resultText.setTextColor(Color.parseColor("#5570A0"));
-                    pointText.setText("You were too close winning");
+                    pointText.setText("You were too close winning, Still 2 XP");
                 }
                 playAgain.setOnClickListener(view -> {
                     Intent goBattle = new Intent(getApplicationContext(), SelectTopic.class);
@@ -312,16 +312,16 @@ public class ResultActivity extends AppCompatActivity {
                     resultText.setText("Congratulations, You Won!");
                     winnerId = battlePlay.senderUid;
                     resultText.setTextColor(Color.parseColor("#4BBB4F"));
-                    pointText.setText("you have got 5 point and 5 XP");
+                    pointText.setText("you have got 5 point and 20 XP");
                 } else if (reScore > seScore) {
                     winnerId = battlePlay.receiverUid;
                     resultText.setText("Damn, You Lost!");
                     resultText.setTextColor(Color.parseColor("#D32F2F"));
-                    pointText.setText("you have lost 5 point");
+                    pointText.setText("Better luck next time");
                 } else {
                     resultText.setText("Match Drawn!");
                     resultText.setTextColor(Color.parseColor("#5570A0"));
-                    pointText.setText("You were too close winning");
+                    pointText.setText("You were too close winning, Still 2 XP");
                 }
                 playAgain.setOnClickListener(view -> {
                     Intent goBattle = new Intent(getApplicationContext(), SelectTopic.class);

@@ -139,7 +139,6 @@ public class RichEditor extends WebView {
                 exec("javascript:RE.setTextAlign(\"center\")");
                 break;
         }
-
         ta.recycle();
     }
 
@@ -276,14 +275,12 @@ public class RichEditor extends WebView {
 
     public void setTextColor(int color) {
         exec("javascript:RE.prepareInsert();");
-
         String hex = convertHexColorString(color);
         exec("javascript:RE.setTextColor('" + hex + "');");
     }
 
     public void setTextBackgroundColor(int color) {
         exec("javascript:RE.prepareInsert();");
-
         String hex = convertHexColorString(color);
         exec("javascript:RE.setTextBackgroundColor('" + hex + "');");
     }
@@ -335,12 +332,17 @@ public class RichEditor extends WebView {
         exec("javascript:RE.setNumbers();");
     }
 
-    public void setCode() {
-        exec("javascript:RE.setCode();");
+    public void setCode(String code) {
+        try {
+            String codea=code.replaceAll(System.getProperty("line.separator"), "\\\\n");
+            exec("javascript:RE.setCode('" + codea + "');");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void insertLatex(String latexEquation) {
-
         latexEquation = "\\(" + latexEquation + "\\)";
         exec("javascript:RE.prepareInsert();");
         try {

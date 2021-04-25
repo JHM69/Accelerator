@@ -14,11 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.firebase.ui.auth.data.model.User;
 
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.models.Player;
-import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.SelectTopic;
 
 import java.util.List;

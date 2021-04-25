@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,6 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -51,8 +54,11 @@ public class PostText extends AppCompatActivity {
     DatabaseReference databaseReference;
     EditText latexText;
     RichEditor mRichEd;
+    private ConstraintLayout codeLayout;
+    EditText codeText;
     Spinner type;
     String tag;
+    boolean isHead;
 
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, PostText.class);
@@ -85,7 +91,6 @@ public class PostText extends AppCompatActivity {
         int end = Math.max(latexText.getSelectionEnd(), 0);
         latexText.getText().replace(Math.min(start, end), Math.max(start, end),
                 data, 0, data.length());
-
     }
 
     @Override
@@ -116,7 +121,7 @@ public class PostText extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference();
         Toolbar toolbar = findViewById(R.id.toolbar4);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("Text Post (3 xp)");
+        toolbar.setTitle("New Article");
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -129,7 +134,7 @@ public class PostText extends AppCompatActivity {
         type.setOnItemSelectedListener(new TypeXSpinnerClass());
 
         try {
-            Objects.requireNonNull(getSupportActionBar()).setTitle("Text Post");
+            Objects.requireNonNull(getSupportActionBar()).setTitle("New Article");
             toolbar.setTitleTextColor(Color.WHITE);
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,6 +221,8 @@ public class PostText extends AppCompatActivity {
         mEditor.setPlaceholder("Start Witting your post here...");
         //mEditor.setInputEnabled(false);
 
+        codeLayout = findViewById(R.id.code_editor);
+
         mEditor.setOnTextChangeListener(text -> {
             try {
                 mathView.setDisplayText(text);
@@ -224,73 +231,357 @@ public class PostText extends AppCompatActivity {
             }
         });
 
+
+
         findViewById(R.id.action_undo).setOnClickListener(v -> mEditor.undo());
 
         findViewById(R.id.action_redo).setOnClickListener(v -> mEditor.redo());
-        findViewById(R.id.action_bold).setOnClickListener(v -> mEditor.setBold());
+        findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_bold).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_bold).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setBold();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_italic).setOnClickListener(v -> mEditor.setItalic());
+        findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_italic).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_italic).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setItalic();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_subscript).setOnClickListener(v -> mEditor.setSubscript());
 
-        findViewById(R.id.action_superscript).setOnClickListener(v -> mEditor.setSuperscript());
+        findViewById(R.id.action_subscript).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_subscript).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_subscript).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setSubscript();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_strikethrough).setOnClickListener(v -> mEditor.setStrikeThrough());
+        findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_superscript).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_superscript).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setSuperscript();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_underline).setOnClickListener(v -> mEditor.setUnderline());
 
-        findViewById(R.id.action_heading1).setOnClickListener(v -> mEditor.setHeading(1));
+        findViewById(R.id.action_strikethrough).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_strikethrough).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_strikethrough).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setStrikeThrough();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_heading2).setOnClickListener(v -> mEditor.setHeading(2));
+        findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_underline).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_underline).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setUnderline();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_heading3).setOnClickListener(v -> mEditor.setHeading(3));
 
-        findViewById(R.id.action_heading4).setOnClickListener(v -> mEditor.setHeading(4));
+        findViewById(R.id.action_heading1).setOnClickListener(v ->{
+            if(!isHead){
+                findViewById(R.id.action_heading1).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading1).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(1);
+        });
 
-        findViewById(R.id.action_heading5).setOnClickListener(v -> mEditor.setHeading(5));
+        findViewById(R.id.action_heading2).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading2).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading2).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(2);
+        });
 
-        findViewById(R.id.action_heading6).setOnClickListener(v -> mEditor.setHeading(6));
+        findViewById(R.id.action_heading3).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading3).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading3).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(3);
+
+        });
+
+        findViewById(R.id.action_heading4).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading4).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading4).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(4);
+        });
+
+        findViewById(R.id.action_heading5).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading5).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading5).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(5);
+        });
+
+        findViewById(R.id.action_heading6).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading6).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading6).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(6);
+        });
+
 
         findViewById(R.id.action_txt_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
 
             @Override
             public void onClick(View v) {
-                mEditor.setTextColor(isChanged ? Color.BLACK : Color.RED);
+                if(!isChanged){
+                    findViewById(R.id.action_txt_color).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_txt_color).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setTextColor(isChanged ? Color.BLACK : getResources().getColor(R.color.colorAccentt));
                 isChanged = !isChanged;
             }
         });
 
         findViewById(R.id.action_bg_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
-
             @Override
             public void onClick(View v) {
-                mEditor.setTextBackgroundColor(isChanged ? Color.TRANSPARENT : Color.YELLOW);
+                if(!isChanged){
+                    findViewById(R.id.action_bg_color).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_bg_color).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setTextBackgroundColor(isChanged ? Color.TRANSPARENT : getResources().getColor(R.color.backG));
                 isChanged = !isChanged;
             }
         });
 
-        findViewById(R.id.action_indent).setOnClickListener(v -> mEditor.setIndent());
 
-        findViewById(R.id.action_outdent).setOnClickListener(v -> mEditor.setOutdent());
 
-        findViewById(R.id.action_align_left).setOnClickListener(v -> mEditor.setAlignLeft());
+         findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_indent).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_indent).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setIndent();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_align_center).setOnClickListener(v -> mEditor.setAlignCenter());
 
-        findViewById(R.id.action_align_right).setOnClickListener(v -> mEditor.setAlignRight());
+         findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_outdent).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_outdent).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setOutdent();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_blockquote).setOnClickListener(v -> mEditor.setBlockquote());
+          findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_align_left).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_align_left).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setAlignLeft();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_insert_bullets).setOnClickListener(v -> mEditor.setBullets());
+           findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_align_center).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_align_center).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setAlignCenter();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_insert_numbers).setOnClickListener(v -> mEditor.setNumbers());
+
+        Button tab = findViewById(R.id.tab);
+        tab.setOnClickListener(view -> {
+
+        });
+
+        findViewById(R.id.insert_code).setOnClickListener(view -> {
+            if (codeLayout.getVisibility() == View.GONE) {
+                findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.selectted));
+                codeLayout.setVisibility(View.VISIBLE);
+                findViewById(R.id.submit_code).setOnClickListener(view115 -> {
+                    String data1 = codeText.getText().toString();
+                    Log.d("CODEEE", "Step 1:"+ data1);
+                    mRichEd.setCode(data1);
+                    data1 = "";
+                    codeText.setText("");
+                    codeLayout.setVisibility(View.GONE);
+                });
+            } else {
+                findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                codeLayout.setVisibility(View.GONE);
+            }
+        });
+
+        findViewById(R.id.action_align_right).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_align_right).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_align_right).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setAlignRight();
+                isChanged = !isChanged;
+            }
+        });
+
+        findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_blockquote).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_blockquote).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setBlockquote();
+                isChanged = !isChanged;
+            }
+        });
+
+        findViewById(R.id.action_insert_bullets).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_insert_bullets).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_insert_bullets).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setBullets();
+                isChanged = !isChanged;
+            }
+        });
+
+
+
+
+
+       findViewById(R.id.action_insert_numbers).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_insert_numbers).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_insert_numbers).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setNumbers();
+                isChanged = !isChanged;
+            }
+        });
+
+
+        codeText = findViewById(R.id.code);
+
+        findViewById(R.id.insert_code).setOnClickListener(view -> {
+            if (codeLayout.getVisibility() == View.GONE) {
+                codeLayout.setVisibility(View.VISIBLE);
+                findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.selectted));
+                findViewById(R.id.submit_code).setOnClickListener(view115 -> {
+                    String data1 = codeText.getText().toString();
+                    mRichEd.setCode(data1);
+                    data1 = "";
+                    codeText.setText("");
+                    codeLayout.setVisibility(View.GONE);
+                });
+            } else {
+                findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                codeLayout.setVisibility(View.GONE);
+            }
+        });
+
         View latexView = findViewById(R.id.latext_editor);
         findViewById(R.id.insert_latex).setOnClickListener(view -> {
             if (latexView.getVisibility() == View.GONE) {
                 latexView.setVisibility(View.VISIBLE);
-
+                findViewById(R.id.insert_latex).setBackgroundColor(getResources().getColor(R.color.selectted));
                 MathView mathView1 = findViewById(R.id.mathView);
                 latexText.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -335,12 +626,31 @@ public class PostText extends AppCompatActivity {
                 findViewById(R.id.action_enter).setOnClickListener(view12 -> addExtraLatex("\\\\", latexText));
                 findViewById(R.id.action_space).setOnClickListener(view1 -> addExtraLatex("\\;", latexText));
             } else {
+                findViewById(R.id.insert_latex).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
                 latexView.setVisibility(View.GONE);
             }
         });
 
-        findViewById(R.id.insert_code).setOnClickListener(v -> mEditor.setCode());
-        findViewById(R.id.action_insert_checkbox).setOnClickListener(v -> mEditor.insertTodo());
+        findViewById(R.id.action_insert_checkbox).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_insert_checkbox).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_insert_checkbox).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.insertTodo();
+                isChanged = !isChanged;
+            }
+        });
+    }
+
+    public static void addExtraCode(String data, EditText codText) {
+        int start = Math.max(codText.getSelectionStart(), 0);
+        int end = Math.max(codText.getSelectionEnd(), 0);
+        codText.getText().replace(Math.min(start, end), Math.max(start, end),
+                data, 0, data.length());
     }
 
 

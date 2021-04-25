@@ -39,12 +39,10 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.adapters.PostPhotosAdapter;
 import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
 import org.jhm69.battle_of_quiz.adapters.searchFriends.SearchFriendAdapter;
 import org.jhm69.battle_of_quiz.models.Friends;
 import org.jhm69.battle_of_quiz.models.Post;
-import org.jhm69.battle_of_quiz.ui.fragment.SavedFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -181,6 +179,7 @@ public class SearchUsersActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("InflateParams")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

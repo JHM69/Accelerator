@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
@@ -64,7 +65,6 @@ public class PostImage extends AppCompatActivity {
     Spinner type;
     PagerPhotosAdapter adapter;
     final ArrayList<String> uploadedImagesUrl = new ArrayList<>();
-    EditText latexText;
     String tag;
     RichEditor mRichEd;
     private FirebaseUser mCurrentUser;
@@ -73,12 +73,13 @@ public class PostImage extends AppCompatActivity {
     private int selectedIndex;
     private SharedPreferences sharedPreferences;
     private int serviceCount;
-
+    private ConstraintLayout codeLayout;
+    EditText latexText, codeText;
     public static void startActivity(Context context) {
         Intent intent = new Intent(context, PostImage.class);
         context.startActivity(intent);
     }
-
+    boolean isHead;
     @NonNull
     public static String random() {
         Random generator = new Random();
@@ -139,8 +140,9 @@ public class PostImage extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("New Image Post");
+        toolbar.setTitle("Article with Image");
         latexText = findViewById(R.id.latex_equation);
+        codeText = findViewById(R.id.code);
         type = findViewById(R.id.spinner_type);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.item_type_x));
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_expandable_list_item_1);
@@ -148,7 +150,7 @@ public class PostImage extends AppCompatActivity {
         type.setOnItemSelectedListener(new TypeXSpinnerClass());
 
         try {
-            Objects.requireNonNull(getSupportActionBar()).setTitle("New Image Post");
+            Objects.requireNonNull(getSupportActionBar()).setTitle("Article with Image");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -191,74 +193,333 @@ public class PostImage extends AppCompatActivity {
 
             }
         });
+        codeLayout = findViewById(R.id.code_editor);
 
         findViewById(R.id.action_undo).setOnClickListener(v -> mEditor.undo());
 
         findViewById(R.id.action_redo).setOnClickListener(v -> mEditor.redo());
-        findViewById(R.id.action_bold).setOnClickListener(v -> mEditor.setBold());
 
-        findViewById(R.id.action_italic).setOnClickListener(v -> mEditor.setItalic());
+        findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_bold).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_bold).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setBold();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_subscript).setOnClickListener(v -> mEditor.setSubscript());
+        findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_italic).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_italic).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setItalic();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_superscript).setOnClickListener(v -> mEditor.setSuperscript());
 
-        findViewById(R.id.action_strikethrough).setOnClickListener(v -> mEditor.setStrikeThrough());
+        findViewById(R.id.action_subscript).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_subscript).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_subscript).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setSubscript();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_underline).setOnClickListener(v -> mEditor.setUnderline());
+           findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_superscript).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_superscript).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setSuperscript();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_heading1).setOnClickListener(v -> mEditor.setHeading(1));
 
-        findViewById(R.id.action_heading2).setOnClickListener(v -> mEditor.setHeading(2));
+       findViewById(R.id.action_strikethrough).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_strikethrough).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_strikethrough).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setStrikeThrough();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_heading3).setOnClickListener(v -> mEditor.setHeading(3));
+       findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_underline).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_underline).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setUnderline();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_heading4).setOnClickListener(v -> mEditor.setHeading(4));
 
-        findViewById(R.id.action_heading5).setOnClickListener(v -> mEditor.setHeading(5));
 
-        findViewById(R.id.action_heading6).setOnClickListener(v -> mEditor.setHeading(6));
+
+
+        findViewById(R.id.action_heading1).setOnClickListener(v ->{
+            if(!isHead){
+                findViewById(R.id.action_heading1).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading1).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(1);
+        });
+
+        findViewById(R.id.action_heading2).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading2).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading2).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(2);
+        });
+
+        findViewById(R.id.action_heading3).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading3).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading3).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(3);
+
+        });
+
+        findViewById(R.id.action_heading4).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading4).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading4).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(4);
+        });
+
+        findViewById(R.id.action_heading5).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading5).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading5).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(5);
+        });
+
+        findViewById(R.id.action_heading6).setOnClickListener(v -> {
+            if(!isHead){
+                findViewById(R.id.action_heading6).setBackgroundColor(getResources().getColor(R.color.selectted));
+            }else{
+                findViewById(R.id.action_heading6).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+            }
+            isHead=!isHead;
+            mEditor.setHeading(6);
+        });
+
 
         findViewById(R.id.action_txt_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
-
+            @SuppressLint("ResourceType")
             @Override
             public void onClick(View v) {
-                mEditor.setTextColor(isChanged ? Color.BLACK : Color.RED);
+                if(!isChanged){
+                    findViewById(R.id.action_txt_color).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_txt_color).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setTextColor(isChanged ? Color.BLACK : getResources().getColor(R.color.colorAccentt));
                 isChanged = !isChanged;
             }
         });
 
         findViewById(R.id.action_bg_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
-
+            @SuppressLint("ResourceType")
             @Override
             public void onClick(View v) {
-                mEditor.setTextBackgroundColor(isChanged ? Color.TRANSPARENT : Color.YELLOW);
+                if(!isChanged){
+                    findViewById(R.id.action_bg_color).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_bg_color).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setTextBackgroundColor(isChanged ? Color.TRANSPARENT : getResources().getColor(R.color.backG));
                 isChanged = !isChanged;
             }
         });
 
-        findViewById(R.id.action_indent).setOnClickListener(v -> mEditor.setIndent());
 
-        findViewById(R.id.action_outdent).setOnClickListener(v -> mEditor.setOutdent());
+         findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_indent).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_indent).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setIndent();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_align_left).setOnClickListener(v -> mEditor.setAlignLeft());
 
-        findViewById(R.id.action_align_center).setOnClickListener(v -> mEditor.setAlignCenter());
+         findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_outdent).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_outdent).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setOutdent();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_align_right).setOnClickListener(v -> mEditor.setAlignRight());
+          findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_align_left).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_align_left).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setAlignLeft();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_blockquote).setOnClickListener(v -> mEditor.setBlockquote());
+           findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_align_center).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_align_center).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setAlignCenter();
+                isChanged = !isChanged;
+            }
+        });
 
-        findViewById(R.id.action_insert_bullets).setOnClickListener(v -> mEditor.setBullets());
+        findViewById(R.id.insert_code).setOnClickListener(view -> {
+            if (codeLayout.getVisibility() == View.GONE) {
+                findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.selectted));
+                codeLayout.setVisibility(View.VISIBLE);
+                findViewById(R.id.submit_code).setOnClickListener(view115 -> {
+                    String data1 = codeText.getText().toString();
+                    mRichEd.setCode(data1);
+                    data1 = "";
+                    codeText.setText("");
+                    codeLayout.setVisibility(View.GONE);
+                });
+            } else {
+                findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                codeLayout.setVisibility(View.GONE);
+            }
+        });
 
-        findViewById(R.id.action_insert_numbers).setOnClickListener(v -> mEditor.setNumbers());
+        findViewById(R.id.action_align_right).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_align_right).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_align_right).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setAlignRight();
+                isChanged = !isChanged;
+            }
+        });
+
+        findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_blockquote).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_blockquote).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setBlockquote();
+                isChanged = !isChanged;
+            }
+        });
+
+        findViewById(R.id.action_insert_bullets).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_insert_bullets).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_insert_bullets).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setBullets();
+                isChanged = !isChanged;
+            }
+        });
+
+        findViewById(R.id.action_insert_numbers).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_insert_numbers).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_insert_numbers).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.setNumbers();
+                isChanged = !isChanged;
+            }
+        });
+
+
         View latexView = findViewById(R.id.latext_editor);
+
+
         findViewById(R.id.insert_latex).setOnClickListener(view -> {
             if (latexView.getVisibility() == View.GONE) {
                 latexView.setVisibility(View.VISIBLE);
-
+                findViewById(R.id.insert_latex).setBackgroundColor(getResources().getColor(R.color.selectted));
                 MathView mathView1 = findViewById(R.id.mathView);
                 latexText.addTextChangedListener(new TextWatcher() {
                     @Override
@@ -303,12 +564,24 @@ public class PostImage extends AppCompatActivity {
                 findViewById(R.id.action_enter).setOnClickListener(view12 -> addExtraLatex("\\\\", latexText));
                 findViewById(R.id.action_space).setOnClickListener(view1 -> addExtraLatex("\\;", latexText));
             } else {
+                findViewById(R.id.insert_latex).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
                 latexView.setVisibility(View.GONE);
             }
         });
 
-        findViewById(R.id.insert_code).setOnClickListener(v -> mEditor.setCode());
-        findViewById(R.id.action_insert_checkbox).setOnClickListener(v -> mEditor.insertTodo());
+        findViewById(R.id.action_insert_checkbox).setOnClickListener(new View.OnClickListener() {
+            private boolean isChanged;
+            @Override
+            public void onClick(View view) {
+                if(!isChanged){
+                    findViewById(R.id.action_insert_checkbox).setBackgroundColor(getResources().getColor(R.color.selectted));
+                }else{
+                    findViewById(R.id.action_insert_checkbox).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                }
+                mEditor.insertTodo();
+                isChanged = !isChanged;
+            }
+        });
     }
 
     @Override
@@ -496,5 +769,11 @@ public class PostImage extends AppCompatActivity {
         public void onNothingSelected(AdapterView<?> adapterView) {
 
         }
+    }
+    private void addExtraCode(EditText codeText) {
+        int start = Math.max(codeText.getSelectionStart(), 0);
+        int end = Math.max(codeText.getSelectionEnd(), 0);
+        codeText.getText().replace(Math.min(start, end), Math.max(start, end),
+                "    ", 0, "    ".length());
     }
 }

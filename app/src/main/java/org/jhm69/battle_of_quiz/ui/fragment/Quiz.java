@@ -27,8 +27,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
@@ -65,41 +63,6 @@ public class Quiz extends Fragment {
     ImageView pro_pic, cover;
     TextView nameTV, scoreTV, levelTV, coverTxt;
     String string;
-
-    /*  void setUpChartData(PieChart pieChart, float win, float lose, float draw) {
-            if (win == 0 && lose == 0 && draw == 0) {
-                pieChart.setVisibility(View.INVISIBLE);
-            } else {
-                pieChart.setVisibility(View.VISIBLE);
-                Description description = new Description();
-                description.setText("");
-                pieChart.setDescription(description);
-                Map<String, Float> scoreData = new HashMap<>();
-                scoreData.put("Win", win);
-                scoreData.put("Draw:", draw);
-                scoreData.put("Lose:", lose);
-                ArrayList<PieEntry> entries = new ArrayList<>();
-                if (win != 0) {
-                    entries.add(new PieEntry(win, "Win"));
-                }
-                if (draw != 0) {
-                    entries.add(new PieEntry(draw, "Draw"));
-                }
-                if (lose != 0) {
-                    entries.add(new PieEntry(lose, "Lose"));
-                }
-                PieDataSet pieDataSet = new PieDataSet(entries, " | Won:" + (win == 0 ? "0" : (int) win) + " | Drawn:" + (draw == 0 ? "0" : (int) draw) + " | Loosed:" + (lose == 0 ? "0" : (int) lose) + " | Total Played:" + ((win + draw + lose) == 0 ? "0" : (int) (win + draw + lose)));
-                pieDataSet.setColors(Color.parseColor("#00B311"), Color.parseColor("#2196f3"), Color.parseColor("#D32F2F"));
-                PieData pieData = new PieData(pieDataSet);
-                pieChart.setData(pieData);
-                pieData.setValueTextColor(Color.parseColor("#ffffff"));
-                pieData.setValueTextSize(8);
-                pieChart.setUsePercentValues(true);
-                pieChart.animateXY(1500, 1500);
-                pieChart.invalidate();
-            }
-        }
-    */
     String tag = "All";
     private RecyclerView mRecyclerView;
     private ResultAdapter resultAdapter;
@@ -174,7 +137,6 @@ public class Quiz extends Fragment {
                             .setColoredNavigationBar(true)
                             .setCancelable(true)
                             .setPositiveButton("Random Player", v -> {
-
                                 if (usersList.size() > 0) {
                                     try {
                                         Friends friends = usersList.get(0);
@@ -184,11 +146,11 @@ public class Quiz extends Fragment {
                                         goBattle.putExtra("otherUid", friends.userId);
                                         goBattle.putExtra("type", friends.getType());
                                         startActivity(goBattle);
-                                    } catch (NullPointerException j) {
+                                    } catch (Exception j) {
                                         Toasty.error(Objects.requireNonNull(getContext()), "Error getting random player, Try other option.", Toasty.LENGTH_SHORT);
                                     }
                                 } else {
-                                    Toasty.error(getActivity(), "Error getting random player, Try custom selection", Toasty.LENGTH_SHORT);
+                                    Toasty.error(requireContext(), "Error getting random player, Try custom selection", Toasty.LENGTH_SHORT);
                                     loadFragment(new PlayQuiz());
                                 }
                             })
@@ -211,14 +173,20 @@ public class Quiz extends Fragment {
         });
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
+    @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
     private void setupAdapter(String tag) {
         switch (tag) {
             case "Invites":
                 mViewModel.getInvites().observe(Objects.requireNonNull(getActivity()), result -> {
                     if (result.size() < 1) {
-                        string = "No Invites found";
-                        // Toasty.info(getContext(), "No Invites found.", Toast.LENGTH_LONG).show();
+                        string = "No battle invite Found, Ask your friend to invite you.";
+                        cover.setVisibility(View.VISIBLE);
+                        coverTxt.setText(string);
+                        coverTxt.setVisibility(View.VISIBLE);
+                        Toasty.info(requireContext(), string, Toast.LENGTH_LONG).show();
+                    }else{
+                        cover.setVisibility(View.GONE);
+                        coverTxt.setVisibility(View.GONE);
                     }
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
                     mRecyclerView.setAdapter(resultAdapter);
@@ -229,7 +197,15 @@ public class Quiz extends Fragment {
                 mViewModel.getCompleted().observe(Objects.requireNonNull(getActivity()), result -> {
                     if (result.size() < 1) {
                         string = "No battle Completed yet";
+                        cover.setVisibility(View.VISIBLE);
+                        coverTxt.setVisibility(View.VISIBLE);
+                        coverTxt.setText(string);
+                        Toasty.info(requireContext(), string, Toast.LENGTH_LONG).show();
+                    }else{
+                        cover.setVisibility(View.GONE);
+                        coverTxt.setVisibility(View.GONE);
                     }
+                    mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
                     mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter.notifyDataSetChanged();
@@ -238,9 +214,16 @@ public class Quiz extends Fragment {
             case "Pending":
                 mViewModel.getPending().observe(Objects.requireNonNull(getActivity()), result -> {
                     if (result.size() < 1) {
-                        string = "No Pending found";
-                        // Toasty.info(getContext(), "", Toast.LENGTH_LONG).show();
+                        string = "No Pending battle history found";
+                        cover.setVisibility(View.VISIBLE);
+                        coverTxt.setVisibility(View.VISIBLE);
+                        coverTxt.setText(string);
+                        Toasty.info(requireContext(), string, Toast.LENGTH_LONG).show();
+                    }else{
+                        cover.setVisibility(View.GONE);
+                        coverTxt.setVisibility(View.GONE);
                     }
+                    mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
                     mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter.notifyDataSetChanged();
@@ -249,9 +232,16 @@ public class Quiz extends Fragment {
             case "Your Invites":
                 mViewModel.getMyCompleted().observe(Objects.requireNonNull(getActivity()), result -> {
                     if (result.size() < 1) {
-                        string = "Empty Your Invites. Invite to others to Play battle Quiz";
-                        //Toasty.info(getContext(), "", Toast.LENGTH_LONG).show();
+                        string = "No 'Your Invite' battle history found. Start battle with others first.";
+                        cover.setVisibility(View.VISIBLE);
+                        coverTxt.setVisibility(View.VISIBLE);
+                        coverTxt.setText(string);
+                        Toasty.info(requireContext(), string, Toast.LENGTH_LONG).show();
+                    }else{
+                        cover.setVisibility(View.GONE);
+                        coverTxt.setVisibility(View.GONE);
                     }
+                    mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
                     mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter.notifyDataSetChanged();
@@ -260,12 +250,20 @@ public class Quiz extends Fragment {
             case "My Pending":
                 mViewModel.getMyPending().observe(Objects.requireNonNull(getActivity()), result -> {
                     if (result.size() < 1) {
-                        string = "No my pending found";
-                        //Toasty.info(getContext(), "", Toast.LENGTH_LONG).show();
+                        string = "No 'My Pending' battle history found";
+                        cover.setVisibility(View.VISIBLE);
+                        coverTxt.setVisibility(View.VISIBLE);
+                        coverTxt.setText(string);
+                        Toasty.info(requireContext(), string, Toast.LENGTH_LONG).show();
+                    }else{
+                        cover.setVisibility(View.GONE);
+                        coverTxt.setVisibility(View.GONE);
                     }
+                    mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
                     mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter.notifyDataSetChanged();
+
                 });
                 break;
             case "All":
@@ -273,21 +271,20 @@ public class Quiz extends Fragment {
                     if (result.size() < 1) {
                         string = Objects.requireNonNull(getContext()).getString(R.string.let_s_challenge_others_in_battle_of_quiz);
                         Toasty.info(getContext(), string, Toast.LENGTH_LONG).show();
+                        cover.setVisibility(View.VISIBLE);
+                        coverTxt.setVisibility(View.VISIBLE);
+                        coverTxt.setText(string);
+                    }else{
+                        cover.setVisibility(View.GONE);
+                        coverTxt.setVisibility(View.GONE);
                     }
                     resultAdapter = new ResultAdapter(result, getActivity(), false);
                     mRecyclerView.setAdapter(resultAdapter);
                     resultAdapter.notifyDataSetChanged();
                 });
                 break;
+        }
 
-        }
-        if (resultAdapter.getItemCount() == 0) {
-            cover.setImageDrawable(getResources().getDrawable(R.drawable.cover));
-            coverTxt.setText(string);
-        } else {
-            coverTxt.setText("");
-            cover.setImageDrawable(getResources().getDrawable(R.drawable.code));
-        }
     }
 
     @SuppressLint("SetTextI18n")

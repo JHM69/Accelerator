@@ -81,8 +81,6 @@ import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 public class FriendProfile extends AppCompatActivity {
 
-    private Toolbar toolbar;
-
     public static void startActivity(Context context, String id) {
         if (!id.equals(userId)) {
             context.startActivity(new Intent(context, FriendProfile.class).putExtra("f_id", id).setFlags(FLAG_ACTIVITY_NEW_TASK));
@@ -99,7 +97,7 @@ public class FriendProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_profile);
-        toolbar = findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Profile");
         toolbar.setTitleTextColor(Color.WHITE);

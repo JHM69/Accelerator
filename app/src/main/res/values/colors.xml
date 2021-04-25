@@ -10,9 +10,8 @@
     <color name="primaryColor">#8048be</color>
 
     <color name="white">#ffffff</color>
-    <color name="test1">#41B843</color>
-    <color name="test2">#AA6CEF</color>
-    <color name="test3">#F45656</color>
+    <color name="selectted">#573083</color>
+    <color name="backG">#BE8FF3</color>
 
     <color name="green">#4BBB4F</color>
     <color name="not">#DC2A4B</color>

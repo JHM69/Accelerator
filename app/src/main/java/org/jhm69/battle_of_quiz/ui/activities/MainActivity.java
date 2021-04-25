@@ -10,7 +10,6 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.ColorInt;
@@ -48,20 +46,15 @@ import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.yalantis.ucrop.UCrop;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
-
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.adapters.DrawerAdapter;
@@ -151,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                                     .collection("Users")
                                     .document(userId)
                                     .update(scoreMap).addOnSuccessListener(aVoid -> {
-                                    });
+                            });
                         } catch (NullPointerException ignored) {
 
                         }
@@ -199,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 public void onUserEarnedReward(@NonNull RewardItem reward) {
                     // User earned reward.
                     updateXP();
-
                 }
 
                 @Override
@@ -350,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
-                       // Toasty.info(MainActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG,true).show();
+                        // Toasty.info(MainActivity.this, "You have denied some permissions permanently, if the app force close try granting permission from settings.", Toasty.LENGTH_LONG,true).show();
                     }
 
                     @Override
@@ -367,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .collection("Users")
                 .document(currentuser.getUid())
                 .update(scoreMap).addOnSuccessListener(aVoid -> {
-                });
+        });
         final ProgressDialog mDialog = new ProgressDialog(this);
         mDialog.setIndeterminate(true);
         mDialog.setMessage("Logging you out...");
@@ -410,10 +402,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 add.setOnClickListener(view -> loadAd());
                 username.setText(nam);
                 Glide.with(MainActivity.this)
-                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                         .load(imag)
                         .into(imageView);
-                Log.d("Reward", String.valueOf(me.getReward()));
                 rewardTv.setText(me.getReward() + " xp");
 
 
@@ -427,7 +418,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 finish();
                 startActivity(intent);
-
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 Intent intent = getIntent();

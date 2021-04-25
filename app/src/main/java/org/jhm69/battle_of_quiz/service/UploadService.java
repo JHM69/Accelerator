@@ -44,10 +44,6 @@ public class UploadService extends Service {
     private static final String TAG_FOREGROUND_SERVICE = UploadService.class.getSimpleName();
     private int count;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -82,10 +78,7 @@ public class UploadService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
+
 
     @Nullable
     @Override
@@ -370,15 +363,11 @@ public class UploadService extends Service {
                     FirebaseFirestore.getInstance()
                             .collection("Users")
                             .document(userId)
-                            .update(scoreMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @SuppressLint({"CheckResult", "DefaultLocale"})
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            new UserRepository((Application) getApplicationContext()).updateXp(-3);
-                            //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-                            //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
-                        }
-                    });
+                            .update(scoreMap).addOnSuccessListener(aVoid -> {
+                                new UserRepository((Application) getApplicationContext()).updateXp(-3);
+                                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
+                                //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
+                            });
                 });
 
     }
