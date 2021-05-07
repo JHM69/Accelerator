@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +43,7 @@ import java.util.Objects;
 
 import static android.content.Context.MODE_PRIVATE;
 import static org.jhm69.battle_of_quiz.adapters.ResultAdapter.COMPLETED;
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
@@ -59,6 +61,8 @@ public class Dashboard extends Fragment {
     private BattleViewModel battleViewModel;
     private ResultViewModel viewModel;
     private int nSize;
+    private FirebaseFirestore firestore;
+    int count = 0;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -88,7 +92,7 @@ public class Dashboard extends Fragment {
         highLightCurrentTab(0);
         try {
             viewPager.setOffscreenPageLimit(adapter.getCount());
-        } catch (IllegalStateException ignored) {
+        } catch (Exception ignored) {
 
         }
 
@@ -101,7 +105,7 @@ public class Dashboard extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 highLightCurrentTab(position);
-
+                inHome = position == 0;
             }
 
             @Override
@@ -111,42 +115,52 @@ public class Dashboard extends Fragment {
 
         viewModel = ViewModelProviders.of(getActivity()).get(ResultViewModel.class);
         battleViewModel = ViewModelProviders.of(getActivity()).get(BattleViewModel.class);
+        firestore = FirebaseFirestore.getInstance();
 
-        int count = Objects.requireNonNull(getActivity()).getSharedPreferences("Notifications", MODE_PRIVATE).getInt("count", 0);
-
-        AsyncTask.execute(() -> FirebaseFirestore.getInstance().collection("Users")
-                .document(userId)
-                .collection("Info_Notifications")
-                .orderBy("timestamp", Query.Direction.DESCENDING).limit(7)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    nSize = queryDocumentSnapshots.size();
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()) {
-                            if (documentChange.getType() == DocumentChange.Type.ADDED) {
-                                Notification notification = documentChange.getDocument().toObject(Notification.class).withId(documentChange.getDocument().getId());
-                                if (notification.getType().equals("play")) {
-                                    if (!viewModel.resultExistsForSecondPlayer(notification.getAction_id())) {
-                                        new PlayAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play");
-                                    }
-                                } else if (notification.getType().equals("play_result")) {
-                                    if (!viewModel.resultExists(notification.getAction_id())) {
-                                        new PlayResultAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play_result");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }));
-
-        if (nSize>count) {
-            Log.d("nCount", nSize+"  "+count);
-            TabLayout.Tab tab = tabLayout.getTabAt(2);
-            Objects.requireNonNull(tab).setCustomView(null);
-            tab.setCustomView(adapter.setNotifications(nSize-count));
-        }  // badge_count.setVisibility(View.GONE);
-
+        updateBattle();
     }
+
+    @Override
+    public void onResume() {
+        updateBattle();
+        super.onResume();
+    }
+
+
+
+    private void updateBattle(){
+        count = 0;
+        AsyncTask.execute(() -> firestore.collection("Users")
+               .document(userId)
+               .collection("Info_Notifications")
+               .orderBy("timestamp", Query.Direction.DESCENDING).limit(7)
+               .get()
+               .addOnSuccessListener(queryDocumentSnapshots -> {
+                   if (!queryDocumentSnapshots.isEmpty()) {
+                       for (DocumentChange documentChange : queryDocumentSnapshots.getDocumentChanges()) {
+                           if (documentChange.getType() == DocumentChange.Type.ADDED) {
+                               Notification notification = documentChange.getDocument().toObject(Notification.class).withId(documentChange.getDocument().getId());
+                               if (!notification.isRead()) count++;
+
+                               if (notification.getType().equals("play")) {
+                                   if (!viewModel.resultExistsForSecondPlayer(notification.getAction_id())) {
+                                       new PlayAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play");
+                                   }
+                               } else if (notification.getType().equals("play_result")) {
+                                   if (!viewModel.resultExists(notification.getAction_id())) {
+                                       new PlayResultAsyncTask(viewModel, battleViewModel, notification.getAction_id()).execute("play_result");
+                                   }
+                               }
+                           }
+                       }
+                       if(count!=0) {
+                           TabLayout.Tab tab = tabLayout.getTabAt(2);
+                           Objects.requireNonNull(tab).setCustomView(null);
+                           tab.setCustomView(adapter.setNotifications(count/2));
+                       }
+                   }
+               }));
+   }
 
     private void highLightCurrentTab(int position) {
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
@@ -176,22 +190,18 @@ public class Dashboard extends Fragment {
     private void updateScore() {
         try {
             UserViewModel userViewModel = ViewModelProviders.of(requireActivity()).get(UserViewModel.class);
-            FirebaseFirestore.getInstance().collection("Users")
+            firestore.collection("Users")
                     .document(userId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         int score = Objects.requireNonNull(documentSnapshot.getLong("score")).intValue();
-                        int reward = Objects.requireNonNull(documentSnapshot.getLong("reward")).intValue();
-
                         int win = Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("win")).toString());
                         int lose = Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("lose")).toString());
                         int draw = Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("draw")).toString());
-
                         userViewModel.setWin(win);
                         userViewModel.setLose(lose);
                         userViewModel.setDraw(draw);
                         userViewModel.setScore(score);
-                        userViewModel.setXp(reward);
                     });
         }catch (Exception ignored){
 

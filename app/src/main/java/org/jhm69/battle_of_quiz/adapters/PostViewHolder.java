@@ -2,6 +2,7 @@ package org.jhm69.battle_of_quiz.adapters;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -83,7 +85,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private final CircleImageView user_image;
     private final TextView user_name;
     private final TextView timestamp;
-    private final TextView institute_dept;
+    private final TextView institute_dept, likes_count;
+    CollectionReference postDb = FirebaseFirestore.getInstance().collection("Posts");
     private final MathView post_desc;
     @SuppressLint("NewApi")
     private final Set<String> ADMIN_UID_LIST = Set.of(
@@ -105,6 +108,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private Activity activity;
     private boolean forComment;
     private View mView;
+    int postLikes;
 
     public PostViewHolder(@NonNull View holder) {
         super(holder);
@@ -116,6 +120,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         stat_btn = holder.findViewById(R.id.stat_button);
         user_name = holder.findViewById(R.id.post_username);
         institute_dept = holder.findViewById(R.id.dept_institute);
+        likes_count = holder.findViewById(R.id.like_count);
         timestamp = holder.findViewById(R.id.post_timestamp);
         post_desc = holder.findViewById(R.id.post_desc);
         pager = holder.findViewById(R.id.pager);
@@ -127,32 +132,64 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         indicator_holder = holder.findViewById(R.id.indicator_holder);
     }
 
-    public static void updateLike(boolean like, String postId) {
+    private int updateLike(boolean like, String postId, String posterId) {
         try {
-            FirebaseFirestore.getInstance().collection("Posts")
+            if(like){
+                postLikes++;
+                try {
+                    Map<String, Boolean> likeMap = new HashMap<>();
+                    likeMap.put("liked", true);
+                    postDb.document(postId)
+                            .collection("Liked_Users")
+                            .document(mCurrentUser.getUid())
+                            .set(likeMap)
+                            .addOnSuccessListener(aVoid -> {
+                                UserViewModel userViewModel = ViewModelProviders.of((FragmentActivity) context).get(UserViewModel.class);
+                                userViewModel.user.observe((LifecycleOwner) context, users -> {
+                                    Notification notification = new Notification(postId,
+                                            posterId,
+                                            users.getUsername(),
+                                            users.getImage(),
+                                            "Liked your post",
+                                            String.valueOf(System.currentTimeMillis())
+                                            , "like"
+                                            , postId, false
+                                    );
+                                    addToNotification(posterId, notification);
+                                });
+                            })
+                            .addOnFailureListener(e -> Log.e("Error like", e.getMessage()));
+                } catch (Exception ignored) {
+                }
+            }else{
+                postLikes--;
+                try {
+                    mFirestore.collection("Posts")
+                            .document(postId)
+                            .collection("Liked_Users")
+                            .document(mCurrentUser.getUid())
+                            //.set(likeMap)
+                            .delete()
+                            .addOnSuccessListener(aVoid -> {
+                                //holder.like_count.setText(String.valueOf(Integer.parseInt(holder.like_count.getText().toString())-1));
+                                //Toast.makeText(context, "Unliked post '" + post.postId, Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> Log.e("Error unlike", e.getMessage()));
+                } catch (Exception ignored) {
+                }
+            }
+            likes_count.setText(String.valueOf(postLikes));
+            HashMap<String, Object> scoreMap = new HashMap<>();
+            scoreMap.put("liked_count", postLikes);
+            mFirestore
+                    .collection("Posts")
                     .document(postId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        try {
-                            int likeNew = 0;
-                            int likeOld = Objects.requireNonNull(documentSnapshot.getLong("like_count")).intValue();
-                            if (like) likeNew = likeOld++;
-                            else likeNew = likeOld--;
-                            HashMap<String, Object> scoreMap = new HashMap<>();
-                            scoreMap.put("liked_count", likeNew);
-                            FirebaseFirestore.getInstance()
-                                    .collection("Posts")
-                                    .document(postId)
-                                    .update(scoreMap).addOnSuccessListener(aVoid -> {
-
-                                    });
-                        } catch (NullPointerException ignored) {
-
-                        }
-                    });
+                    .update(scoreMap).addOnSuccessListener(aVoid -> {
+            });
         } catch (NullPointerException ignored) {
 
         }
+        return postLikes;
     }
 
     @SuppressLint({"ResourceType", "SetTextI18n"})
@@ -160,11 +197,13 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         Log.d("Approved", approved+" ");
         context = Home.context;
         this.position = position;
+        this.postLikes = post.getLiked_count();
         getLikeandFav(post);
         user_name.setText(post.getName());
         user_name.setOnClickListener(v -> FriendProfile.startActivity(context, post.getUserId()));
         String dept = post.getDept();
         String institute = post.getInstitute();
+        likes_count.setText(String.valueOf(post.getLiked_count()));
         if (!dept.equals("") && !institute.equals("")) {
             holder.institute_dept.setText(dept + ", " + institute);
         } else if (institute.equals("")) {
@@ -172,6 +211,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         } else if (dept.equals("")) {
             holder.institute_dept.setText(institute);
         }
+
 
 
         //post_desc.setDisplayText(post.getDescription());
@@ -189,8 +229,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
             pbar.setVisibility(View.VISIBLE);
             main.setVisibility(View.GONE);
-            FirebaseFirestore.getInstance().collection("Posts")
-                    .document(post.getPostId())
+            postDb.document(post.getPostId())
                     .collection("Liked_Users")
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -198,21 +237,19 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                         smile.setText(String.format(Home.context.getString(R.string.s_peopl_have_smiled_for_this_post), queryDocumentSnapshots.size()));
                         loveL.setOnClickListener(view -> view.getContext().startActivity(new Intent(view.getContext(), WhoLikedActivity.class).putExtra("postId", post.getPostId()).putExtra("type", "Liked_Users")));
 
-                        FirebaseFirestore.getInstance().collection("Posts")
-                                .document(post.getPostId())
+                        postDb.document(post.getPostId())
                                 .collection("Saved_Users")
                                 .get()
                                 .addOnSuccessListener(queryDocumentSnapshots1 -> {
                                     save.setText(String.format(Home.context.getString(R.string.s_peopl_have_saved_this_post), queryDocumentSnapshots1.size()));
-                                    saveL.setOnClickListener(view -> view.getContext().startActivity(new Intent(view.getContext(), WhoLikedActivity.class).putExtra("postId", post.getPostId()).putExtra("type", "Saved_Users")));
+                                    saveL.setOnClickListener(view -> view.getContext().startActivity(new Intent(view.getContext(), WhoLikedActivity.class).putExtra("postId", post.getPostId()).putExtra("type", "Saved_Users"),  ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
                                     pbar.setVisibility(View.GONE);
                                     main.setVisibility(View.VISIBLE);
 
                                 })
                                 .addOnFailureListener(Throwable::printStackTrace);
 
-                        FirebaseFirestore.getInstance().collection("Posts")
-                                .document(post.getPostId())
+                        postDb.document(post.getPostId())
                                 .collection("Comments")
                                 .get()
                                 .addOnSuccessListener(queryDocumentSnapshots1 -> {
@@ -238,7 +275,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             if (post.getImage_count() == 0) {
                 pager_layout.setVisibility(View.GONE);
                 String descc = post.getDescription();
-                post_desc.setDisplayText((descc.length() > 297) ? descc.substring(0, 300) + "..." : descc);
+                post_desc.setDisplayText((descc.length() > 497) ? descc.substring(0, 500) + "..." : descc);
             }  else if (post.getImage_count() == 1) {
                 pager_layout.setVisibility(View.VISIBLE);
                 ArrayList<MultipleImage> multipleImages = new ArrayList<>();
@@ -308,7 +345,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                         pdialog.show();
 
                         dialog.dismiss();
-                        FirebaseFirestore.getInstance().collection("Posts")
+                        postDb
                                 .document(post.getPostId())
                                 .delete()
                                 .addOnSuccessListener(aVoid -> {
@@ -422,8 +459,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                                 postMap.put("name", documentSnapshot.getString("name"));
                                 postMap.put("userimage", documentSnapshot.getString("image"));
 
-                                mFirestore.collection("Posts")
-                                        .document(post.getPostId())
+                                postDb.document(post.getPostId())
                                         .update(postMap)
                                         .addOnSuccessListener(aVoid -> Log.i("post_update", "success"))
                                         .addOnFailureListener(e -> Log.i("post_update", "failure"));
@@ -437,8 +473,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                             } else if (!Objects.equals(documentSnapshot.getString("userId"), post.getUserId())) {
                                 Map<String, Object> postMap = new HashMap<>();
                                 postMap.put("name", documentSnapshot.getString("name"));
-                                mFirestore.collection("Posts")
-                                        .document(post.getPostId())
+                                postDb.document(post.getPostId())
                                         .update(postMap)
                                         .addOnSuccessListener(aVoid -> Log.i("post_update", "success"))
                                         .addOnFailureListener(e -> Log.i("post_update", "failure"));
@@ -450,7 +485,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                                 Map<String, Object> postMap = new HashMap<>();
                                 postMap.put("userimage", documentSnapshot.getString("image"));
 
-                                mFirestore.collection("Posts")
+                                postDb
                                         .document(post.getPostId())
                                         .update(postMap)
                                         .addOnSuccessListener(aVoid -> Log.i("post_update", "success"))
@@ -475,20 +510,13 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
         user_name.setOnClickListener(v -> FriendProfile.startActivity(context, post.getUserId()));
 
-        see_more.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved)));
+        see_more.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved), ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
 
-        holder.itemView.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved)));
+        holder.itemView.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved), ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
 
         if (forComment) {
-            context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved));
+            context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", false).putExtra("approveStatus", approved),   ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
         }
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) Home.context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
     @SuppressLint("SetTextI18n")
@@ -580,8 +608,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         if (!admin_id.equals(userId)) {
             mFirestore.collection("Users")
                     .document(admin_id)
-                    .collection("Info_Notifications")
-                    .add(notification)
+                    .collection("Info_Notifications").document(notification.getId())
+                    .set(notification)
                     .addOnSuccessListener(documentReference -> new SendNotificationAsyncTask(notification).execute())
                     .addOnFailureListener(e -> Log.e("Error", e.getLocalizedMessage()));
         }
@@ -589,70 +617,22 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     private void getLikeandFav(Post post) {
         try {
-            mFirestore.collection("Posts")
-                    .document(post.getPostId())
+            postDb.document(post.getPostId())
                     .collection("Liked_Users")
-                    .document(mCurrentUser.getUid())
+                    .document(userId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            boolean liked = documentSnapshot.getBoolean("liked");
-                            like_btn.setFavorite(liked, false);
+                        try {
+                            if (documentSnapshot.exists()) {
+                                boolean liked = documentSnapshot.getBoolean("liked");
+                                like_btn.setFavorite(true, false);
+                            }
+                        }catch (Exception ignored){
+                            
                         }
-
-                        if (isOnline()) {
-                            like_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
-                                Map<String, Object> likeMap = new HashMap<>();
-                                if (favorite) {
-                                    likeMap.put("liked", true);
-                                    updateLike(true, post.getPostId());
-                                    try {
-                                        mFirestore.collection("Posts")
-                                                .document(post.getPostId())
-                                                .collection("Liked_Users")
-                                                .document(mCurrentUser.getUid())
-                                                .set(likeMap)
-                                                .addOnSuccessListener(aVoid -> {
-                                                    UserViewModel userViewModel = ViewModelProviders.of((FragmentActivity) context).get(UserViewModel.class);
-                                                    userViewModel.user.observe((LifecycleOwner) context, users -> {
-                                                        Notification notification = new Notification(post.getPostId(),
-                                                                users.getUsername(),
-                                                                users.getImage(),
-                                                                "Liked your post",
-                                                                String.valueOf(System.currentTimeMillis())
-                                                                , "like"
-                                                                , post.getPostId()
-                                                        );
-                                                        addToNotification(post.getUserId(), notification);
-                                                    });
-                                                })
-                                                .addOnFailureListener(e -> Log.e("Error like", e.getMessage()));
-                                    } catch (Exception ignored) {
-
-                                    }
-                                } else {
-                                    likeMap.put("liked", false);
-                                    updateLike(false, post.getPostId());
-                                    try {
-                                        mFirestore.collection("Posts")
-                                                .document(post.getPostId())
-                                                .collection("Liked_Users")
-                                                .document(mCurrentUser.getUid())
-                                                //.set(likeMap)
-                                                .delete()
-                                                .addOnSuccessListener(aVoid -> {
-                                                    //holder.like_count.setText(String.valueOf(Integer.parseInt(holder.like_count.getText().toString())-1));
-                                                    //Toast.makeText(context, "Unliked post '" + post.postId, Toast.LENGTH_SHORT).show();
-                                                })
-                                                .addOnFailureListener(e -> Log.e("Error unlike", e.getMessage()));
-                                    } catch (Exception ignored) {
-
-                                    }
-                                }
-                            });
-                        }
-
-
+                        like_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
+                            post.setLike_count(updateLike(favorite, post.getPostId(), post.getUserId()));
+                        });
                     })
                     .addOnFailureListener(e -> Log.e("Error Like", e.getMessage()));
         } catch (NullPointerException ignored) {
@@ -660,8 +640,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         }
 
         try {
-            mFirestore.collection("Posts")
-                    .document(post.getPostId())
+            postDb.document(post.getPostId())
                     .collection("Saved_Users")
                     .document(mCurrentUser.getUid())
                     .get()
@@ -683,7 +662,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                                 Map<String, Object> favMap = new HashMap<>();
                                 favMap.put("Saved", true);
                                 try {
-                                    mFirestore.collection("Posts")
+                                    postDb
                                             .document(post.getPostId())
                                             .collection("Saved_Users")
                                             .document(mCurrentUser.getUid())
@@ -702,9 +681,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                                 favMap.put("Saved", false);
 
                                 try {
-
-                                    mFirestore.collection("Posts")
-                                            .document(post.getPostId())
+                                    postDb.document(post.getPostId())
                                             .collection("Saved_Users")
                                             .document(mCurrentUser.getUid())
                                             //.set(favMap)
@@ -737,7 +714,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
         @Override
         protected Void doInBackground(Void... jk) {
-            FirebaseDatabase.getInstance().getReference().child("Tokens").child(notification.getId()).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("Tokens").child(notification.getNotifyTo()).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String usertoken = dataSnapshot.getValue(String.class);

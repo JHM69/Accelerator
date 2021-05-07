@@ -422,7 +422,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         }
         String dept = "";
         String location = "";
-        String bio = "I am a quizzer in BoQ";
+        String bio = "Hi, I am a ত্বারক user";
         Users user1 = new Users(user.getUid(), 500, System.currentTimeMillis(),
                 0, 0, 0, 100, 3,
                 name, Objects.requireNonNull(image),

@@ -61,7 +61,7 @@ public class ImagePreviewSave extends AppCompatActivity {
                 android.app.Notification notification;
                 notification = mBuilder
                         .setAutoCancel(true)
-                        .setContentTitle("Battle of Quiz")
+                        .setContentTitle("ত্বারক")
                         .setColorized(true)
                         .setColor(Color.parseColor("#2591FC"))
                         .setSmallIcon(R.drawable.ic_file_download_accent_24dp)
@@ -162,7 +162,7 @@ public class ImagePreviewSave extends AppCompatActivity {
                     DownloadManager.Request request = new DownloadManager.Request(Uri.parse(ImageURI));
                     request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE);
                     request.setAllowedOverRoaming(true);
-                    request.setTitle("Battle of Quiz");
+                    request.setTitle("ত্বারক");
                     request.setDescription("Downloading image...");
                     request.setVisibleInDownloadsUi(true);
                     request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "/battle_of_quiz Images/" + "/dt_" + System.currentTimeMillis() + ".jpeg");

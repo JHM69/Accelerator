@@ -22,7 +22,7 @@
             android:background="@color/colorAccentt"
             app:popupTheme="@style/AppTheme"
             app:theme="@style/ToolbarColoredBackArrow"
-            app:title="Search Quizzers"
+            app:title="Search people or Posts"
             app:titleTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>

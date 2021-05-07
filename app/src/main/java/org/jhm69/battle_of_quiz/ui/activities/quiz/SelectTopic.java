@@ -42,6 +42,9 @@ public class SelectTopic extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_parent_topic);
         ProgressBar loading = findViewById(R.id.progressBar2);
@@ -82,7 +85,7 @@ public class SelectTopic extends AppCompatActivity {
                                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                         String name = ds.getKey();
                                         topics.add(name);
-                                        capterAdapter = new TopicAdapter(topics, getApplicationContext(), otherUid, type);
+                                        capterAdapter = new TopicAdapter(topics, SelectTopic.this, otherUid, type);
                                         recyclerView.setAdapter(capterAdapter);
                                         capterAdapter.notifyDataSetChanged();
                                         loading.setVisibility(View.GONE);
@@ -108,7 +111,7 @@ public class SelectTopic extends AppCompatActivity {
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                         String name = ds.getKey();
                         topics.add(name);
-                        capterAdapter = new TopicAdapter(topics, getApplicationContext(), otherUid, type);
+                        capterAdapter = new TopicAdapter(topics, SelectTopic.this, otherUid, type);
                         recyclerView.setAdapter(capterAdapter);
                         capterAdapter.notifyDataSetChanged();
                         loading.setVisibility(View.GONE);

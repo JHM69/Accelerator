@@ -1,6 +1,8 @@
 package org.jhm69.battle_of_quiz.ui.activities.quiz;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +27,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.github.marlonlom.utilities.timeago.TimeAgo;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -39,6 +42,8 @@ import java.util.List;
 import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
+
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
 
 /**
  * Created by jhm69
@@ -81,6 +86,11 @@ public class PlayQuiz extends Fragment {
         setupAdapter();
     }
 
+    @Override
+    public void onDestroy() {
+        inHome = true;
+        super.onDestroy();
+    }
 
     private void setupAdapter() {
         PagedList.Config config = new PagedList.Config.Builder()
@@ -127,15 +137,35 @@ public class PlayQuiz extends Fragment {
                         .load(user.getImage())
                         .into(holder.image);
 
+                holder.time.setText(getTimeText(user.getLastTimestamp()));
+
                 holder.mView.setOnClickListener(view -> {
                     if (Objects.equals(FirebaseAuth.getInstance().getUid(), user.getId())) {
                         Toasty.error(requireActivity(), "You can't play with yourself. Select someone else", Toasty.LENGTH_SHORT, true);
                     } else {
                         Intent goBattle = new Intent(getContext(), SelectTopic.class);
                         goBattle.putExtra("otherUid", user.getId());
-                        getContext().startActivity(goBattle);
+                        getContext().startActivity(goBattle, ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle());
                     }
                 });
+            }
+
+            private String getTimeText(long lastTimestamp) {
+                String time = TimeAgo.using(lastTimestamp);
+                time = time.replaceAll("just now", "now")
+                        .replaceAll(" minutes", "m")
+                        .replaceAll(" minute", "1m")
+                        .replaceAll("about", "")
+                        .replaceAll(" hours", "h")
+                        .replaceAll(" hour", "1h")
+                        .replaceAll(" an", "")
+                        .replaceAll(" ago", "")
+                        .replaceAll("yesterday", "1d")
+                        .replaceAll(" days", "d")
+                        .replaceAll(" day", "1d")
+                        .replaceAll(" months", "mo")
+                        .replaceAll(" month", "1mo");
+                return time;
             }
 
             @Override

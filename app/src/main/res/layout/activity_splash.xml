@@ -22,10 +22,10 @@
             android:background="@color/white"
             android:elevation="0dp"
             android:padding="4dp"
-            android:text="Learn by Challenging"
+            android:text="Accelerate your Learning"
             android:textAlignment="center"
             android:textColor="#A034B3"
-            android:textSize="18sp"
+            android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/imageView3"
@@ -49,11 +49,11 @@
             android:layout_height="0.0001dp"
             android:id="@+id/tfgyhuji"
             android:visibility="visible"
+            android:padding="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:srcCompat="@drawable/cover"
             tools:ignore="ContentDescription,VectorDrawableCompat" />
 
         <ImageView

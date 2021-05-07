@@ -53,6 +53,9 @@ public interface DaoAccess {
     @Query("UPDATE Users SET reward=reward+:score WHERE id = :id")
     void updateXp(int score, String id);
 
+    @Query("UPDATE Users SET reward=:score WHERE id = :id")
+    void setReward(int score, String id);
+
 
 
     //-----------------------------------

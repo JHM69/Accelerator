@@ -56,6 +56,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.models.UserId;
 import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.adapters.DrawerAdapter;
 import org.jhm69.battle_of_quiz.models.DrawerItem;
@@ -96,12 +97,14 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int POS_LOGOUT = 5;
     private static final int ADMIN = 6;
     public static String userId;
+    public static boolean inHome=true;
     @SuppressLint({"StaticFieldLeak", "NewApi"})
     private final Set<String> ADMIN_UID_LIST = Set.of(
             "0h9MvJiFvFWRBiOoHzUcGlqJe2m2", "eSW24hxmW6YmbaInd2OlrsWx0Rw1"
     );
     public TextView username;
     public TextView rewardTv;
+    private long rewardCount;
     public Fragment mCurrentFragment;
     private Toolbar mainToolbar;
     private DrawerAdapter adapter;
@@ -116,17 +119,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private FirebaseFirestore firestore;
     private RewardedAd rewardedAd;
 
-    public static void startActivity(Context context) {
-        Intent intent = new Intent(context, MainActivity.class);
-        context.startActivity(intent);
-    }
 
-    public static void startActivity(Context context, boolean validate) {
-        Intent intent = new Intent(context, MainActivity.class).putExtra("validate", validate);
-        context.startActivity(intent);
-    }
-
-    public static void updateStatus() {
+    private void updateStatus() {
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -136,12 +130,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         try {
                             String refreshToken = FirebaseInstanceId.getInstance().getToken();
                             Token token = new Token(refreshToken);
-                            FirebaseDatabase.getInstance().getReference("Tokens").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()).setValue(token);
+                            FirebaseDatabase.getInstance().getReference("Tokens").child(userId).setValue(token);
                             long timestamp = System.currentTimeMillis();
                             HashMap<String, Object> scoreMap = new HashMap<>();
                             scoreMap.put("lastTimestamp", timestamp);
-                            FirebaseFirestore.getInstance()
-                                    .collection("Users")
+                            firestore.collection("Users")
                                     .document(userId)
                                     .update(scoreMap).addOnSuccessListener(aVoid -> {
                             });
@@ -155,23 +148,15 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             }
         };
         thread.start();
-
     }
 
     private void updateXP() {
-        FirebaseFirestore.getInstance().collection("Users")
-                .document(currentuser.getUid())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    int scoreOld = Objects.requireNonNull(documentSnapshot.getLong("reward")).intValue();
-                    int newScore = scoreOld + (20);
-                    HashMap<String, Object> scoreMap = new HashMap<>();
-                    scoreMap.put("reward", newScore);
-                    FirebaseFirestore.getInstance()
-                            .collection("Users")
-                            .document(currentuser.getUid())
-                            .update(scoreMap).addOnSuccessListener(aVoid -> userViewModel.updateXp(20));
-                });
+        long newScore = rewardCount + (20);
+        HashMap<String, Object> scoreMap = new HashMap<>();
+        scoreMap.put("reward", newScore);
+        firestore.collection("Users")
+                .document(userId)
+                .update(scoreMap).addOnSuccessListener(aVoid -> userViewModel.setScore((int)newScore));
     }
 
     @SuppressLint("CheckResult")
@@ -202,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             rewardedAd.show(this, adCallback);
         } else {
             Toasty.error(this, "The video ad wasn't loaded yet. Please try again after few min.", Toasty.LENGTH_SHORT, true);
-            Log.d("TAG", "");
         }
     }
 
@@ -217,14 +201,14 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     protected void onStart() {
         try {
             super.onStart();
-
             //getSharedPreferences("fcm_activity", MODE_PRIVATE).edit().putBoolean("active", true).apply();
             //boolean validate = getIntent().getBooleanExtra("validate", false);
             try {
                 if (edit.equals("sss")) {
                     startActivity(new Intent(getApplicationContext(), EditProfile.class));
                 }
-            } catch (NullPointerException ignored) {
+            } catch (Exception ignored) {
+
             }
             if (currentuser == null) {
                 LoginActivity.startActivityy(this);
@@ -237,11 +221,24 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
     @Override
     public void onBackPressed() {
-        showFragment(new Dashboard());
+        if(inHome){
+            new MaterialDialog.Builder(this)
+                    .title("Exit app?")
+                    .content("Are you sure want to exit?")
+                    .positiveText("Yes")
+                    .canceledOnTouchOutside(false)
+                    .cancelable(false)
+                    .onPositive((dialog, which) -> finishAffinity())
+                    .negativeText("No")
+                    .show();
+        }else{
+             showFragment(new Dashboard());
         if (slidingRootNav.isMenuOpened()) {
             slidingRootNav.closeMenu(true);
         }
         adapter.setSelected(POS_DASHBOARD);
+        }
+
     }
 
     @SuppressLint("PackageManagerGetSignatures")
@@ -355,9 +352,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     public void logout() {
         HashMap<String, Object> scoreMap = new HashMap<>();
         scoreMap.put("lastTimestamp", System.currentTimeMillis());
-        FirebaseFirestore.getInstance()
-                .collection("Users")
-                .document(currentuser.getUid())
+        firestore.collection("Users")
+                .document(userId)
                 .update(scoreMap).addOnSuccessListener(aVoid -> {
         });
         final ProgressDialog mDialog = new ProgressDialog(this);
@@ -368,19 +364,25 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         mDialog.show();
 
         Map<String, Object> tokenRemove = new HashMap<>();
+        try {
 
-        firestore.collection("Users").document(userId).update(tokenRemove).addOnSuccessListener(aVoid -> {
+            firestore.collection("Users").document(userId).update(tokenRemove).addOnSuccessListener(aVoid -> {
+                userViewModel.delete();
+                Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).delete();
+                mAuth.signOut();
+                mDialog.dismiss();
+                LoginActivity.startActivityy(MainActivity.this);
+                finish();
+            }).addOnFailureListener(e -> {
+                Toasty.error(MainActivity.this, "Error logging out", Toasty.LENGTH_SHORT, true).show();
+                mDialog.dismiss();
+            });
+        }catch (Exception f){
             userViewModel.delete();
-            Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).delete();
             mAuth.signOut();
             LoginActivity.startActivityy(MainActivity.this);
-            mDialog.dismiss();
             finish();
-        }).addOnFailureListener(e -> {
-            Toasty.error(MainActivity.this, "Error logging out", Toasty.LENGTH_SHORT, true).show();
-            mDialog.dismiss();
-
-        });
+        }
 
     }
 
@@ -397,17 +399,17 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 username = findViewById(R.id.username);
                 imageView = findViewById(R.id.profile_image);
                 rewardTv = findViewById(R.id.reaward);
-                String nam = Objects.requireNonNull(me).getName(), imag = me.getImage();
+                String nam = Objects.requireNonNull(me).getName();
+                String imag = me.getImage();
                 Chip add = findViewById(R.id.button4);
                 add.setOnClickListener(view -> loadAd());
                 username.setText(nam);
+                rewardCount = me.getReward();
                 Glide.with(MainActivity.this)
                         .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                         .load(imag)
                         .into(imageView);
-                rewardTv.setText(me.getReward() + " xp");
-
-
+                rewardTv.setText(me.getReward() + " XP");
 
    /* darkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
         @Override
@@ -475,6 +477,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         switch (position) {
 
             case POS_DASHBOARD:
+                inHome = true;
                 mainToolbar.setSubtitle("Dashboard");
                 selectedScreen = new Dashboard();
                 showFragment(selectedScreen);
@@ -482,6 +485,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 return;
 
             case ADMIN:
+                inHome = false;
                 mainToolbar.setSubtitle("Admin");
                 selectedScreen = new AdminFragment();
                 showFragment(selectedScreen);
@@ -489,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 return;
 
             case POS_FRIENDS:
+                inHome = false;
                 mainToolbar.setSubtitle("Friends");
                 selectedScreen = new FriendsFragment();
                 showFragment(selectedScreen);
@@ -496,6 +501,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 return;
 
             case RANKING:
+                inHome = false;
                 mainToolbar.setSubtitle("Ranking");
                 selectedScreen = new Ranking();
                 showFragment(selectedScreen);
@@ -503,6 +509,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 return;
 
             case SAVED_POST:
+                inHome = false;
                 mainToolbar.setSubtitle("Offlined Post");
                 selectedScreen = new SavedFragment();
                 showFragment(selectedScreen);
@@ -510,12 +517,13 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 return;
 
             case ABOUT_APP:
+                inHome = false;
                 startActivity(new Intent(getApplicationContext(), SinglePostView.class).putExtra("post_id", "about_app"));
                 return;
 
           /*  case POS_SHARE:
                 try {
-                    doSocialShare("Share to get 20 XP", "Check out Battle of Quiz! Prove your skills by taking part in one to one battle of knowledge!", "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID);
+                    doSocialShare("Share to get 20 XP", "Check out ত্বারক! Prove your skills by taking part in one to one battle of knowledge!", "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID);
                     slidingRootNav.closeMenu(true);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -547,6 +555,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 return;
 
             default:
+                inHome = true;
                 selectedScreen = new Dashboard();
                 showFragment(selectedScreen);
 
@@ -564,6 +573,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     }
 
     public void onViewProfileClicked(View view) {
+        inHome = false;
         mainToolbar.setSubtitle("My Profile");
         showFragment(new ProfileFragment());
         slidingRootNav.closeMenu(true);
@@ -582,7 +592,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         if (item.getItemId() == search) {
             startActivity(new Intent(MainActivity.this, SearchUsersActivity.class));
             return true;
@@ -596,6 +605,4 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .commit();
         mCurrentFragment = fragment;
     }
-
-
 }

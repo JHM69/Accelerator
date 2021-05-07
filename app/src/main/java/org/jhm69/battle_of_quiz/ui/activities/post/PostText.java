@@ -55,7 +55,9 @@ public class PostText extends AppCompatActivity {
     EditText latexText;
     RichEditor mRichEd;
     private ConstraintLayout codeLayout;
+    private ConstraintLayout videoLayout;
     EditText codeText;
+    EditText videoText;
     Spinner type;
     String tag;
     boolean isHead;
@@ -103,7 +105,7 @@ public class PostText extends AppCompatActivity {
     public void onBackPressed() {
         new MaterialDialog.Builder(this)
                 .title("Discard Post")
-                .content("Are you sure do you want to go back?")
+                .content("Are you sure want to go back?")
                 .positiveText("Yes")
                 .canceledOnTouchOutside(false)
                 .cancelable(false)
@@ -195,6 +197,7 @@ public class PostText extends AppCompatActivity {
                     postMap.put("postId", postID);
                     postMap.put("tag", tag);
                     postMap.put("liked_count", 0);
+                    postMap.put("comment_count", 0);
                     Map<String, Object> postMapFinal = new HashMap<>();
                     postMapFinal.put(postID, postMap);
 
@@ -222,6 +225,7 @@ public class PostText extends AppCompatActivity {
         //mEditor.setInputEnabled(false);
 
         codeLayout = findViewById(R.id.code_editor);
+        videoLayout = findViewById(R.id.video_editor);
 
         mEditor.setOnTextChangeListener(text -> {
             try {
@@ -234,7 +238,6 @@ public class PostText extends AppCompatActivity {
 
 
         findViewById(R.id.action_undo).setOnClickListener(v -> mEditor.undo());
-
         findViewById(R.id.action_redo).setOnClickListener(v -> mEditor.redo());
         findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
@@ -249,7 +252,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
         findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -263,8 +265,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-
         findViewById(R.id.action_subscript).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -278,7 +278,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
         findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -292,8 +291,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-
         findViewById(R.id.action_strikethrough).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -307,7 +304,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
         findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -321,8 +317,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-
         findViewById(R.id.action_heading1).setOnClickListener(v ->{
             if(!isHead){
                 findViewById(R.id.action_heading1).setBackgroundColor(getResources().getColor(R.color.selectted));
@@ -332,7 +326,6 @@ public class PostText extends AppCompatActivity {
             isHead=!isHead;
             mEditor.setHeading(1);
         });
-
         findViewById(R.id.action_heading2).setOnClickListener(v -> {
             if(!isHead){
                 findViewById(R.id.action_heading2).setBackgroundColor(getResources().getColor(R.color.selectted));
@@ -342,7 +335,6 @@ public class PostText extends AppCompatActivity {
             isHead=!isHead;
             mEditor.setHeading(2);
         });
-
         findViewById(R.id.action_heading3).setOnClickListener(v -> {
             if(!isHead){
                 findViewById(R.id.action_heading3).setBackgroundColor(getResources().getColor(R.color.selectted));
@@ -353,7 +345,6 @@ public class PostText extends AppCompatActivity {
             mEditor.setHeading(3);
 
         });
-
         findViewById(R.id.action_heading4).setOnClickListener(v -> {
             if(!isHead){
                 findViewById(R.id.action_heading4).setBackgroundColor(getResources().getColor(R.color.selectted));
@@ -363,7 +354,6 @@ public class PostText extends AppCompatActivity {
             isHead=!isHead;
             mEditor.setHeading(4);
         });
-
         findViewById(R.id.action_heading5).setOnClickListener(v -> {
             if(!isHead){
                 findViewById(R.id.action_heading5).setBackgroundColor(getResources().getColor(R.color.selectted));
@@ -373,7 +363,6 @@ public class PostText extends AppCompatActivity {
             isHead=!isHead;
             mEditor.setHeading(5);
         });
-
         findViewById(R.id.action_heading6).setOnClickListener(v -> {
             if(!isHead){
                 findViewById(R.id.action_heading6).setBackgroundColor(getResources().getColor(R.color.selectted));
@@ -383,8 +372,6 @@ public class PostText extends AppCompatActivity {
             isHead=!isHead;
             mEditor.setHeading(6);
         });
-
-
         findViewById(R.id.action_txt_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
 
@@ -399,7 +386,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
         findViewById(R.id.action_bg_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -413,10 +399,7 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-
-
-         findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -429,9 +412,7 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-
-         findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -444,8 +425,7 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-          findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -458,8 +438,7 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-           findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -472,13 +451,10 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-
         Button tab = findViewById(R.id.tab);
         tab.setOnClickListener(view -> {
 
         });
-
         findViewById(R.id.insert_code).setOnClickListener(view -> {
             if (codeLayout.getVisibility() == View.GONE) {
                 findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.selectted));
@@ -496,7 +472,23 @@ public class PostText extends AppCompatActivity {
                 codeLayout.setVisibility(View.GONE);
             }
         });
-
+        findViewById(R.id.insert_video).setOnClickListener(view -> {
+            if (videoLayout.getVisibility() == View.GONE) {
+                findViewById(R.id.insert_video).setBackgroundColor(getResources().getColor(R.color.selectted));
+                videoLayout.setVisibility(View.VISIBLE);
+                findViewById(R.id.submit_video).setOnClickListener(view115 -> {
+                    String data1 = videoText.getText().toString();
+                    Log.d("CODEEE", "Step 1:"+ data1);
+                    mRichEd.setVideo(data1);
+                    data1 = "";
+                    videoText.setText("");
+                    videoLayout.setVisibility(View.GONE);
+                });
+            } else {
+                findViewById(R.id.insert_code).setBackgroundColor(getResources().getColor(R.color.colorAccentt));
+                codeLayout.setVisibility(View.GONE);
+            }
+        });
         findViewById(R.id.action_align_right).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -510,7 +502,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
         findViewById(R.id.action_blockquote).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -524,7 +515,6 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
         findViewById(R.id.action_insert_bullets).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
@@ -538,12 +528,7 @@ public class PostText extends AppCompatActivity {
                 isChanged = !isChanged;
             }
         });
-
-
-
-
-
-       findViewById(R.id.action_insert_numbers).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_insert_numbers).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -557,8 +542,8 @@ public class PostText extends AppCompatActivity {
             }
         });
 
-
         codeText = findViewById(R.id.code);
+        videoText = findViewById(R.id.video);
 
         findViewById(R.id.insert_code).setOnClickListener(view -> {
             if (codeLayout.getVisibility() == View.GONE) {

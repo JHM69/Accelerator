@@ -75,6 +75,7 @@
                 android:layout_alignTop="@+id/image"
                 android:layout_alignEnd="@+id/image"
                 android:background="@drawable/gradient_1"
+                android:backgroundTint="@color/colorAccentt"
                 android:fontFamily="@font/regular"
                 android:gravity="center"
                 android:textColor="#FFFFFF"

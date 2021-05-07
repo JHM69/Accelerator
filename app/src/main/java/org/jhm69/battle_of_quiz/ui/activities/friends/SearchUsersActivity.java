@@ -2,6 +2,7 @@ package org.jhm69.battle_of_quiz.ui.activities.friends;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -69,18 +70,7 @@ public class SearchUsersActivity extends AppCompatActivity {
     public static void startActivity(Activity activity, Context context, View view) {
         Intent intent = new Intent(context, SearchUsersActivity.class);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            String transitionName = "search";
-            ActivityOptionsCompat options =
-                    ActivityOptionsCompat.makeSceneTransitionAnimation(activity,
-                            view,   // Starting view
-                            transitionName    // The String
-                    );
-            ActivityCompat.startActivity(context, intent, options.toBundle());
-
-        } else {
-            context.startActivity(intent);
-        }
+        context.startActivity(intent,  ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
 
     }
 
@@ -182,6 +172,9 @@ public class SearchUsersActivity extends AppCompatActivity {
     @SuppressLint("InflateParams")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_users);
         Toolbar toolbar = findViewById(R.id.toolbar);

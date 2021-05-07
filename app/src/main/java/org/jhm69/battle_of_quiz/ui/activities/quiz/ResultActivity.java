@@ -6,11 +6,15 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.transition.Explode;
+import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -43,6 +47,8 @@ import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.dmoral.toasty.Toasty;
+
 import static java.util.Objects.requireNonNull;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
@@ -60,12 +66,16 @@ public class ResultActivity extends AppCompatActivity {
     @SuppressLint({"SetTextI18n", "InflateParams"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
         Toolbar toolbar = findViewById(R.id.toolbar2);
+
+
         setSupportActionBar(toolbar);
         requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setDisplayShowHomeEnabled(true)
         resultText = findViewById(R.id.resultText);
         pointText = findViewById(R.id.textView12);
         playAgain = findViewById(R.id.playAgain);
@@ -106,7 +116,7 @@ public class ResultActivity extends AppCompatActivity {
                     mRecyclerView.setAdapter(resultEachQuestionAdapter);
                     resultEachQuestionAdapter.notifyDataSetChanged();
                 }
-            } catch (NullPointerException | IndexOutOfBoundsException h) {
+            } catch (Exception h) {
                 finish();
             }
 
@@ -120,13 +130,25 @@ public class ResultActivity extends AppCompatActivity {
             otherScore.setText("-");
             playAgain.setOnClickListener(view -> startActivity(new Intent(getApplication(), MainActivity.class)));
         } else if (battleResult != null) {
-            doThings(battleResult);
+            try {
+                doThings(battleResult);
+            }catch (Exception f){
+                Toasty.error(getApplicationContext(), "Battle Result not found", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         } else {
             try {
-                battleViewModel.get(battleIdNew).observe(this, battlep ->
-                        doThingsForMe(requireNonNull(battlep)));
+                battleViewModel.get(battleIdNew).observe(this, battlep -> {
+                    if(battlep!=null){
+                        Log.d("TBUG", "fromElse");
+                        doThingsForMe(requireNonNull(battlep));
+                    }else{
+                        Toasty.error(getApplicationContext(), "Battle Result not found", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                });
             } catch (Exception j) {
-                if (battlep == null) {
+                if (battlep == null && questionEachResultList.size()==0) {
                     mDialog.show();
                     DatabaseReference mDb = FirebaseDatabase.getInstance().getReference();
                     Query query = mDb.child("Play").orderByChild("battleId").equalTo(battleIdNew);
@@ -212,13 +234,14 @@ public class ResultActivity extends AppCompatActivity {
             thisScore.setText(String.valueOf(reScore));
             otherScore.setText(String.valueOf(seScore));
             try {
+                questionEachResultList.clear();
                 for (int i = 0; i < battlePlay.questionList.size(); i++) {
                     QuestionEachResult questionEachResult = new QuestionEachResult(battlePlay.receiverList.get(i), battlePlay.senderAnswerList.get(i), battlePlay.questionList.get(i));
                     questionEachResultList.add(questionEachResult);
                     mRecyclerView.setAdapter(resultEachQuestionAdapter);
                     resultEachQuestionAdapter.notifyDataSetChanged();
                 }
-            } catch (NullPointerException ignored) {
+            } catch (Exception ignored) {
 
             }
             setUserData(thisUserImage, thisUserName, thisUserLevel, battlePlay.receiverUid, true);
@@ -227,7 +250,7 @@ public class ResultActivity extends AppCompatActivity {
                 resultText.setText("Congratulations, You Won!");
                 winnerId = battlePlay.receiverUid;
                 resultText.setTextColor(Color.parseColor("#4BBB4F"));
-                pointText.setText("you have got 5 point and 20 XP");
+                pointText.setText("you have got 5 point");
             } else if (seScore > reScore) {
                 winnerId = battlePlay.senderUid;
                 resultText.setText("Damn, You Lost!");
@@ -258,6 +281,7 @@ public class ResultActivity extends AppCompatActivity {
                 thisScore.setText(String.valueOf(reScore));
                 otherScore.setText(String.valueOf(seScore));
                 try {
+                    questionEachResultList.clear();
                     for (int i = 0; i < battlePlay.questionList.size(); i++) {
                         QuestionEachResult questionEachResult = new QuestionEachResult(battlePlay.receiverList.get(i), battlePlay.senderAnswerList.get(i), battlePlay.questionList.get(i));
                         questionEachResultList.add(questionEachResult);
@@ -273,7 +297,7 @@ public class ResultActivity extends AppCompatActivity {
                     resultText.setText("Congratulations, You Won!");
                     winnerId = battlePlay.receiverUid;
                     resultText.setTextColor(Color.parseColor("#4BBB4F"));
-                    pointText.setText("you have got 5 point and 20 XP");
+                    pointText.setText("you have got 5 point");
                 } else if (seScore > reScore) {
                     winnerId = battlePlay.senderUid;
                     resultText.setText("Damn, You Lost!");
@@ -282,7 +306,7 @@ public class ResultActivity extends AppCompatActivity {
                 } else {
                     resultText.setText("Match Drawn!");
                     resultText.setTextColor(Color.parseColor("#5570A0"));
-                    pointText.setText("You were too close winning, Still 2 XP");
+                    pointText.setText("You were too close winning, Still 2 point");
                 }
                 playAgain.setOnClickListener(view -> {
                     Intent goBattle = new Intent(getApplicationContext(), SelectTopic.class);
@@ -302,6 +326,7 @@ public class ResultActivity extends AppCompatActivity {
             setUserData(thisUserImage, thisUserName, thisUserLevel, battlePlay.senderUid, true);
             setUserData(otherUserImage, otherUserName, otherUserLevel, battlePlay.receiverUid, false);
             try {
+                questionEachResultList.clear();
                 for (int i = 0; i < battlePlay.questionList.size(); i++) {
                     QuestionEachResult questionEachResult = new QuestionEachResult(battlePlay.senderAnswerList.get(i), battlePlay.receiverList.get(i), battlePlay.questionList.get(i));
                     questionEachResultList.add(questionEachResult);
@@ -312,7 +337,7 @@ public class ResultActivity extends AppCompatActivity {
                     resultText.setText("Congratulations, You Won!");
                     winnerId = battlePlay.senderUid;
                     resultText.setTextColor(Color.parseColor("#4BBB4F"));
-                    pointText.setText("you have got 5 point and 20 XP");
+                    pointText.setText("you have got 5 point");
                 } else if (reScore > seScore) {
                     winnerId = battlePlay.receiverUid;
                     resultText.setText("Damn, You Lost!");
@@ -321,7 +346,7 @@ public class ResultActivity extends AppCompatActivity {
                 } else {
                     resultText.setText("Match Drawn!");
                     resultText.setTextColor(Color.parseColor("#5570A0"));
-                    pointText.setText("You were too close winning, Still 2 XP");
+                    pointText.setText("You were too close winning, Still 2 point");
                 }
                 playAgain.setOnClickListener(view -> {
                     Intent goBattle = new Intent(getApplicationContext(), SelectTopic.class);
@@ -329,6 +354,7 @@ public class ResultActivity extends AppCompatActivity {
                     startActivity(goBattle);
                 });
             } catch (Exception k) {
+                questionEachResultList.clear();
                 for (int i = 0; i < battlePlay.questionList.size(); i++) {
                     QuestionEachResult questionEachResult = new QuestionEachResult(battlePlay.senderAnswerList.get(i), null, battlePlay.questionList.get(i));
                     questionEachResultList.add(questionEachResult);

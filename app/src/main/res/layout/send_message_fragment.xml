@@ -51,8 +51,8 @@
                     android:layout_height="200dp"
                     android:layout_marginBottom="5dp"
                     android:src="@drawable/ic_logo_icon"
-                    tools:srcCompat="@drawable/ic_logo_icon"
-                    tools:ignore="ContentDescription" />
+                    tools:ignore="ContentDescription"
+                    tools:srcCompat="@drawable/main_logo_png" />
 
                 <TextView
                     android:id="@+id/default_title"

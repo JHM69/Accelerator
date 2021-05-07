@@ -1,6 +1,7 @@
 package org.jhm69.battle_of_quiz.adapters;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import com.google.android.material.chip.Chip;
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.models.SubTopicModel;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.QuizBattle;
+import org.jhm69.battle_of_quiz.ui.activities.quiz.SubTopic;
 
 import java.util.List;
 
@@ -95,7 +97,7 @@ public class SubTopicAdapter extends RecyclerView.Adapter<SubTopicAdapter.MyView
                 intent.putExtra("subtopic", subTopic);
                 intent.putExtra("otherUid", otherUid);
                 intent.putExtra("question_number", 10);
-                v.getContext().startActivity(intent);
+                v.getContext().startActivity(intent,  ActivityOptions.makeSceneTransitionAnimation(activity).toBundle());
                 dialog.dismiss();
             });
             Chip chip5 = dialog.findViewById(R.id.five);
@@ -106,7 +108,7 @@ public class SubTopicAdapter extends RecyclerView.Adapter<SubTopicAdapter.MyView
                 intent.putExtra("subtopic", subTopic);
                 intent.putExtra("otherUid", otherUid);
                 intent.putExtra("question_number", 5);
-                v.getContext().startActivity(intent);
+                v.getContext().startActivity(intent, ActivityOptions.makeSceneTransitionAnimation((activity)).toBundle());
                 dialog.dismiss();
             });
 

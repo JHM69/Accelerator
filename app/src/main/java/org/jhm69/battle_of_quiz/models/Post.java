@@ -28,10 +28,11 @@ public class Post implements Serializable {
     private String userimage;
     private int image_count;
     private int liked_count;
+    private int comment_count;
     private String tag;
     private String image_url_0, image_url_1, image_url_2, image_url_3, image_url_4, image_url_5, image_url_6;
 
-    public Post(@NonNull String postId, String userId, String name, String timestamp, String likes, String favourites, String description, String username, String institute, String dept, String userimage, int image_count, String image_url_0, String image_url_1, String image_url_2, String image_url_3, String image_url_4, String image_url_5, String image_url_6, int liked_count) {
+    public Post(@NonNull String postId, String userId, String name, String timestamp, String likes, String favourites, String description, String username, String institute, String dept, String userimage, int image_count, String image_url_0, String image_url_1, String image_url_2, String image_url_3, String image_url_4, String image_url_5, String image_url_6, int liked_count, int comment_count) {
         this.postId = postId;
         this.userId = userId;
         this.name = name;
@@ -52,10 +53,11 @@ public class Post implements Serializable {
         this.image_url_5 = image_url_5;
         this.image_url_6 = image_url_6;
         this.liked_count = liked_count;
+        this.comment_count = comment_count;
     }
 
     @Ignore
-    public Post(@NonNull String postId, String userId, String name, String timestamp, String description, String institute, String dept, String userimage, int liked_count) {
+    public Post(@NonNull String postId, String userId, String name, String timestamp, String description, String institute, String dept, String userimage, int liked_count, int comment_count) {
         this.postId = postId;
         this.userId = userId;
         this.name = name;
@@ -65,6 +67,7 @@ public class Post implements Serializable {
         this.dept = dept;
         this.userimage = userimage;
         this.liked_count = liked_count;
+        this.comment_count = comment_count;
     }
 
     @Ignore
@@ -243,4 +246,13 @@ public class Post implements Serializable {
     public void setLike_count(int liked_count) {
         this.liked_count = liked_count;
     }
+
+    public int getComment_count() {
+        return comment_count;
+    }
+
+    public void setComment_count(int comment_count) {
+        this.comment_count = comment_count;
+    }
 }
+

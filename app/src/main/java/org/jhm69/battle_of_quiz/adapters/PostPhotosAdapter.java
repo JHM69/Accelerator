@@ -54,13 +54,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static org.jhm69.battle_of_quiz.adapters.PostViewHolder.updateLike;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 
@@ -165,17 +165,17 @@ public class PostPhotosAdapter extends PagerAdapter {
                                 .document(userId)
                                 .set(likeMap)
                                 .addOnSuccessListener(aVoid -> {
-
                                     UserViewModel userViewModel = ViewModelProviders.of((FragmentActivity) context).get(UserViewModel.class);
                                     userViewModel.user.observe((LifecycleOwner) context, users -> {
                                         Notification notification = new Notification(
+                                                postId,
                                                 postId,
                                                 users.getUsername(),
                                                 users.getImage(),
                                                 "Liked your post",
                                                 String.valueOf(System.currentTimeMillis())
                                                 , "like"
-                                                , postId
+                                                , postId, false
                                         );
                                         addToNotification(adminId, notification);
                                     });
@@ -271,9 +271,8 @@ public class PostPhotosAdapter extends PagerAdapter {
                 context.startActivity(intent);
             });
         } else {
-
             try {
-                File compressedFile = new Compressor(context).setCompressFormat(Bitmap.CompressFormat.PNG).setQuality(50).setMaxHeight(320).compressToFile(new File(IMAGES.get(position).getLocal_path()));
+                File compressedFile = new Compressor(context).setCompressFormat(Bitmap.CompressFormat.PNG).setQuality(50).compressToFile(new File(IMAGES.get(position).getLocal_path()));
                 imageView.setImageURI(Uri.fromFile(compressedFile));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -286,7 +285,35 @@ public class PostPhotosAdapter extends PagerAdapter {
 
         return imageLayout;
     }
+    private void updateLike(boolean like, String postId) {
+        try {
+            FirebaseFirestore.getInstance().collection("Posts").document(postId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        try {
+                            int likeNew = 0;
+                            likeNew = Objects.requireNonNull(documentSnapshot.getLong("liked_count")).intValue();
+                            if (like){
+                                likeNew++;
+                            } else {
+                                likeNew--;
+                            }
+                            HashMap<String, Object> scoreMap = new HashMap<>();
+                            scoreMap.put("liked_count", likeNew);
+                            FirebaseFirestore.getInstance()
+                                    .collection("Posts")
+                                    .document(postId)
+                                    .update(scoreMap).addOnSuccessListener(aVoid -> {
 
+                            });
+                        } catch (NullPointerException ignored) {
+
+                        }
+                    });
+        } catch (NullPointerException ignored) {
+
+        }
+    }
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view.equals(object);
@@ -312,7 +339,7 @@ public class PostPhotosAdapter extends PagerAdapter {
 
         @Override
         protected Void doInBackground(Void... jk) {
-            FirebaseDatabase.getInstance().getReference().child("Tokens").child(notification.getId()).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("Tokens").child(notification.getNotifyTo()).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String usertoken = dataSnapshot.getValue(String.class);

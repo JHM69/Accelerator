@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.github.marlonlom.utilities.timeago.TimeAgo;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -50,6 +51,7 @@ import java.util.concurrent.ExecutionException;
 
 import es.dmoral.toasty.Toasty;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
@@ -137,6 +139,7 @@ public class Quiz extends Fragment {
                             .setColoredNavigationBar(true)
                             .setCancelable(true)
                             .setPositiveButton("Random Player", v -> {
+                                inHome = false;
                                 if (usersList.size() > 0) {
                                     try {
                                         Friends friends = usersList.get(0);
@@ -154,7 +157,10 @@ public class Quiz extends Fragment {
                                     loadFragment(new PlayQuiz());
                                 }
                             })
-                            .setNegativeButton("Custom Selection", v -> loadFragment(new PlayQuiz()))
+                            .setNegativeButton("Custom Selection", v ->{
+                                inHome = false;
+                            loadFragment(new PlayQuiz());
+                            })
                             .show());
 
             mRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -172,6 +178,8 @@ public class Quiz extends Fragment {
             loadProfileData();
         });
     }
+
+
 
     @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
     private void setupAdapter(String tag) {
@@ -379,7 +387,7 @@ public class Quiz extends Fragment {
         protected List<Friends> doInBackground(Void... voids) {
             FirebaseFirestore firestore = FirebaseFirestore.getInstance();
             firestore.collection("Users").whereEqualTo("type", type)
-                    .orderBy("lastTimestamp").limit(5)
+                    .orderBy("lastTimestamp").limit(8)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         if (!queryDocumentSnapshots.getDocuments().isEmpty()) {
@@ -393,7 +401,7 @@ public class Quiz extends Fragment {
                             }
                             try {
                                 Collections.shuffle(usersList);
-                            } catch (IndexOutOfBoundsException ignored) {
+                            } catch (Exception ignored) {
 
                             }
                         }
@@ -405,3 +413,4 @@ public class Quiz extends Fragment {
         }
     }
 }
+

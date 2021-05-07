@@ -1,6 +1,7 @@
 package org.jhm69.battle_of_quiz.ui.activities.quiz;
 
 import android.os.Bundle;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -35,6 +36,11 @@ public class SubTopic extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        getWindow().setEnterTransition(new Explode());
+        getWindow().setExitTransition(new Explode());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_parent_topic);
         ProgressBar loading = findViewById(R.id.progressBar2);

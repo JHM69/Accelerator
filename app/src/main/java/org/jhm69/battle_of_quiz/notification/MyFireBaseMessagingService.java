@@ -29,7 +29,7 @@ public class MyFireBaseMessagingService extends FirebaseMessagingService {
         super.onMessageReceived(remoteMessage);
 
         int icon = R.drawable.ic_logo_icon;
-        String name = "Battle of Quiz";
+        String name = "ত্বারক";
         String type = remoteMessage.getData().get("type");
         String title = remoteMessage.getData().get("username");
         String message = remoteMessage.getData().get("message");
@@ -77,7 +77,7 @@ public class MyFireBaseMessagingService extends FirebaseMessagingService {
             NotificationChannel channel = new NotificationChannel(id,
                     name,
                     NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("Battle of Quiz notifications. Add friends, Lighting posts, Playing battle quiz etc");
+            channel.setDescription("ত্বারক notifications. Add friends, Lighting posts, Playing battle quiz etc");
             mNotificationManager.createNotificationChannel(channel);
         }
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getApplicationContext(), id)

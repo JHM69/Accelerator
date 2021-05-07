@@ -716,7 +716,7 @@ public class PostImage extends AppCompatActivity {
 
         new MaterialDialog.Builder(this)
                 .title("Remove")
-                .content("Are you sure do you want to remove this image?")
+                .content("Are you sure want to remove this image?")
                 .positiveText("Yes")
                 .onPositive((dialog, which) -> {
 

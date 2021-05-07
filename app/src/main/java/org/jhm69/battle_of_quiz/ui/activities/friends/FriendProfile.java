@@ -3,12 +3,15 @@ package org.jhm69.battle_of_quiz.ui.activities.friends;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -83,7 +86,9 @@ public class FriendProfile extends AppCompatActivity {
 
     public static void startActivity(Context context, String id) {
         if (!id.equals(userId)) {
-            context.startActivity(new Intent(context, FriendProfile.class).putExtra("f_id", id).setFlags(FLAG_ACTIVITY_NEW_TASK));
+            context.startActivity(new Intent(context, FriendProfile.class).putExtra("f_id", id).setFlags(FLAG_ACTIVITY_NEW_TASK), ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
+        }else{
+            Toast.makeText(context, "", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -95,6 +100,11 @@ public class FriendProfile extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        getWindow().setEnterTransition(new Explode());
+        getWindow().setExitTransition(new Explode());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend_profile);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -856,12 +866,12 @@ public class FriendProfile extends AppCompatActivity {
 
         @SuppressLint("SetTextI18n")
         private void addToNotification(String admin_id, String user_id, String profile, String username, String message, String type) {
-            Notification notification = new Notification(admin_id, username, profile, message, String.valueOf(System.currentTimeMillis()), type, user_id);
+            Notification notification = new Notification(admin_id,admin_id, username, profile, message, String.valueOf(System.currentTimeMillis()), type, user_id, false);
             if (!admin_id.equals(user_id)) {
                 mFirestore.collection("Users")
                         .document(admin_id)
-                        .collection("Info_Notifications")
-                        .add(notification)
+                        .collection("Info_Notifications").document(notification.getId())
+                        .set(notification)
                         .addOnSuccessListener(documentReference -> {
                             new SendNotificationAsyncTask(notification).execute();
                             if (type.equals("friend_req")) {

@@ -174,6 +174,25 @@ RE.setCode = function(data) {
         document.execCommand("insertHTML",false, temp);
     }
 }
+RE.setVideo = function(data) {
+    RE.restorerange();
+    if (data.toString().length != 0) {
+        var firstPart = "<div style=\"width: 348px; height: 215px;  border-radius: 3px; float: none; clear: both; margin: 0px auto; background-image: url(file:///android_asset/video_loading_bg.svg);\">\n" +
+                                "  <embed\n" +
+                                "    src=\"https://www.youtube.com/embed/";
+        var secondPart = "?autohide=1&autoplay=1&controls=1\"\n" +
+                                "    wmode=\"transparent\"\n" +
+                                "    type=\"video/mp4\"\n" +
+                                "    width=\"100%\" height=\"100%\"\n" +
+                                "    encrypted-media; picture-in-picture\"\n" +
+                                "    allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n" +
+                                "    allowfullscreen\n" +
+                                "  >\n" +
+                                "</div><br>";
+        var total = firstPart + data + secondPart;
+        document.execCommand("insertHTML",false, total);
+    }
+}
 RE.insertLatex = function(latex) {
         RE.restorerange();
         if (latex.toString().length != 0) {

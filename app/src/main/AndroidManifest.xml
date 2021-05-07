@@ -31,8 +31,7 @@
             android:name=".ui.activities.account.EditProfile"
             />
         <activity
-            android:name=".ui.activities.quiz.SelectTopic"
-            android:noHistory="true" />
+            android:name=".ui.activities.quiz.SelectTopic" />
         <activity
             android:name=".ui.activities.quiz.SubTopic"
             android:noHistory="true" />
@@ -40,7 +39,8 @@
         <activity
             android:name=".ui.activities.post.CommentsActivity"
             android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".ui.activities.quiz.ResultActivity" />
+        <activity android:name=".ui.activities.quiz.ResultActivity"
+            android:theme="@style/AppTheme"/>
         <activity android:name=".ui.activities.post.WhoLikedActivity" />
         <activity android:name=".ui.activities.post.PostText" />
         <activity android:name=".ui.activities.post.PostImage" />

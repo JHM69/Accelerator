@@ -2,19 +2,22 @@ package org.jhm69.battle_of_quiz.models;
 
 public class Notification extends DocumentID {
 
-    private String id, username, image, message, timestamp, type, action_id;
+    private String id, notifyTo, username, image, message, timestamp, type, action_id;
+    private boolean read=true;
 
     public Notification() {
     }
 
-    public Notification(String id, String username, String image, String message, String timestamp, String type, String action_id) {
+    public Notification(String id, String notifyTo, String username, String image, String message, String timestamp, String type, String action_id, Boolean read) {
         this.id = id;
+        this.notifyTo = notifyTo;
         this.username = username;
         this.image = image;
         this.message = message;
         this.timestamp = timestamp;
         this.type = type;
         this.action_id = action_id;
+        this.read = read;
     }
 
     public String getId() {
@@ -23,6 +26,14 @@ public class Notification extends DocumentID {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getNotifyTo() {
+        return notifyTo;
+    }
+
+    public void setNotifyTo(String notifyTo) {
+        this.notifyTo = notifyTo;
     }
 
     public String getUsername() {
@@ -71,5 +82,13 @@ public class Notification extends DocumentID {
 
     public void setAction_id(String action_id) {
         this.action_id = action_id;
+    }
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
     }
 }

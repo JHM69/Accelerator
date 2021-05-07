@@ -165,7 +165,7 @@ public class UploadService extends Service {
 
                         notifyProgress(notification_id
                                 ,
-                                "Battle of Quiz"
+                                "ত্বারক"
                                 , "Uploading " + count + " posts"
                                 , getApplicationContext()
                                 ,
@@ -185,7 +185,7 @@ public class UploadService extends Service {
             if (count == 1) {
                 notifyProgress(notification_id
                         ,
-                        "Battle of Quiz"
+                        "ত্বারক"
                         , "Uploading post.."
                         , getApplicationContext()
                         ,
@@ -248,6 +248,7 @@ public class UploadService extends Service {
                         postMap.put("description", description);
                         postMap.put("tag", tag);
                         postMap.put("liked_count", 0);
+                        postMap.put("comment_count", 0);
                         postMap.put("color", "0");
                         postMap.put("postId", idll);
                         Map<String, Object> postMapFinal = new HashMap<>();
@@ -286,7 +287,7 @@ public class UploadService extends Service {
     /*  public void sendMessage(int notification_id, String sender, final String receiver, Uri image, String userid, String fuser) {
           notifyProgress(notification_id
                   ,
-                  "Battle of Quiz"
+                  "ত্বারক"
                   , "Sending attachment.."
                   , getApplicationContext()
                   , 0

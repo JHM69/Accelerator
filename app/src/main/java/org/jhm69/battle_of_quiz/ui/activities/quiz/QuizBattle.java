@@ -12,6 +12,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.transition.Explode;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -34,6 +36,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -50,20 +53,26 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.notification.APIService;
 import org.jhm69.battle_of_quiz.notification.Client;
 import org.jhm69.battle_of_quiz.notification.MyResponse;
 import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.models.Question;
+import org.jhm69.battle_of_quiz.repository.UserRepository;
 import org.jhm69.battle_of_quiz.utils.MathView;
 import org.jhm69.battle_of_quiz.viewmodel.BattleViewModel;
 import org.jhm69.battle_of_quiz.viewmodel.ResultViewModel;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -90,7 +99,6 @@ public class QuizBattle extends AppCompatActivity {
     ImageView otherUserImage, thisUserImage;
     TextView thisUserName, thisUserLevel, otherUserName, otherUserLevel, thisScore, otherScore, topicTV;
     String battleIdNew, offlideID;
-    LinearLayout pb;
     String thisUid, otherUid;
     String MyName, MyImage;
     String topic, subtopic;
@@ -104,20 +112,24 @@ public class QuizBattle extends AppCompatActivity {
     private LinearLayout optionsContainer;
     private Button next;
     private int count = 0;
+    long timeLeftInMillis=0;
     private LinearLayout question;
     private ImageView mcqImg;
     private List<Question> list;
     private int score;
     private DatabaseReference mainDB;
+    FirebaseFirestore mFirestore;
     private StepView stepView;
     private ProgressDialog mDialog;
     private String hisName, hisImage;
+    private CountDownTimer countDownTimer;
 
+    Users user;
+    private TextView textViewCountDown;
 
     /*  public boolean isPanelShown(View view) {
           return view.getVisibility() == View.VISIBLE;
       }
-
       public void hideSolution(final View view, Context context) {
           TranslateAnimation animate = new TranslateAnimation(
                   0,                 // fromXDelta
@@ -129,7 +141,6 @@ public class QuizBattle extends AppCompatActivity {
           view.startAnimation(animate);
           view.setVisibility(View.GONE);
       }
-
       public void playSolution(final View view, Context context) {
           view.setVisibility(View.VISIBLE);
           TranslateAnimation animate = new TranslateAnimation(
@@ -149,12 +160,12 @@ public class QuizBattle extends AppCompatActivity {
                 @Override
                 public Transaction.Result doTransaction(@NonNull MutableData mutableData) {
                     long max = mutableData.getChildrenCount();
-                        for (MutableData data : mutableData.getChildren()) {
-                            Question node = data.getValue(Question.class);
-                            if (node != null) {
-                                node.setIndex((int) (Math.random() * max + 1));
-                                data.setValue(node);
-                            }
+                    for (MutableData data : mutableData.getChildren()) {
+                        Question node = data.getValue(Question.class);
+                        if (node != null) {
+                            node.setIndex((int) (Math.random() * max + 1));
+                            data.setValue(node);
+                        }
                     }
                     return Transaction.success(mutableData);
                 }
@@ -170,15 +181,15 @@ public class QuizBattle extends AppCompatActivity {
         }
     }
 
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void playAnim(final View view, final int value, final String data) {
+    private void playQuestion(final View view, final int value, final String data) {
         try {
-            timeLeft(pb, list.get(position).getTime());
             next.setEnabled(false);
             if (list.get(position).getImg().length() > 10) {
                 mcqImg.setVisibility(View.VISIBLE);
                 Glide.with(getApplicationContext())
-                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.main_logo_png))
                         .load(list.get(position).getImg())
                         .into(mcqImg);
             } else {
@@ -204,7 +215,7 @@ public class QuizBattle extends AppCompatActivity {
                         option = list.get(position).getD();
                     }
                     LinearLayout linearLayout = (LinearLayout) optionsContainer.getChildAt(count);
-                    playAnim(linearLayout, 0, option);
+                    playQuestion(linearLayout, 0, option);
                     count++;
                 }
             }
@@ -215,7 +226,7 @@ public class QuizBattle extends AppCompatActivity {
                     LinearLayout layout = (LinearLayout) view;
                     ((MathView) layout.getChildAt(0)).setDisplayText(data);
                     view.setTag(data);
-                    playAnim(view, 1, data);
+                    playQuestion(view, 1, data);
                 }
             }
 
@@ -230,6 +241,60 @@ public class QuizBattle extends AppCompatActivity {
             }
         });
     }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void playAnim(final View view, int time, final String data) {
+       // timeLeft(time);
+        Log.d("showResult", "weds");
+        startCountDown(time);
+        elableOption(true);
+        playQuestion(view, 0,data);
+    }
+
+
+    private void startCountDown(int t) {
+        if(countDownTimer!=null){
+            countDownTimer.cancel();
+        }
+        countDownTimer = new CountDownTimer(t*1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timeLeftInMillis = millisUntilFinished;
+                updateCountDownText();
+            }
+            @Override
+            public void onFinish() {
+                timeLeftInMillis = 0;
+                countDownTimer.cancel();
+                updateCountDownText();
+                Toasty.error(getApplicationContext(), "Time over", Toasty.LENGTH_SHORT, true).show();
+                next.setEnabled(true);
+                next.setAlpha(1f);
+                elableOption(false);
+                LinearLayout CorrectLayout;
+                CorrectLayout = (LinearLayout) optionsContainer.getChildAt(list.get(position).getAns());
+                CorrectLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4BBB4F")));
+                stepAnsList.add(position, false);
+
+                showResult();
+            }
+        }.start();
+    }
+
+    @SuppressLint("ResourceAsColor")
+    private void updateCountDownText() {
+        int seconds = (int) (timeLeftInMillis / 1000) % 60;
+        String timeFormatted = String.format(Locale.getDefault(), "%02d", seconds);
+        textViewCountDown.setText(timeFormatted);
+        if (timeLeftInMillis < 10000) {
+            textViewCountDown.setTextColor(Color.RED);
+        } else {
+            textViewCountDown.setTextColor(R.color.Timewhite);
+        }
+    }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("ResourceAsColor")
@@ -291,7 +356,7 @@ public class QuizBattle extends AppCompatActivity {
                     }
 
                     try {
-                        playAnim(question, 0, list.get(position).getQuestion());
+                        playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
                     } catch (Exception ignored) {
                         Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
                         finish();
@@ -316,8 +381,7 @@ public class QuizBattle extends AppCompatActivity {
                     offlineBattleSaving.setWinner("3");
 
                 } catch (Exception h) {
-                    DatabaseReference mDb = FirebaseDatabase.getInstance().getReference();
-                    Query query = mDb.child("Play").orderByChild("battleId").equalTo(battleIdNew);
+                    Query query = mainDB.child("Play").orderByChild("battleId").equalTo(battleIdNew);
                     query.addListenerForSingleValueEvent(new ValueEventListener() {
                         @SuppressLint("CheckResult")
                         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -339,7 +403,7 @@ public class QuizBattle extends AppCompatActivity {
                                 }
                                 setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
                                 try {
-                                    playAnim(question, 0, list.get(position).getQuestion());
+                                    playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
                                 } catch (NullPointerException ignored) {
                                     Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
                                     finish();
@@ -391,7 +455,7 @@ public class QuizBattle extends AppCompatActivity {
                         setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.getSenderUid(), false);
 
                         try {
-                            playAnim(question, 0, list.get(position).getQuestion());
+                            playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
                         } catch (Exception vhjkj) {
                             Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
                             finish();
@@ -420,7 +484,6 @@ public class QuizBattle extends AppCompatActivity {
                         offlineBattleSaving.setWinner("3");
 
                     } else if (realBattle.getWinner().equals("2")) {
-
                         position = realBattle.getSenderAnswerList().size();
                         score = getScoreCount(realBattle.getSenderAnswerList());
                         thisScore.setText(String.valueOf(score));
@@ -429,7 +492,7 @@ public class QuizBattle extends AppCompatActivity {
                         setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.receiverUid, false);
 
                         try {
-                            playAnim(question, 0, list.get(position).getQuestion());
+                            playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
                         } catch (Exception dc) {
                             Toasty.error(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
                             finish();
@@ -471,9 +534,10 @@ public class QuizBattle extends AppCompatActivity {
                         @Override
                         public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                             list.add(snapshot.getValue(Question.class));
+                            Collections.shuffle(list);
                             stepAnsList.add(false);
                             mDialog.dismiss();
-                            playAnim(question, 0, list.get(position).getQuestion());
+                            playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
                             stepView.getState()
                                     .animationType(StepView.ANIMATION_ALL)
                                     .nextStepCircleEnabled(true)
@@ -531,10 +595,10 @@ public class QuizBattle extends AppCompatActivity {
                 mDialog.show();
                 addToNotification();
             } else {
-                playAnim(question, 0, list.get(which).getQuestion());
+                playAnim(question, list.get(which).getTime(), list.get(which).getQuestion());
             }
             count = 0;
-        }catch (IndexOutOfBoundsException d){
+        }catch (Exception d){
             Log.d("Errorrr", d.getMessage());
             finish();
         }
@@ -542,39 +606,54 @@ public class QuizBattle extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void showResult() {
-        next.setEnabled(true);
-        next.setAlpha(1);
-        elableOption(false);
-        try {
-            LinearLayout CorrectLayout = (LinearLayout) optionsContainer.getChildAt(list.get(position).getAns());
-            CorrectLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4BBB4F")));
-        } catch (Exception ignored) {
 
-        }
-
-    }
-
-    private void timeLeft(final View view, int time) {
-        view.setBackground(getDrawableWithRadius());
-        view.setTranslationX(-view.getWidth());
-        view.animate()
-                .translationXBy(view.getWidth())
-                .setDuration(time * 1000)
-                .setInterpolator(new AccelerateDecelerateInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
-                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        elableOption(true);
-                        view.setVisibility(View.VISIBLE);
+        AsyncTask.execute(() -> {
+            if (battleIdNew != null) {
+                reciverAnsList.add(position, false);
+                realBattle.setReceiverList(reciverAnsList);
+                realBattle.setWinner("3");
+                battleViewModel.insert(realBattle);
+                Result myResult = new Result(realBattle.battleId, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
+                myResult.setBattleId(realBattle.battleId);
+                if (position + 1 == question_number) {
+                    myResult.setAction(COMPLETED);
+                    myResult.setOtherUid(realBattle.senderUid);
+                    myResult.setOtherScore(getScoreCount(realBattle.senderAnswerList));
+                }
+                viewModel.insert(myResult);
+            } else if (offlideID != null) {
+                if (realBattle.getWinner().equals("2")) {
+                    SenderAnsList.add(position, false);
+                    offlineBattleSaving.setSenderAnswerList(SenderAnsList);
+                    battleViewModel.insert(offlineBattleSaving);
+                    Result myResult = new Result(offlideID, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
+                    if (position + 1 == question_number)
+                        myResult.setAction(JUST_STARTED);
+                    viewModel.insert(myResult);
+                } else if (realBattle.getWinner().equals("3")) {
+                    reciverAnsList.add(position, false);
+                    offlineBattleSaving.setSenderAnswerList(reciverAnsList);
+                    battleViewModel.insert(offlineBattleSaving);
+                    Result myResult = new Result(offlideID, otherUid, userId, score, -2, topic, timestamp, IN_STARTED);
+                    if (position + 1 == question_number) {
+                        myResult.setAction(COMPLETED);
+                        myResult.setOtherUid(realBattle.senderUid);
+                        myResult.setOtherScore(getScoreCount(offlineBattleSaving.senderAnswerList));
                     }
+                    viewModel.insert(myResult);
+                }
+            } else {
+                SenderAnsList.add(position, false);
+                offlineBattleSaving.setSenderAnswerList(SenderAnsList);
+                offlineBattleSaving.setWinner("2");
+                battleViewModel.insert(offlineBattleSaving);
+                Result myResult = new Result(battleId, userId, otherUid, score, -2, topic, timestamp, OFFLINE_STARTED);
+                if (position + 1 == question_number)
+                    myResult.setAction(JUST_STARTED);
+                viewModel.insert(myResult);
+            }
 
-                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        showResult();
-                    }
-                });
+        });
     }
 
     private Drawable getDrawableWithRadius() {
@@ -594,6 +673,10 @@ public class QuizBattle extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        getWindow().setEnterTransition(new Explode());
+        getWindow().setExitTransition(new Explode());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_battle);
         stepAnsList = new ArrayList<>();
@@ -604,6 +687,7 @@ public class QuizBattle extends AppCompatActivity {
         subtopic = getIntent().getStringExtra("subtopic");
         question_number = getIntent().getIntExtra("question_number", 5);
         mainDB = FirebaseDatabase.getInstance().getReference();
+        user = new UserRepository(getApplication()).getUser();
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -613,6 +697,7 @@ public class QuizBattle extends AppCompatActivity {
         viewModel = ViewModelProviders.of(this).get(ResultViewModel.class);
         userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         thisUserLevel = findViewById(R.id.thisUserLevel);
+        textViewCountDown = findViewById(R.id.textView3);
         thisUserImage = findViewById(R.id.thisUserImage);
         thisScore = findViewById(R.id.myScore);
         otherUserName = findViewById(R.id.otherUserName);
@@ -625,7 +710,6 @@ public class QuizBattle extends AppCompatActivity {
         mcqImg = findViewById(R.id.mcq_img);
         list = new ArrayList<>();
         SenderAnsList = new ArrayList<>();
-        pb = findViewById(R.id.progressBar);
         next = findViewById(R.id.next);
         optionsContainer = findViewById(R.id.contaner);
         mDialog = new ProgressDialog(this);
@@ -633,8 +717,8 @@ public class QuizBattle extends AppCompatActivity {
         mDialog.setIndeterminate(true);
         mDialog.setCanceledOnTouchOutside(false);
         mDialog.setCancelable(false);
+        mFirestore = FirebaseFirestore.getInstance();
         setUserData(thisUserImage, thisUserName, thisUserLevel, thisUid, true);
-
         //mcqAnsList = new ArrayList<>();
         position = 0;
         thisScore.setText(String.valueOf(0));
@@ -645,7 +729,7 @@ public class QuizBattle extends AppCompatActivity {
             loadQuestionData();
         } else {
             try {
-                playAnim(question, 0, list.get(position).getQuestion());
+                playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
             } catch (ClassCastException svs) {
                 Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
             }
@@ -781,6 +865,7 @@ public class QuizBattle extends AppCompatActivity {
         }
         next.setOnClickListener(v -> {
             if (position < 1) {
+                updateXP(false);
                 Toast.makeText(getApplicationContext(), "5 XP reduced", Toast.LENGTH_SHORT).show();
             }
             position++;
@@ -789,53 +874,81 @@ public class QuizBattle extends AppCompatActivity {
         AdView adView = new AdView(getApplicationContext());
         adView.setAdSize(AdSize.BANNER);
         adView.setAdUnitId("ca-app-pub-1812307912459750/8036969559");
-
         MobileAds.initialize(getApplicationContext(), initializationStatus -> {
         });
-
-
-
         adView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         adView.loadAd(adRequest);
     }
 
-    private void addScore(int score, String uid, String what) {
-        if (what.equals("win")) userViewModel.updateWin(score);
-        if (what.equals("lose")) userViewModel.updateLose(score);
-        if (what.equals("draw")) userViewModel.updateDraw(score);
-        if (what.equals("score")) userViewModel.updateScore(score);
-        FirebaseFirestore.getInstance().collection("Users")
-                .document(uid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    int scoreOld = Objects.requireNonNull(documentSnapshot.getLong(what)).intValue();
-                    int newScore = scoreOld + (score);
-                    HashMap<String, Object> scoreMap = new HashMap<>();
-                    scoreMap.put(what, newScore);
-                    FirebaseFirestore.getInstance()
-                            .collection("Users")
-                            .document(uid)
-                            .update(scoreMap).addOnSuccessListener(aVoid -> {
-                            });
-                });
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+    }
+
+    private void addScore(int score, String uid, String what, boolean me) {
+        if(me) {
+            int newScores = score;
+            if (what.equals("win")) {
+                newScores = (int) user.getWin();
+                newScores += score;
+                userViewModel.setWin(newScores);
+            }
+            if (what.equals("lose")) {
+                newScores = (int) user.getLose();
+                newScores += score;
+                userViewModel.setLose(newScores);
+            }
+            if (what.equals("draw")) {
+                newScores = (int) user.getDraw();
+                newScores += score;
+                userViewModel.setDraw(newScores);
+            }
+            if (what.equals("score")) {
+                newScores = (int) user.getScore();
+                newScores += score;
+                userViewModel.setScore(newScores);
+            }
+            HashMap<String, Object> scoreMap = new HashMap<>();
+            scoreMap.put(what, newScores);
+            mFirestore.collection("Users")
+                    .document(uid)
+                    .update(scoreMap).addOnSuccessListener(aVoid -> {
+            });
+        }else{
+            FirebaseFirestore.getInstance().collection("Users")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        int scoreOld = Objects.requireNonNull(documentSnapshot.getLong(what)).intValue();
+                        int newScore = scoreOld + (score);
+                        HashMap<String, Object> scoreMap = new HashMap<>();
+                        scoreMap.put(what, newScore);
+                        FirebaseFirestore.getInstance()
+                                .collection("Users")
+                                .document(uid)
+                                .update(scoreMap).addOnSuccessListener(aVoid -> {
+                        });
+                    });
+        }
     }
 
     private void setUserData(ImageView proPic, TextView name, TextView level, String uid, boolean me) {
         try {
             if (me) {
-                userViewModel.user.observe(this, me1 -> {
-                    MyName = me1.getUsername();
-                    MyImage = me1.getImage();
+                    MyName = user.getUsername();
+                    MyImage = user.getImage();
                     name.setText(MyName);
-                    setLevelByScore(level, (int) me1.getScore());
+                    setLevelByScore(level, (int) user.getScore());
                     Glide.with(getApplicationContext())
                             .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
                             .load(MyImage)
                             .into(proPic);
-                });
             } else {
-                FirebaseFirestore.getInstance().collection("Users")
+                mFirestore.collection("Users")
                         .document(uid)
                         .get()
                         .addOnSuccessListener(documentSnapshot -> {
@@ -856,17 +969,17 @@ public class QuizBattle extends AppCompatActivity {
 
     private void addToNotification() {
         if (battleIdNew != null) {
-            Notification notification = new Notification(realBattle.senderUid, MyName, MyImage,
+            Notification notification = new Notification(realBattle.getBattleId(),realBattle.senderUid, MyName, MyImage,
                     "accepted your challenge in " + realBattle.topic,
                     String.valueOf(System.currentTimeMillis()),
                     "play_result"
-                    , realBattle.battleId);
+                    , realBattle.battleId, false);
             new QuizBattle.SendNotificationAsyncTask(notification).execute();
             //realBattle means data with including second player
             FirebaseFirestore.getInstance().collection("Users")
                     .document(otherUid)
-                    .collection("Info_Notifications")
-                    .add(notification)
+                    .collection("Info_Notifications").document(notification.getId())
+                    .set(notification)
                     .addOnSuccessListener(documentReference -> {
                         //declaring ultimate/final battleResult
                         thisUid = realBattle.senderUid;
@@ -889,17 +1002,16 @@ public class QuizBattle extends AppCompatActivity {
 
         } else if (offlideID != null) {
             if (offlineBattleSaving.getWinner().equals("2")) {
-                Notification notification = new Notification(otherUid, MyName, MyImage,
+                Notification notification = new Notification(offlineBattleSaving.getBattleId() ,otherUid, MyName, MyImage,
                         "challenged you in " + topic,
                         String.valueOf(System.currentTimeMillis()),
                         "play"
-                        , battleId);
+                        , battleId, false);
                 new QuizBattle.SendNotificationAsyncTask(notification).execute();
-                updateXP(-5);
-                FirebaseFirestore.getInstance().collection("Users")
+                mFirestore.collection("Users")
                         .document(otherUid)
-                        .collection("Info_Notifications")
-                        .add(notification)
+                        .collection("Info_Notifications").document(notification.getId())
+                        .set(notification)
                         .addOnSuccessListener(documentReference -> {
                             thisUid = userId;
                             BattleModel battleModel;
@@ -908,7 +1020,7 @@ public class QuizBattle extends AppCompatActivity {
                             battleModel.setWinner("0");
                             battleViewModel.insert(battleModel);
                             Result hisResult = new Result(offlineBattleSaving.battleId, battleModel.getReceiverUid(), userId, getScoreCount(SenderAnsList), -1, topic, timestamp, JUST_IN);
-                            FirebaseDatabase.getInstance().getReference().child("Result").child(otherUid).child(battleId).setValue(hisResult);
+                            mainDB.child("Result").child(otherUid).child(battleId).setValue(hisResult);
                             //here thisUid is player who sending invitations and other uid is whom he sending invite
                             //so senderResult is NonNull and reciverAnsList is Null as he still not able to play.
                             mainDB = FirebaseDatabase.getInstance().getReference();
@@ -921,16 +1033,16 @@ public class QuizBattle extends AppCompatActivity {
                             });
                         });
             } else if (offlineBattleSaving.getWinner().equals("3")) {
-                Notification notification = new Notification(realBattle.senderUid, MyName, MyImage,
+                Notification notification = new Notification(realBattle.getBattleId(),realBattle.senderUid, MyName, MyImage,
                         "accepted your challenge in " + realBattle.topic,
                         String.valueOf(System.currentTimeMillis()),
                         "play_result"
-                        , realBattle.battleId);
+                        , realBattle.battleId, false);
                 new QuizBattle.SendNotificationAsyncTask(notification).execute();
-                FirebaseFirestore.getInstance().collection("Users")
+                mFirestore.collection("Users")
                         .document(otherUid)
-                        .collection("Info_Notifications")
-                        .add(notification)
+                        .collection("Info_Notifications").document(notification.getId())
+                        .set(notification)
                         .addOnSuccessListener(documentReference -> {
                             //declaring ultimate/final battleResult
                             thisUid = realBattle.senderUid;
@@ -938,7 +1050,7 @@ public class QuizBattle extends AppCompatActivity {
                             BattleModel battle = new BattleModel(thisUid, otherUid, list, SenderAnsList, reciverAnsList, timestamp, "0", realBattle.battleId, realBattle.topic, true);
                             //here thisUid (who invited to play) and other is player 2 who got invited and playing now
                             //none of SenderAnsList(inviter) and receiverAnsList(this) is null
-                            mainDB = FirebaseDatabase.getInstance().getReference();
+
                             // Result senderResult = new Result(realBattle.battleId, realBattle.senderUid, userId, getScoreCount(realBattle.getSenderAnswerList()), getScoreCount(reciverAnsList), topic, timestamp, COMPLETED);
                             // FirebaseDatabase.getInstance().getReference().child("Result").child(realBattle.senderUid).child(realBattle.battleId).setValue(senderResult);
                             mainDB.child("Play").child(realBattle.battleId).setValue(battle).addOnSuccessListener(aVoid -> {
@@ -954,17 +1066,16 @@ public class QuizBattle extends AppCompatActivity {
             }
 
         } else {
-            Notification notification = new Notification(otherUid, MyName, MyImage,
+            Notification notification = new Notification(battleId,otherUid, MyName, MyImage,
                     "challenged you in " + topic,
                     String.valueOf(System.currentTimeMillis()),
                     "play"
-                    , battleId);
+                    , battleId, false);
             new QuizBattle.SendNotificationAsyncTask(notification).execute();
-            updateXP(-5);
-            FirebaseFirestore.getInstance().collection("Users")
+            mFirestore.collection("Users")
                     .document(otherUid)
-                    .collection("Info_Notifications")
-                    .add(notification)
+                    .collection("Info_Notifications").document(notification.getId())
+                    .set(notification)
                     .addOnSuccessListener(documentReference -> {
                         Result hisResult = new Result(offlineBattleSaving.battleId, offlineBattleSaving.getReceiverUid(), userId, getScoreCount(SenderAnsList), -1, topic, timestamp, JUST_IN);
                         FirebaseDatabase.getInstance().getReference().child("Result").child(offlineBattleSaving.getReceiverUid()).child(battleId).setValue(hisResult);
@@ -1004,34 +1115,34 @@ public class QuizBattle extends AppCompatActivity {
         thisScore.setText(String.valueOf(reScore));
         otherScore.setText(String.valueOf(seScore));
         if (reScore > seScore) {
-            updateXP(20);
-            Toasty.success(getApplicationContext(), "Congo, you got 5 XP and 5 point", Toasty.LENGTH_LONG);
-            addScore(5, battlePlay.receiverUid, "score");
-            addScore(1, battlePlay.receiverUid, "win");
-            addScore(1, battlePlay.senderUid, "lose");
+            updateXP(true);
+            Toasty.success(QuizBattle.this, "Congo, you got 20 XP and 5 point", Toasty.LENGTH_LONG);
+            addScore(5, battlePlay.receiverUid, "score", true);
+            addScore(1, battlePlay.receiverUid, "win", true);
+            addScore(1, battlePlay.senderUid, "lose", false);
             Map<String, Object> winner = new HashMap<>();
             winner.put("winner", battlePlay.receiverUid);
             battleViewModel.insert(battlePlay);
-            FirebaseDatabase.getInstance().getReference().child("Play").child(battlePlay.battleId).updateChildren(winner);
+            mainDB.child("Play").child(battlePlay.battleId).updateChildren(winner);
         } else if (seScore > reScore) {
-            Toasty.error(getApplicationContext(), "Damn, you lost 5 point", Toasty.LENGTH_LONG);
-            addScore(1, battlePlay.senderUid, "win");
-            addScore(5, battlePlay.senderUid, "score");
-            addScore(1, battlePlay.receiverUid, "lose");
+            Toasty.error(getApplicationContext(), "Damn, you lost", Toasty.LENGTH_LONG);
+            addScore(1, battlePlay.senderUid, "win", false);
+            addScore(5, battlePlay.senderUid, "score", false);
+            addScore(1, battlePlay.receiverUid, "lose", true);
             Map<String, Object> winner = new HashMap<>();
             winner.put("winner", battlePlay.senderUid);
             battleViewModel.insert(battlePlay);
-            FirebaseDatabase.getInstance().getReference().child("Play").child(battlePlay.battleId).updateChildren(winner);
+            mainDB.child("Play").child(battlePlay.battleId).updateChildren(winner);
         } else {
-            addScore(2, battlePlay.receiverUid, "score");
-            addScore(2, battlePlay.senderUid, "score");
+            addScore(2, battlePlay.receiverUid, "score", true);
+            addScore(2, battlePlay.senderUid, "score", false);
             Toasty.info(getApplicationContext(), "Match Drawn", Toasty.LENGTH_LONG);
-            addScore(1, battlePlay.receiverUid, "draw");
-            addScore(1, battlePlay.senderUid, "draw");
+            addScore(1, battlePlay.receiverUid, "draw", true);
+            addScore(1, battlePlay.senderUid, "draw", false);
             Map<String, Object> winner = new HashMap<>();
             winner.put("winner", "draw");
             battleViewModel.insert(battlePlay);
-            FirebaseDatabase.getInstance().getReference().child("Play").child(battlePlay.battleId).updateChildren(winner);
+            mainDB.child("Play").child(battlePlay.battleId).updateChildren(winner);
         }
     }
 
@@ -1043,7 +1154,10 @@ public class QuizBattle extends AppCompatActivity {
                 .positiveText("Yes")
                 .canceledOnTouchOutside(false)
                 .cancelable(false)
-                .onPositive((dialog, which) -> finish())
+                .onPositive((dialog, which) -> {
+                    countDownTimer.cancel();
+                    finish();
+                })
                 .negativeText("No")
                 .show();
     }
@@ -1069,27 +1183,20 @@ public class QuizBattle extends AppCompatActivity {
         }
     }
 
-    private void updateXP(int score) {
-        FirebaseFirestore.getInstance().collection("Users")
+    private void updateXP( boolean increment) {
+        int reward = (int) user.getReward();
+        if(increment){
+            reward+=20;
+        }else{
+            reward-=5;
+        }
+        userViewModel.setReward(reward);
+        HashMap<String, Object> scoreMap = new HashMap<>();
+        scoreMap.put("reward", reward);
+        mFirestore.collection("Users")
                 .document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    try {
-                        int scoreOld = Objects.requireNonNull(documentSnapshot.getLong("reward")).intValue();
-                        int newScore = scoreOld + (score);
-                        HashMap<String, Object> scoreMap = new HashMap<>();
-                        scoreMap.put("reward", newScore);
-                        FirebaseFirestore.getInstance()
-                                .collection("Users")
-                                .document(userId)
-                                .update(scoreMap).addOnSuccessListener(aVoid -> {
-                                    userViewModel.updateXp(score);
-                                    //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-                                    //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
-                                });
-                    } catch (NullPointerException ignored) {
-                    }
-                });
+                .update(scoreMap).addOnSuccessListener(aVoid -> {
+        });
 
     }
 
@@ -1104,7 +1211,7 @@ public class QuizBattle extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... jk) {
-            FirebaseDatabase.getInstance().getReference().child("Tokens").child(notification.getId()).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference().child("Tokens").child(notification.getNotifyTo()).child("token").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String usertoken = dataSnapshot.getValue(String.class);
@@ -1129,6 +1236,4 @@ public class QuizBattle extends AppCompatActivity {
             return null;
         }
     }
-
-
 }

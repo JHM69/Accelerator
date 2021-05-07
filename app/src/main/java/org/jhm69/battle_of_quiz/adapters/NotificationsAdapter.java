@@ -1,7 +1,11 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +13,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -26,6 +32,7 @@ import org.jhm69.battle_of_quiz.ui.activities.post.SinglePostView;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.QuizBattle;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.ResultActivity;
 
+import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -83,13 +90,19 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         Notification notification = notificationsList.get(position);
 
         Glide.with(context)
-                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                 .load(notification.getImage())
                 .into(holder.image);
 
         holder.title.setText(notification.getUsername());
         holder.body.setText(notification.getMessage());
         holder.timestamp.setText(TimeAgo.using(Long.parseLong(notification.getTimestamp())));
+
+        if(!notification.isRead()){
+            holder.itemView.setBackgroundColor(Color.parseColor("#DCDCFB"));
+        }else{
+            holder.itemView.setBackgroundColor(Color.parseColor("#ffffff"));
+        }
 
         switch (notification.getType()) {
             case "like":
@@ -128,12 +141,18 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
                     FriendProfile.startActivity(context, notification.getAction_id());
                     break;
                 case "play":
-                    context.startActivity(new Intent(context, QuizBattle.class).putExtra("battleId", notification.getAction_id()));
+                    context.startActivity(new Intent(context, QuizBattle.class).putExtra("battleId", notification.getAction_id()),  ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
                     break;
                 case "play_result":
-                    context.startActivity(new Intent(context, ResultActivity.class).putExtra("resultId", notification.getAction_id()));
+                    //ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) context, holder.image, "thumbnailTransition");
+                    context.startActivity(new Intent(context, ResultActivity.class).putExtra("resultId", notification.getAction_id()),  ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
                     break;
             }
+            if(!notification.isRead()){
+                notification.setRead(true);
+                unReadNotification(notification.getId());
+            }
+            holder.itemView.setBackgroundColor(Color.parseColor("#ffffff"));
         });
 
         holder.itemView.setOnLongClickListener(v -> {
@@ -165,6 +184,23 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
         });
 
     }
+
+    private void unReadNotification(String notificatinId) {
+        try {
+            HashMap<String, Object> scoreMap = new HashMap<>();
+            scoreMap.put("read", true);
+            FirebaseFirestore.getInstance().collection("Users")
+                    .document(userId)
+                    .collection("Info_Notifications").document(notificatinId)
+                    .update(scoreMap).addOnSuccessListener(aVoid -> {
+            });
+        }catch (Exception ignored){
+
+        }
+    }
+
+
+
 
     @Override
     public int getItemCount() {

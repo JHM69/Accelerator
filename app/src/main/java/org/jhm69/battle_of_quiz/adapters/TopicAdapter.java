@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -50,11 +52,11 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicAdapter.MyViewHolder
 
         viewHolder.nameTV.setText(topicNameList.get(i));
         viewHolder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), SubTopic.class);
+            Intent intent = new Intent(context, SubTopic.class);
             intent.putExtra("topic", topicNameList.get(i));
             intent.putExtra("otherUid", otherUid);
             intent.putExtra("type", type);
-            v.getContext().startActivity(intent);
+            context.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
         });
 
 

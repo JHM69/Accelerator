@@ -74,6 +74,9 @@ public class UserRepository {
     public void setScore(int x) {
         new UserRepository.SetScoreAsyncTask(resultDao).execute(x);
     }
+    public void setReward(int x) {
+        new UserRepository.SetRewardAsyncTask(resultDao).execute(x);
+    }
 
     public void setWin(int x) {
         new UserRepository.SetWinAsyncTask(resultDao).execute(x);
@@ -207,6 +210,20 @@ public class UserRepository {
         }
     }
 
+
+    private static class SetRewardAsyncTask extends AsyncTask<Integer, Void, Void> {
+        private final DaoAccess resultDao;
+
+        private SetRewardAsyncTask(DaoAccess resultDao) {
+            this.resultDao = resultDao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... integers) {
+            resultDao.setReward(integers[0], userId);
+            return null;
+        }
+    }
 
 
     private static class SetScoreAsyncTask extends AsyncTask<Integer, Void, Void> {

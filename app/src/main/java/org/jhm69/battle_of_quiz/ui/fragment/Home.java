@@ -195,7 +195,7 @@ public class Home extends Fragment {
                 .limit(7)
                 .showCamera(true)
                 .enableLog(true)
-                .imageDirectory("Battle of Quiz")
+                .imageDirectory("ত্বারক")
                 .start(123);
     }
 

@@ -118,7 +118,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
         public final CircleImageView image;
         public final TextView name;
         public final TextView institute;
-        public final TextView level;
+        public final TextView level, time;
         public final TextView rank;
         public final ConstraintLayout back;
 
@@ -131,6 +131,7 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.ViewHolder
             level = mView.findViewById(R.id.levelCount);
             rank = mView.findViewById(R.id.rank);
             back = mView.findViewById(R.id.back);
+            time = mView.findViewById(R.id.textView4);
         }
     }
 }

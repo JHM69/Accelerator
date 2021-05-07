@@ -15,6 +15,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -22,6 +23,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.view.Gravity.LEFT;
 import static android.view.Gravity.RIGHT;
@@ -340,6 +343,44 @@ public class RichEditor extends WebView {
             e.printStackTrace();
         }
 
+    }
+    public void setVideo(String video) {
+        try {
+            String id = extractYTId(video);
+
+            if (id.length() == 11) {
+                String firstPart = "<div style=\"width: 560px; height: 315px; float: none; clear: both; margin: 2px auto;\">\n" +
+                        "  <embed\n" +
+                        "    src=\"https://www.youtube.com/embed/";
+                String secondPart = "?autohide=1&autoplay=1\"\n" +
+                        "    wmode=\"transparent\"\n" +
+                        "    type=\"video/mp4\"\n" +
+                        "    width=\"100%\" height=\"100%\"\n" +
+                        "    allow=\"autoplay; encrypted-media; picture-in-picture\"\n" +
+                        "    allowfullscreen\n" +
+                        "    title=\"Accelerator Video\"\n" +
+                        "  >\n" +
+                        "</div>";
+                String total = firstPart + id + secondPart;
+                total = total.replaceAll(System.getProperty("line.separator"), "\\\\n");
+                Log.d("Linkee", total);
+                exec("javascript:RE.setVideo('" + id + "');");
+            }
+        }catch (Exception ignored){
+
+        }
+    }
+
+    public static String extractYTId(String ytUrl) {
+        String vId = null;
+        Pattern pattern = Pattern.compile(
+                "^https?://.*(?:youtu.be/|v/|u/\\w/|embed/|watch?v=)([^#&?]*).*$",
+                Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(ytUrl);
+        if (matcher.matches()){
+            vId = matcher.group(1);
+        }
+        return vId;
     }
 
     public void insertLatex(String latexEquation) {
