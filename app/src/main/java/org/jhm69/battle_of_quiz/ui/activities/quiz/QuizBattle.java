@@ -270,7 +270,6 @@ public class QuizBattle extends AppCompatActivity {
                 updateCountDownText();
                 Toasty.error(getApplicationContext(), "Time over", Toasty.LENGTH_SHORT, true).show();
                 next.setEnabled(true);
-                next.setAlpha(1f);
                 elableOption(false);
                 LinearLayout CorrectLayout;
                 CorrectLayout = (LinearLayout) optionsContainer.getChildAt(list.get(position).getAns());
@@ -387,43 +386,47 @@ public class QuizBattle extends AppCompatActivity {
                         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            try {
-
-                                for (DataSnapshot data : snapshot.getChildren()) {
-                                    realBattle = data.getValue(BattleModel.class);
-                                }
-                                list = Objects.requireNonNull(realBattle).questionList;
-                                question_number = realBattle.questionList.size();
-                                if (!realBattle.getWinner().equals("0")) {
-                                    Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
-                                    intent.putExtra("resultId", realBattle.battleId);
-                                    Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                                setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
+                            if(snapshot.exists()) {
                                 try {
-                                    playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
-                                } catch (NullPointerException ignored) {
-                                    Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                                    for (DataSnapshot data : snapshot.getChildren()) {
+                                        realBattle = data.getValue(BattleModel.class);
+                                    }
+                                    list = Objects.requireNonNull(realBattle).questionList;
+                                    question_number = realBattle.questionList.size();
+                                    if (!realBattle.getWinner().equals("0")) {
+                                        Intent intent = new Intent(getApplicationContext(), ResultActivity.class);
+                                        intent.putExtra("resultId", realBattle.battleId);
+                                        Toasty.warning(getApplicationContext(), "You have already completed this Challenge", Toasty.LENGTH_SHORT, true);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                    setUserData(otherUserImage, otherUserName, otherUserLevel, realBattle.senderUid, false);
+                                    try {
+                                        playAnim(question, list.get(position).getTime(), list.get(position).getQuestion());
+                                    } catch (NullPointerException ignored) {
+                                        Toasty.error(getApplicationContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                                        finish();
+                                    }
+                                    try {
+                                        stepView.getState()
+                                                .animationType(StepView.ANIMATION_ALL)
+                                                .nextStepCircleEnabled(true)
+                                                .stepsNumber(list.size())
+                                                .commit();
+                                    } catch (Exception ignored) {
+                                        Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
+                                        finish();
+                                    }
+                                    SenderAnsList = realBattle.senderAnswerList;
+                                    otherUid = realBattle.getSenderUid();
+                                    offlineBattleSaving = realBattle;
+                                    offlineBattleSaving.setWinner("3");
+                                } catch (Exception h) {
+                                    Toasty.error(getApplicationContext(), "Select this battle from main Quiz dashboard, Error Occurs", Toasty.LENGTH_SHORT, true);
                                     finish();
                                 }
-                                try {
-                                    stepView.getState()
-                                            .animationType(StepView.ANIMATION_ALL)
-                                            .nextStepCircleEnabled(true)
-                                            .stepsNumber(list.size())
-                                            .commit();
-                                } catch (Exception ignored) {
-                                    Toasty.error(getBaseContext(), "It seems you have already completed.xml this match", Toasty.LENGTH_SHORT, true);
-                                    finish();
-                                }
-
-                                SenderAnsList = realBattle.senderAnswerList;
-                                otherUid = realBattle.getSenderUid();
-                                offlineBattleSaving = realBattle;
-                                offlineBattleSaving.setWinner("3");
-                            } catch (NullPointerException h) {
+                            }else{
+                                Toasty.error(getApplicationContext(), "No battle found, start from Quiz Dashboard page", Toasty.LENGTH_SHORT, true);
                                 finish();
                             }
                         }
@@ -589,7 +592,6 @@ public class QuizBattle extends AppCompatActivity {
                 stepView.go(which, true, reciverAnsList.get(which - 1));
             }
             next.setEnabled(false);
-            next.setAlpha(0.5f);
             elableOption(true);
             if (which >= list.size()) {
                 mDialog.show();
@@ -606,7 +608,6 @@ public class QuizBattle extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void showResult() {
-
         AsyncTask.execute(() -> {
             if (battleIdNew != null) {
                 reciverAnsList.add(position, false);
@@ -753,7 +754,6 @@ public class QuizBattle extends AppCompatActivity {
                 LinearLayout selectedLayout = (LinearLayout) v;
                 elableOption(false);
                 next.setEnabled(true);
-                next.setAlpha(1);
                 if (selected == list.get(position).getAns()) {
                     score++;
                     thisScore.setText(String.valueOf(score));
@@ -944,7 +944,7 @@ public class QuizBattle extends AppCompatActivity {
                     name.setText(MyName);
                     setLevelByScore(level, (int) user.getScore());
                     Glide.with(getApplicationContext())
-                            .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                            .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                             .load(MyImage)
                             .into(proPic);
             } else {
@@ -957,7 +957,7 @@ public class QuizBattle extends AppCompatActivity {
                             setLevelByScore(level, Integer.parseInt(String.valueOf(documentSnapshot.getLong("score"))));
                             hisImage = documentSnapshot.getString("image");
                             Glide.with(getApplicationContext())
-                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                     .load(hisImage)
                                     .into(proPic);
                         });
@@ -1150,12 +1150,21 @@ public class QuizBattle extends AppCompatActivity {
     public void onBackPressed() {
         new MaterialDialog.Builder(this)
                 .title("Quite?")
-                .content("Are you sure want to quite and go back?")
+                .content("Are you sure want to quite and go back, if question time is less than 15s, this question will be count as wrong")
                 .positiveText("Yes")
                 .canceledOnTouchOutside(false)
                 .cancelable(false)
                 .onPositive((dialog, which) -> {
-                    countDownTimer.cancel();
+                    int seconds = (int) (timeLeftInMillis / 1000) % 60;
+                    if(seconds<15){
+                        timeLeftInMillis = 0;
+                        countDownTimer.cancel();
+                        updateCountDownText();
+                        stepAnsList.add(position, false);
+                        showResult();
+                    }else{
+                        countDownTimer.cancel();
+                    }
                     finish();
                 })
                 .negativeText("No")

@@ -106,7 +106,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private Context context;
     private boolean isOwner;
     private Activity activity;
-    private boolean forComment;
     private View mView;
     int postLikes;
 
@@ -272,10 +271,13 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         String timeAgo = TimeAgo.using(Long.parseLong(post.getTimestamp()));
         timestamp.setText(timeAgo);
         try {
+            String descc = post.getDescription();
+            post_desc.setDisplayText((descc.length() > 497) ? descc.substring(0, 500) + "..." : descc);
+            if(descc.contains("video_loading_bg.svg")){
+                post_desc.setDisplayText((descc.length() > 1497) ? descc.substring(0, 1500) + "..." : descc);
+            }
             if (post.getImage_count() == 0) {
                 pager_layout.setVisibility(View.GONE);
-                String descc = post.getDescription();
-                post_desc.setDisplayText((descc.length() > 497) ? descc.substring(0, 500) + "..." : descc);
             }  else if (post.getImage_count() == 1) {
                 pager_layout.setVisibility(View.VISIBLE);
                 ArrayList<MultipleImage> multipleImages = new ArrayList<>();
@@ -286,8 +288,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                 photosAdapter.notifyDataSetChanged();
                 pager_layout.setVisibility(View.VISIBLE);
                 post_desc.setVisibility(View.VISIBLE);
-                String desc = post.getDescription();
-                post_desc.setDisplayText((desc.length() > 297) ? desc.substring(0, 300) + "..." : desc);
             } else {
                 ArrayList<MultipleImage> multipleImages = new ArrayList<>();
                 PostPhotosAdapter photosAdapter = new PostPhotosAdapter(Home.context, activity, multipleImages, false, post.getPostId(), like_btn, post.getUserId(), approved);
@@ -317,8 +317,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
                 pager_layout.setVisibility(View.VISIBLE);
                 indicator_holder.setVisibility(View.VISIBLE);
-                // holder.post_text.setVisibility(View.GONE);
-
             }
         } catch (NullPointerException ignored) {
 
@@ -429,9 +427,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                                     }
 
                                     Toasty.success(context, "Post deleted", Toasty.LENGTH_SHORT, true).show();
-                                    // postList.remove(holder.getAdapterPosition());
-                                    // notifyItemRemoved(holder.getAdapterPosition());
-                                    // notifyDataSetChanged();
+
                                     pdialog.dismiss();
 
 
@@ -492,7 +488,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                                         .addOnFailureListener(e -> Log.i("post_update", "failure"));
 
                                 Glide.with(Home.context)
-                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                         .load(documentSnapshot.getString("image"))
                                         .into(user_image);
 
@@ -508,15 +504,10 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             Log.w("error", "fastscrolled", ex);
         }
 
-        user_name.setOnClickListener(v -> FriendProfile.startActivity(context, post.getUserId()));
-
         see_more.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved), ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
 
         holder.itemView.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved), ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
 
-        if (forComment) {
-            context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", false).putExtra("approveStatus", approved),   ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle());
-        }
     }
 
     @SuppressLint("SetTextI18n")

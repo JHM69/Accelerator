@@ -347,23 +347,7 @@ public class RichEditor extends WebView {
     public void setVideo(String video) {
         try {
             String id = extractYTId(video);
-
             if (id.length() == 11) {
-                String firstPart = "<div style=\"width: 560px; height: 315px; float: none; clear: both; margin: 2px auto;\">\n" +
-                        "  <embed\n" +
-                        "    src=\"https://www.youtube.com/embed/";
-                String secondPart = "?autohide=1&autoplay=1\"\n" +
-                        "    wmode=\"transparent\"\n" +
-                        "    type=\"video/mp4\"\n" +
-                        "    width=\"100%\" height=\"100%\"\n" +
-                        "    allow=\"autoplay; encrypted-media; picture-in-picture\"\n" +
-                        "    allowfullscreen\n" +
-                        "    title=\"Accelerator Video\"\n" +
-                        "  >\n" +
-                        "</div>";
-                String total = firstPart + id + secondPart;
-                total = total.replaceAll(System.getProperty("line.separator"), "\\\\n");
-                Log.d("Linkee", total);
                 exec("javascript:RE.setVideo('" + id + "');");
             }
         }catch (Exception ignored){

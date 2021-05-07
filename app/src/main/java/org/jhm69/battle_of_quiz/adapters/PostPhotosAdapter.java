@@ -272,7 +272,7 @@ public class PostPhotosAdapter extends PagerAdapter {
             });
         } else {
             try {
-                File compressedFile = new Compressor(context).setCompressFormat(Bitmap.CompressFormat.PNG).setQuality(50).compressToFile(new File(IMAGES.get(position).getLocal_path()));
+                File compressedFile = new Compressor(context).setCompressFormat(Bitmap.CompressFormat.PNG).setQuality(70).compressToFile(new File(IMAGES.get(position).getLocal_path()));
                 imageView.setImageURI(Uri.fromFile(compressedFile));
             } catch (IOException e) {
                 e.printStackTrace();

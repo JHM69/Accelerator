@@ -73,6 +73,7 @@ import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.models.Post;
 import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.repository.UserRepository;
+import org.jhm69.battle_of_quiz.ui.activities.friends.FriendProfile;
 import org.jhm69.battle_of_quiz.ui.fragment.Home;
 import org.jhm69.battle_of_quiz.utils.AnimationUtil;
 import org.jhm69.battle_of_quiz.utils.MathView;
@@ -125,7 +126,7 @@ public class CommentsActivity extends AppCompatActivity {
     private RichEditor mCommentText;
     private DotsIndicator indicator2;
     private CommentsAdapter mAdapter;
-
+    TextView p_nameTV, p_instTV;
 
 
     @SuppressLint({"SetTextI18n", "RtlHardcoded"})
@@ -146,8 +147,8 @@ public class CommentsActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
         user_image = findViewById(R.id.comment_admin);
         post_desc = findViewById(R.id.comment_post_desc);
-        TextView p_nameTV = findViewById(R.id.post_username);
-        TextView p_instTV = findViewById(R.id.dept_institute);
+        p_nameTV = findViewById(R.id.post_username);
+        p_instTV = findViewById(R.id.dept_institute);
         postDb = FirebaseFirestore.getInstance().collection("Posts");
         TextView timestampTV = findViewById(R.id.post_timestamp);
         likeCount = findViewById(R.id.like_count);
@@ -289,9 +290,6 @@ public class CommentsActivity extends AppCompatActivity {
             indicator_holder.setVisibility(View.GONE);
             photosAdapter.notifyDataSetChanged();
             pager_layout.setVisibility(View.VISIBLE);
-            post_desc.setVisibility(View.VISIBLE);
-            String desc = post.getDescription();
-            post_desc.setDisplayText(StringUtils.left(desc, 200));
         } else {
             ArrayList<MultipleImage> multipleImages = new ArrayList<>();
             PostPhotosAdapter photosAdapter = new PostPhotosAdapter(Home.context, this, multipleImages, false, post.getPostId(), like_btn, post.getUserId(), true);
@@ -318,20 +316,20 @@ public class CommentsActivity extends AppCompatActivity {
                 }
             }, 3000, 3000);
 
-
             pager_layout.setVisibility(View.VISIBLE);
             indicator_holder.setVisibility(View.VISIBLE);
-
         }
 
         mFirestore.collection("Users")
                 .document(user_id)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> Glide.with(getApplicationContext())
-                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                         .load(documentSnapshot.getString("image"))
                         .into(user_image))
                 .addOnFailureListener(e -> Log.e("error", e.getLocalizedMessage()));
+        p_nameTV.setOnClickListener(view -> FriendProfile.startActivity(getApplicationContext(), post.getUserId()));
+        p_instTV.setOnClickListener(view -> FriendProfile.startActivity(getApplicationContext(), post.getUserId()));
 
     }
 
