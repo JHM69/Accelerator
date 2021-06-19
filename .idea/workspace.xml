@@ -25,24 +25,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8bfb8ece-f9bc-4cb6-b9ee-dd278e3e1c89" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_afollestad_material_dialogs_commons_0_8_6_1_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_afollestad_material_dialogs_commons_0_8_6_1_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_afollestad_material_dialogs_core_0_8_6_1_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_afollestad_material_dialogs_core_0_8_6_1_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_GrenderG_Toasty_1_4_1_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_GrenderG_Toasty_1_4_1_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_esafirm_android_image_picker_imagepicker_2_0_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_esafirm_android_image_picker_imagepicker_2_0_0_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_marcoscgdev_DialogSheet_2_0_3_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_github_marcoscgdev_DialogSheet_2_0_3_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_karumi_dexter_5_0_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_karumi_dexter_5_0_0_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_shobhitpuri_custombuttons_google_signin_1_0_0_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_shobhitpuri_custombuttons_google_signin_1_0_0_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_squareup_okio_okio_1_15_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_tapadoo_android_alerter_2_0_4_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_tapadoo_android_alerter_2_0_4_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__com_tbuonomo_andrui_viewpagerdotsindicator_2_1_2_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_tbuonomo_andrui_viewpagerdotsindicator_2_1_2_aar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Gradle__me_zhanghai_android_materialprogressbar_library_1_1_6_aar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__me_zhanghai_android_materialprogressbar_library_1_1_6_aar.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/release/app-release.aab" beforeDir="false" afterPath="$PROJECT_DIR$/app/release/app-release.aab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/PostPhotosAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/PostPhotosAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/PostViewHolder.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/adapters/PostViewHolder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/post/CommentsActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/post/CommentsActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/QuizBattle.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/ui/activities/quiz/QuizBattle.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/utils/RichEditor.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/jhm69/battle_of_quiz/utils/RichEditor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_post_comments.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_post_comments.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_quiz_battle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/colors.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[f000d3b7d83]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
@@ -335,7 +337,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620411841907</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="version 6">
+      <created>1620425113851</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1620425113851</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -389,10 +398,10 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="494" y="176" key="AndroidCreateXmlResourceDialog/0.0.1366.738@0.0.1366.738" timestamp="1619286511291" />
-    <state x="0" y="55" key="CommitChangelistDialog2" timestamp="1620411802731">
+    <state x="0" y="55" key="CommitChangelistDialog2" timestamp="1620425101657">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="0" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1620411802731" />
+    <state x="0" y="55" key="CommitChangelistDialog2/0.0.1366.738@0.0.1366.738" timestamp="1620425101657" />
     <state x="463" y="110" key="FileChooserDialogImpl" timestamp="1620385884429">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
@@ -441,10 +450,10 @@
       <screen x="0" y="0" width="1366" height="738" />
     </state>
     <state x="214" y="13" key="SettingsEditor/0.0.1366.738@0.0.1366.738" timestamp="1619207965430" />
-    <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1619321632355">
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2" timestamp="1620425125835">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
-    <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1619321632355" />
+    <state x="275" y="101" key="Vcs.Push.Dialog.v2/0.0.1366.738@0.0.1366.738" timestamp="1620425125835" />
     <state x="557" y="136" width="673" height="602" key="find.popup" timestamp="1620202592833">
       <screen x="0" y="0" width="1366" height="738" />
     </state>
