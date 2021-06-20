@@ -21,6 +21,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import com.google.android.material.textfield.TextInputLayout;
@@ -95,13 +98,28 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
 
 
         setContentView(R.layout.activity_register);
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+
         askPermission();
         mAuth = FirebaseAuth.getInstance();
         storageReference = FirebaseStorage.getInstance().getReference().child("images");

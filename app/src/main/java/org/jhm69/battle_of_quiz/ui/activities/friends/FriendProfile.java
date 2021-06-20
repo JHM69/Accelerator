@@ -8,12 +8,18 @@ import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.transition.Explode;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,8 +30,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -45,6 +55,7 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.color.MaterialColors;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -57,6 +68,7 @@ import com.google.firebase.firestore.Query;
 import com.marcoscg.dialogsheet.DialogSheet;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.messege.activity.MessageActivity;
 import org.jhm69.battle_of_quiz.notification.APIService;
 import org.jhm69.battle_of_quiz.notification.Client;
 import org.jhm69.battle_of_quiz.notification.MyResponse;
@@ -64,6 +76,7 @@ import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
 import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.models.Post;
+import org.jhm69.battle_of_quiz.ui.activities.post.CommentsActivity;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.SelectTopic;
 
 import java.util.ArrayList;
@@ -81,9 +94,13 @@ import retrofit2.Response;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+import static org.jhm69.battle_of_quiz.ui.fragment.Home.context;
 
 public class FriendProfile extends AppCompatActivity {
-
+    String id;
+    static String namee;
+    static String imagee;
+    static boolean isFriend;
     public static void startActivity(Context context, String id) {
         if (!id.equals(userId)) {
             context.startActivity(new Intent(context, FriendProfile.class).putExtra("f_id", id).setFlags(FLAG_ACTIVITY_NEW_TASK), ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
@@ -106,22 +123,40 @@ public class FriendProfile extends AppCompatActivity {
         getWindow().setExitTransition(new Explode());
 
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
         setContentView(R.layout.activity_friend_profile);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Profile");
         toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccentt));
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("Profile");
 
-        String id = getIntent().getStringExtra("f_id");
+        id = getIntent().getStringExtra("f_id");
 
+        if(id==null){
+            String link = getIntent().getData().toString();
+            id = link.substring(link.lastIndexOf("/") + 1);
+        }
 
         final Bundle bundle = new Bundle();
         bundle.putString("id", id);
@@ -253,8 +288,10 @@ public class FriendProfile extends AppCompatActivity {
                     .addOnSuccessListener(documentSnapshot -> {
                         try {
                             friend_name = documentSnapshot.getString("name");
+                            namee = friend_name;
                             friend_email = documentSnapshot.getString("email");
                             friend_image = documentSnapshot.getString("image");
+                            imagee = friend_image;
                             type = Long.parseLong(Objects.requireNonNull(documentSnapshot.get("type")).toString());
 
                             float win = (float) Integer.parseInt(Objects.requireNonNull(documentSnapshot.get("win")).toString());
@@ -577,6 +614,7 @@ public class FriendProfile extends AppCompatActivity {
         }
 
         private void showRemoveButton() {
+            isFriend=true;
             //sendMsg.setVisibility(View.VISIBLE);
             remove_friend.setVisibility(View.VISIBLE);
             remove_friend.setAlpha(0.0f);
@@ -954,4 +992,58 @@ public class FriendProfile extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        id=namee=imagee=null;
+        isFriend=false;
+        super.onDestroy();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.chat, menu);
+
+        MenuItem chat = menu.getItem(0);
+        return true;
+    }
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.chat) {
+            if(isFriend) {
+                if (id != null && namee != null && imagee != null) {
+                    try {
+                        Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+                        intent.putExtra("userid", id);
+                        intent.putExtra("name", namee);
+                        intent.putExtra("image", imagee);
+                        startActivity(intent);
+                    } catch (Exception ignored) {
+
+                    }
+                }
+            }else{
+                Toasty.info(this, "You are not Friend with "+namee+ ". Be friend with him to start chat", Toast.LENGTH_SHORT).show();
+            }
+        }else if(item.getItemId() == R.id.copy){
+            if(id!=null && namee != null && imagee != null) {
+                String text = "https://tarok.tech/user/"+id;
+                setClipboard(getApplicationContext(), text);
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    @SuppressLint("ObsoleteSdkInt")
+    private void setClipboard(Context context, String text) {
+        if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setText(text);
+        } else {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText("Copied Text", text);
+            clipboard.setPrimaryClip(clip);
+        }
+        Toast.makeText(context, "Profile link copied", Toast.LENGTH_SHORT).show();
+    }
 }

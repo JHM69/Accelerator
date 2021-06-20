@@ -7,7 +7,9 @@
         <item>Ranking</item>
         <item>Friends</item>
         <item>Offline Post</item>
+        <item>Visit tarok.tech</item>
         <item>About App</item>
+        <item>Theme</item>
         <item>Log Out</item>
         <item>Admin</item>
     </string-array>
@@ -34,7 +36,9 @@
         <item>@drawable/ic_baseline_bar_chart_24</item>
         <item>@drawable/ic_baseline_people_outline_24</item>
         <item>@drawable/ic_baseline_bookmark_border_24</item>
+        <item>@drawable/ic_open_in_new_black_24dp</item>
         <item>@drawable/ic_code_black_24dp</item>
+        <item>@drawable/ic_palette_black_24dp</item>
         <item>@drawable/ic_exit_to_app_black_24dp</item>
         <item>@drawable/user_icon</item>
     </array>

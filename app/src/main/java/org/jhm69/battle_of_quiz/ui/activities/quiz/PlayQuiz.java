@@ -159,12 +159,11 @@ public class PlayQuiz extends Fragment {
                         .replaceAll(" hours", "h")
                         .replaceAll(" hour", "1h")
                         .replaceAll(" an", "")
+                        .replaceAll("a ", "1 ")
                         .replaceAll(" ago", "")
                         .replaceAll("yesterday", "1d")
                         .replaceAll(" days", "d")
-                        .replaceAll(" day", "1d")
-                        .replaceAll(" months", "mo")
-                        .replaceAll(" month", "1mo");
+                        .replaceAll(" day", "1d");
                 return time;
             }
 

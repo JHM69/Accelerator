@@ -2,25 +2,39 @@ package org.jhm69.battle_of_quiz.service;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.models.Images;
 import org.jhm69.battle_of_quiz.repository.UserRepository;
 
@@ -43,7 +57,7 @@ public class UploadService extends Service {
     public static final String ACTION_STOP_FOREGROUND_SERVICE = "ACTION_STOP_FOREGROUND_SERVICE";
     private static final String TAG_FOREGROUND_SERVICE = UploadService.class.getSimpleName();
     private int count;
-
+    public static final String CHANNEL_ID = "ImageUploadChannel";
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -66,7 +80,7 @@ public class UploadService extends Service {
 
                 if (fuserId != null && userid != null) {
                     Toast.makeText(this, "Sending Images", Toast.LENGTH_SHORT).show();
-                    // sendMessage((int) System.currentTimeMillis(), fuserId, userid, myUri, userid, fuserId);
+                    sendMessage((int) System.currentTimeMillis(), fuserId, userid, myUri, userid, fuserId);
                 } else if (tag != null && uploadedImagesUrl != null) {
                     Toast.makeText(this, "posting", Toast.LENGTH_SHORT).show();
                     uploadImages(notification_id, 0, imagesList, current_id, description, uploadedImagesUrl, tag);
@@ -86,14 +100,22 @@ public class UploadService extends Service {
         return null;
     }
 
+    private void createNotificationChannel() {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel serviceChannel = new NotificationChannel(CHANNEL_ID, "Uploading Images",NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(serviceChannel);
+        }
+    }
+
     private void stopForegroundService() {
-        Log.d(TAG_FOREGROUND_SERVICE, "Stop foreground service.");
         stopForeground(true);
         stopSelf();
     }
 
     private void notifyProgress(int id, String title, String message, Context context, int progress, boolean indeterminate) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "other_channel");
+        createNotificationChannel();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID);
         // Create notification default intent.
         Intent intent = new Intent();
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
@@ -105,7 +127,7 @@ public class UploadService extends Service {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setTicker(message)
-                .setChannelId("play")
+                .setChannelId(CHANNEL_ID)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setProgress(100, progress, indeterminate)
                 .setVibrate(new long[100]);
@@ -151,7 +173,7 @@ public class UploadService extends Service {
                 .addOnProgressListener(taskSnapshot -> {
 
                     if (count == 1) {
-                        String title = "Uploading " + img_count + "/" + imagesList.size() + " images...";
+                        String title = "Uploading image...";
                         int progress = (int) ((100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
                         notifyProgress(notification_id
                                 ,
@@ -284,92 +306,67 @@ public class UploadService extends Service {
         }
     }
 
-    /*  public void sendMessage(int notification_id, String sender, final String receiver, Uri image, String userid, String fuser) {
-          notifyProgress(notification_id
-                  ,
-                  "ত্বারক"
-                  , "Sending attachment.."
-                  , getApplicationContext()
-                  , 0
-                  , true);
+    public void sendMessage(int notification_id, String sender, final String receiver, Uri image, String userid, String fuser) {
+        notifyProgress(notification_id,
+                "ত্বারক",
+                "Sending attachment..",
+                getApplicationContext(),
+                0,
+                true);
 
-          final StorageReference fileToUpload = FirebaseStorage.getInstance().getReference().child("message_images").child("battle_of_quiz_" + System.currentTimeMillis() + ".png");
-          fileToUpload.putFile(image).addOnSuccessListener(taskSnapshot -> fileToUpload.getDownloadUrl()
-                  .addOnSuccessListener(uri -> {
-                      String imsge = uri.toString();
-                      DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        final StorageReference fileToUpload = FirebaseStorage.getInstance().getReference().child("message_images").child("battle_of_quiz_" + System.currentTimeMillis() + ".png");
+        fileToUpload.putFile(image).addOnSuccessListener(taskSnapshot -> fileToUpload.getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    String imsge = uri.toString();
+                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
-                      HashMap<String, Object> hashMap = new HashMap<>();
-                      hashMap.put("sender", sender);
-                      hashMap.put("receiver", receiver);
-                      hashMap.put("message", "attachment");
-                      hashMap.put("image", imsge);
-                      hashMap.put("isseen", false);
-                      hashMap.put("timestamp", System.currentTimeMillis());
+                    HashMap<String, Object> hashMap = new HashMap<>();
+                    hashMap.put("sender", sender);
+                    hashMap.put("receiver", receiver);
+                    hashMap.put("message", "attachment");
+                    hashMap.put("image", imsge);
+                    hashMap.put("isseen", false);
+                    hashMap.put("timestamp", System.currentTimeMillis());
 
-                      reference.child("Chats").push().setValue(hashMap);
+                    reference.child("Chats").push().setValue(hashMap);
 
 
-                      // add user to chat fragment
-                      final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
-                              .child(fuser)
-                              .child(userid);
+                    // add user to chat fragment
+                    final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("Chatlist")
+                            .child(fuser)
+                            .child(userid);
 
-                      chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                          @Override
-                          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                              if (!dataSnapshot.exists()) {
-                                  chatRef.child("id").setValue(userid);
-                              }
-                          }
+                    chatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            if (!dataSnapshot.exists()) {
+                                chatRef.child("id").setValue(userid);
+                            }
+                        }
 
-                          @Override
-                          public void onCancelled(@NonNull DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                          }
-                      });
+                        }
+                    });
 
-                      final DatabaseReference chatRefReceiver = FirebaseDatabase.getInstance().getReference("Chatlist")
-                              .child(userid)
-                              .child(fuser);
-                      chatRefReceiver.child("id").setValue(fuser);
-
-                      reference = FirebaseDatabase.getInstance().getReference("Users").child(fuser);
-                      reference.addValueEventListener(new ValueEventListener() {
-                          @Override
-                          public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                              User user = dataSnapshot.getValue(User.class);
-                              sendNotifiaction(receiver, Objects.requireNonNull(user).getName(), fuser, userid);
-                          }
-
-                          @Override
-                          public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                          }
-                      });
-                  }));
-
-      }
-
-  */
-    private void updateXP() {
-        FirebaseFirestore.getInstance().collection("Users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    int scoreOld = documentSnapshot.getLong("reward").intValue();
-                    int newScore = scoreOld + (-3);
-                    HashMap<String, Object> scoreMap = new HashMap<>();
-                    scoreMap.put("reward", newScore);
-                    FirebaseFirestore.getInstance()
-                            .collection("Users")
-                            .document(userId)
-                            .update(scoreMap).addOnSuccessListener(aVoid -> {
-                                new UserRepository((Application) getApplicationContext()).updateXp(-3);
-                                //Toast.makeText(, "", Toast.LENGTH_SHORT).show();
-                                //Toasty.success(getApplicationContext(), "Congratulations, You have got 10 reward", Toasty.LENGTH_SHORT, true);
-                            });
-                });
+                    final DatabaseReference chatRefReceiver = FirebaseDatabase.getInstance().getReference("Chatlist")
+                            .child(userid)
+                            .child(fuser);
+                    chatRefReceiver.child("id").setValue(fuser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(UploadService.this, "Image sent!", Toast.LENGTH_SHORT).show();
+                            stopForegroundService();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(UploadService.this, "Failed", Toast.LENGTH_SHORT).show();
+                            stopForegroundService();
+                        }
+                    });
+                }));
 
     }
 

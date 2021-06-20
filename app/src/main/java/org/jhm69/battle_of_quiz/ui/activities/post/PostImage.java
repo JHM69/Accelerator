@@ -128,7 +128,7 @@ public class PostImage extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_post_image);
         imagesList = getIntent().getParcelableArrayListExtra("imagesList");
         if (imagesList.isEmpty()) {
@@ -242,7 +242,7 @@ public class PostImage extends AppCompatActivity {
             }
         });
 
-           findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_superscript).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -257,7 +257,7 @@ public class PostImage extends AppCompatActivity {
         });
 
 
-       findViewById(R.id.action_strikethrough).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_strikethrough).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -271,7 +271,7 @@ public class PostImage extends AppCompatActivity {
             }
         });
 
-       findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -382,7 +382,7 @@ public class PostImage extends AppCompatActivity {
         });
 
 
-         findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_indent).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -397,7 +397,7 @@ public class PostImage extends AppCompatActivity {
         });
 
 
-         findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_outdent).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -411,7 +411,7 @@ public class PostImage extends AppCompatActivity {
             }
         });
 
-          findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_align_left).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -425,7 +425,7 @@ public class PostImage extends AppCompatActivity {
             }
         });
 
-           findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.action_align_center).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
             @Override
             public void onClick(View view) {
@@ -751,12 +751,10 @@ public class PostImage extends AppCompatActivity {
         options.setCompressionQuality(90);
         options.setShowCropGrid(true);
 
-
         UCrop.of(Uri.fromFile(new File(imagesList.get(selectedIndex).getOg_path())), Uri.fromFile(new File(getCacheDir(), imagesList.get(selectedIndex).getName() + "_" + random() + "_edit.png")))
-                .withAspectRatio(1, 1)
+                .withAspectRatio(4, 3)
                 .withOptions(options)
                 .start(this);
-
     }
 
 

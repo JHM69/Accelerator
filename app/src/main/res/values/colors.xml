@@ -1,23 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimaryy">#FFFFFF</color>
-    <color name="colorPrimaryDarkk">#FFFFFF</color>
-    <color name="colorAccentt">#8048be</color>
-    <color name="statusBar">#6C409E</color>
+    <color name="colorAccentt">#9362C8</color>
+    <color name="statusBar">#9362C8</color>
     <color name="colorSec">#CC488F</color>
 
 
-    <color name="primaryColor">#8048be</color>
-
     <color name="white">#ffffff</color>
     <color name="Timewhite">#80FFFFFF</color>
-    <color name="selectted">#573083</color>
-    <color name="backG">#BE8FF3</color>
+    <color name="selectted">#52000000</color>
+    <color name="backG">#CEA2FF</color>
 
     <color name="green">#4BBB4F</color>
-    <color name="not">#DC2A4B</color>
     <color name="red">#D32F2F</color>
-    <color name="colorBackground">#f9f9fa</color>
     <color name="stepview_line_done">@android:color/white</color>
     <color name="stepview_line_next">#26ffffff</color>
     <color name="stepview_text_next">#40ffffff</color>

@@ -9,6 +9,8 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import org.jhm69.battle_of_quiz.messege.model.Chat;
+import org.jhm69.battle_of_quiz.messege.model.Chatlist;
 import org.jhm69.battle_of_quiz.models.Post;
 import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.BattleModel;
@@ -132,4 +134,23 @@ public interface DaoAccess {
     LiveData<List<Result>> getAllInvites(int x);
     @Query("SELECT * FROM Result WHERE `battleId` =:battleIdNew")
     Result getNewResult(String battleIdNew);
+
+    @Query("SELECT * FROM Chatlist ORDER BY lastTimestamp DESC")
+    LiveData<List<Chatlist>> getAllUser();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertUser(Chatlist chatlist);
+
+
+    @Query("DELETE FROM Chatlist WHERE id = :string")
+    int deleteChat(String string);
+
+    @Query("SELECT * FROM Chat WHERE sender = :u OR receiver = :u ORDER BY timestamp ASC")
+    LiveData<List<Chat>> getAllChat(String u);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    Long insertMessage(Chat chat);
+
+    @Query("DELETE FROM Users WHERE id = :id")
+    void deleteUser(String id);
 }

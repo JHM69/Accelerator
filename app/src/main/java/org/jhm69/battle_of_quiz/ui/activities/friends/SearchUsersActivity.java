@@ -20,6 +20,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -69,7 +72,6 @@ public class SearchUsersActivity extends AppCompatActivity {
     private PostViewHolder postViewHolder;
     public static void startActivity(Activity activity, Context context, View view) {
         Intent intent = new Intent(context, SearchUsersActivity.class);
-
         context.startActivity(intent,  ActivityOptions.makeSceneTransitionAnimation((Activity)context).toBundle());
 
     }
@@ -148,14 +150,18 @@ public class SearchUsersActivity extends AppCompatActivity {
                     final String docId = doc.getDocument().getId();
                     if (!docId.equals(Objects.requireNonNull(mAuth.getCurrentUser()).getUid())) {
                         mFirestore.collection("Posts").document(docId).get().addOnSuccessListener(documentSnapshot -> {
-                            if (Objects.requireNonNull(documentSnapshot.getString("description")).toLowerCase().contains(searchQuery.toLowerCase())) {
-                                Post post = documentSnapshot.toObject(Post.class);
-                                posts.add(post);
-                                postPhotosAdapter.postListNow = posts;
-                                mRecyclerView.setAdapter(postPhotosAdapter);
-                                postPhotosAdapter.notifyDataSetChanged();
+                            try {
+                                if (Objects.requireNonNull(documentSnapshot.getString("description")).toLowerCase().contains(searchQuery.toLowerCase())) {
+                                    Post post = documentSnapshot.toObject(Post.class);
+                                    posts.add(post);
+                                    postPhotosAdapter.postListNow = posts;
+                                    mRecyclerView.setAdapter(postPhotosAdapter);
+                                    postPhotosAdapter.notifyDataSetChanged();
+                                }
+                                dialog.dismiss();
+                            }catch (Exception ignored){
+
                             }
-                            dialog.dismiss();
                         });
 
                     }
@@ -172,29 +178,33 @@ public class SearchUsersActivity extends AppCompatActivity {
     @SuppressLint("InflateParams")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
         setContentView(R.layout.activity_search_users);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccentt));
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
 
-        // getActionBar().setHomeButtonEnabled(true);
-        // getActionBar().setDisplayHomeAsUpEnabled(true);
 
         Objects.requireNonNull(getSupportActionBar()).setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setNavigationBarColor(Color.parseColor("#212121"));
-        }
 
         mRecyclerView = findViewById(R.id.usersList);
         //  searchText = findViewById(R.id.searchText);
@@ -216,9 +226,9 @@ public class SearchUsersActivity extends AppCompatActivity {
                 Chip c = findViewById(checkedId);
                 tag = c.getText().toString();
                 if(tag.equals("Post")){
-                    startListeningPost(searchTextData);
+                    if(searchTextData!=null) startListeningPost(searchTextData);
                 }else if(tag.equals("User")){
-                    startListeningUser(searchTextData);
+                    if(searchTextData!=null) startListeningUser(searchTextData);
                 }
             } catch (NullPointerException ignored) {
 
@@ -279,9 +289,13 @@ public class SearchUsersActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 searchTextData = query;
                 if(tag.equals("Post")){
-                    startListeningPost(searchTextData);
+                    if(query!=null){
+                        startListeningPost(searchTextData);
+                    }
                 }else if(tag.equals("User")){
-                    startListeningUser(searchTextData);
+                    if(query!=null){
+                        startListeningUser(searchTextData);
+                    }
                 }
 
                 return false;

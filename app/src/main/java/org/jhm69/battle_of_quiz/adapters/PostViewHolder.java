@@ -22,7 +22,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,6 +61,7 @@ import org.jhm69.battle_of_quiz.ui.activities.friends.FriendProfile;
 import org.jhm69.battle_of_quiz.ui.activities.post.CommentsActivity;
 import org.jhm69.battle_of_quiz.ui.activities.post.WhoLikedActivity;
 import org.jhm69.battle_of_quiz.ui.fragment.Home;
+import org.jhm69.battle_of_quiz.ui.fragment.PostMenu;
 import org.jhm69.battle_of_quiz.utils.MathView;
 import org.jhm69.battle_of_quiz.viewmodel.PostViewModel;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
@@ -95,9 +99,10 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     private final MaterialFavoriteButton sav_button;
     private final MaterialFavoriteButton like_btn;
     private final MaterialFavoriteButton stat_btn;
-    private final FrameLayout pager_layout;
+    private final ConstraintLayout pager_layout;
     private final RelativeLayout indicator_holder;
     private final ImageView delete;
+    private final ImageView menu;
     private final ViewPager pager;
     private final DotsIndicator indicator2;
     int position;
@@ -129,6 +134,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         sav_button = holder.findViewById(R.id.save_button);
         indicator2 = holder.findViewById(R.id.indicator);
         indicator_holder = holder.findViewById(R.id.indicator_holder);
+        menu = holder.findViewById(R.id.menu_button);
     }
 
     private int updateLike(boolean like, String postId, String posterId) {
@@ -199,7 +205,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         this.postLikes = post.getLiked_count();
         getLikeandFav(post);
         user_name.setText(post.getName());
-        user_name.setOnClickListener(v -> FriendProfile.startActivity(context, post.getUserId()));
+        user_name.setOnClickListener(v -> {
+            context.startActivity(new Intent(context, FriendProfile.class).putExtra("f_id", post.getUserId()));
+        });
         String dept = post.getDept();
         String institute = post.getInstitute();
         likes_count.setText(String.valueOf(post.getLiked_count()));
@@ -325,6 +333,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             setupViews(post);
         } catch (Exception ignored) {
         }
+        menu.setOnClickListener(view -> {
+            FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+            new PostMenu(post.getPostId(), post.getName()).show(fragmentManager, "");
+
+        });
+
         if (post.getUserId().equals(mCurrentUser.getUid()) || ADMIN_UID_LIST.contains(mCurrentUser.getUid())) {
             isOwner = true;
             delete.setVisibility(View.VISIBLE);

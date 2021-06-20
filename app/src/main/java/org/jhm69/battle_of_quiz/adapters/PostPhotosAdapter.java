@@ -109,28 +109,28 @@ public class PostPhotosAdapter extends PagerAdapter {
         AnimatorSet animatorSet = new AnimatorSet();
 
         ObjectAnimator bgScaleYAnim = ObjectAnimator.ofFloat(vBgLike, "scaleY", 0.1f, 1f);
-        bgScaleYAnim.setDuration(300);
+        bgScaleYAnim.setDuration(600);
         bgScaleYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
         ObjectAnimator bgScaleXAnim = ObjectAnimator.ofFloat(vBgLike, "scaleX", 0.1f, 1f);
-        bgScaleXAnim.setDuration(300);
+        bgScaleXAnim.setDuration(600);
         bgScaleXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
         ObjectAnimator bgAlphaAnim = ObjectAnimator.ofFloat(vBgLike, "alpha", 1f, 0f);
-        bgAlphaAnim.setDuration(300);
+        bgAlphaAnim.setDuration(600);
         bgAlphaAnim.setStartDelay(150);
         bgAlphaAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
 
         ObjectAnimator imgScaleUpYAnim = ObjectAnimator.ofFloat(ivLike, "scaleY", 0.1f, 1f);
-        imgScaleUpYAnim.setDuration(300);
+        imgScaleUpYAnim.setDuration(600);
         imgScaleUpYAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
         ObjectAnimator imgScaleUpXAnim = ObjectAnimator.ofFloat(ivLike, "scaleX", 0.1f, 1f);
-        imgScaleUpXAnim.setDuration(300);
+        imgScaleUpXAnim.setDuration(600);
         imgScaleUpXAnim.setInterpolator(DECCELERATE_INTERPOLATOR);
 
         ObjectAnimator imgScaleDownYAnim = ObjectAnimator.ofFloat(ivLike, "scaleY", 1f, 0f);
-        imgScaleDownYAnim.setDuration(300);
+        imgScaleDownYAnim.setDuration(600);
         imgScaleDownYAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
         ObjectAnimator imgScaleDownXAnim = ObjectAnimator.ofFloat(ivLike, "scaleX", 1f, 0f);
-        imgScaleDownXAnim.setDuration(300);
+        imgScaleDownXAnim.setDuration(600);
         imgScaleDownXAnim.setInterpolator(ACCELERATE_INTERPOLATOR);
 
         animatorSet.playTogether(bgScaleYAnim, bgScaleXAnim, bgAlphaAnim, imgScaleUpYAnim, imgScaleUpXAnim);
@@ -219,7 +219,7 @@ public class PostPhotosAdapter extends PagerAdapter {
     public Object instantiateItem(@NonNull ViewGroup view, final int position) {
         final View imageLayout = inflater.inflate(R.layout.item_viewpager_image, view, false);
         assert imageLayout != null;
-        SFImageView imageView = imageLayout.findViewById(R.id.image);
+        ImageView imageView = imageLayout.findViewById(R.id.image);
         final View vBgLike = imageLayout.findViewById(R.id.vBgLike);
         final ImageView ivLike = imageLayout.findViewById(R.id.ivLike);
 

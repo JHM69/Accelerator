@@ -109,7 +109,7 @@ public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdap
                             holder.name.setText(documentSnapshot.getString("name"));
 
                             Glide.with(context)
-                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                     .load(documentSnapshot.getString("image"))
                                     .into(holder.image);
 

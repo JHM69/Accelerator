@@ -17,6 +17,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.messege.activity.MessageActivity;
 import org.jhm69.battle_of_quiz.ui.activities.MainActivity;
 
 import java.util.Objects;
@@ -33,6 +34,10 @@ public class MyFireBaseMessagingService extends FirebaseMessagingService {
         String type = remoteMessage.getData().get("type");
         String title = remoteMessage.getData().get("username");
         String message = remoteMessage.getData().get("message");
+
+        String image = remoteMessage.getData().get("image");
+        String notifyTo = remoteMessage.getData().get("notifyTo");
+
 
         switch (Objects.requireNonNull(type)) {
             case "like":
@@ -54,6 +59,9 @@ public class MyFireBaseMessagingService extends FirebaseMessagingService {
             case "play":
                 name = "Invites to Play";
                 break;
+           case "chat":
+                icon = (R.drawable.ic_question_answer_black_24dp);
+                break;
             case "play_result":
                 name = "Battle Results";
                 icon = (R.drawable.ic_logo_icon);
@@ -66,11 +74,11 @@ public class MyFireBaseMessagingService extends FirebaseMessagingService {
                 break;
         }
 
-        showNotification(icon, title, message, type, name);
+        showNotification(icon, title, message, type, name, type, notifyTo, image);
     }
 
 
-    void showNotification(int icon, String title, String message, String id, String name) {
+    void showNotification(int icon, String title, String message, String id, String name, String type, String who, String img) {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -88,7 +96,18 @@ public class MyFireBaseMessagingService extends FirebaseMessagingService {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setSmallIcon(icon)
-                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_logo_icon));
+                .setLargeIcon(BitmapFactory.decodeResource(this.getResources(), R.drawable.ic_logo));
+
+        if(type.equals("chat")){
+            Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+            intent.putExtra("userid", who);
+            intent.putExtra("name", title);
+            intent.putExtra("image", img);
+            PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mBuilder.setContentIntent(pi);
+            mNotificationManager.notify(0, mBuilder.build());
+        }
+
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(pi);

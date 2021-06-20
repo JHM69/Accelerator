@@ -7,15 +7,13 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/SplashAppTheme"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccentt"
+        android:background="?colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/AppTheme"
-        app:theme="@style/ToolbarColoredBackArrow"
+        app:theme="@style/ToolbarTheme"
         app:title="About User"
         app:titleTextColor="@color/white" />
 

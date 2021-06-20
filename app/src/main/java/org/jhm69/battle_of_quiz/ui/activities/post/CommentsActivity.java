@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +35,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
@@ -47,6 +51,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.github.marlonlom.utilities.timeago.TimeAgo;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -55,6 +62,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
@@ -94,7 +102,6 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 
 @RequiresApi(api = Build.VERSION_CODES.R)
@@ -108,6 +115,7 @@ public class CommentsActivity extends AppCompatActivity {
     TextView likeCount, saveCount;
     int likCo, saveCo, comCo;
     ProgressBar mProgress;
+    String userId;
     boolean owner;
     Post post;
     CollectionReference postDb;
@@ -126,9 +134,12 @@ public class CommentsActivity extends AppCompatActivity {
     private RichEditor mCommentText;
     private DotsIndicator indicator2;
     private CommentsAdapter mAdapter;
-    TextView p_nameTV, p_instTV;
-
-
+    TextView p_nameTV, p_instTV, timestampTV;
+    boolean approved = true;
+    FrameLayout mImageholder;
+    LinearLayout adminActivity;
+    View vBgLike;
+    ImageView ivLike;
     @SuppressLint({"SetTextI18n", "RtlHardcoded"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,40 +149,97 @@ public class CommentsActivity extends AppCompatActivity {
         getWindow().setExitTransition(new Explode());
 
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
         setContentView(R.layout.activity_post_comments);
         mFirestore = FirebaseFirestore.getInstance();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+        userId=FirebaseAuth.getInstance().getCurrentUser().getUid();
         user_image = findViewById(R.id.comment_admin);
         post_desc = findViewById(R.id.comment_post_desc);
         p_nameTV = findViewById(R.id.post_username);
         p_instTV = findViewById(R.id.dept_institute);
         postDb = FirebaseFirestore.getInstance().collection("Posts");
-        TextView timestampTV = findViewById(R.id.post_timestamp);
+        timestampTV = findViewById(R.id.post_timestamp);
         likeCount = findViewById(R.id.like_count);
         saveCount = findViewById(R.id.save_count);
         CommentCount = findViewById(R.id.textView8);
         mCommentsRecycler = findViewById(R.id.coments);
-        LinearLayout adminActivity = findViewById(R.id.adminActivity);
+        adminActivity = findViewById(R.id.adminActivity);
         like_btn = findViewById(R.id.like_button);
-        View vBgLike = findViewById(R.id.vBgLike);
-        ImageView ivLike = findViewById(R.id.ivLike);
+        vBgLike = findViewById(R.id.vBgLike);
+        ivLike = findViewById(R.id.ivLike);
         pager = findViewById(R.id.pager);
         pager_layout = findViewById(R.id.pager_layout);
         sav_button = findViewById(R.id.save_button);
         me = new UserRepository(getApplication()).getStaticUser();
-        FrameLayout mImageholder = findViewById(R.id.image_holder);
+        mImageholder = findViewById(R.id.image_holder);
         indicator2 = findViewById(R.id.indicator);
         indicator_holder = findViewById(R.id.indicator_holder);
 
 
-        boolean approved = getIntent().getBooleanExtra("approveStatus", true);
+        approved = getIntent().getBooleanExtra("approveStatus", true);
+
+
 
         post = (Post) getIntent().getSerializableExtra("post");
+        if(userId==null) finish();
+        if(post != null) {
+            setUpData(post);
+        }else{
+            ProgressDialog mDialog = new ProgressDialog(this);
+            mDialog.setMessage("Please wait. Loading post...");
+            mDialog.setIndeterminate(true);
+            mDialog.setCanceledOnTouchOutside(false);
+            mDialog.setCancelable(false);
+            mDialog.show();
+            String link = getIntent().getData().toString();
+            String id = link.substring(link.lastIndexOf("/") + 1);
 
+            FirebaseFirestore.getInstance().collection("Posts")
+                    .document(id)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        mDialog.dismiss();
+                        try {
+                            post = documentSnapshot.toObject(Post.class);
+                            if(post!=null) setUpData(post);
+                            else{
+                                Log.d("ErrorPost", id);
+                                Toast.makeText(this, "Error Post", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        }catch (Exception a){
+                            Log.d("ErrorPost", a.getLocalizedMessage());
+                            Toast.makeText(this, "Error Post", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                }).addOnFailureListener(e -> {
+                mDialog.dismiss();
+                    Toast.makeText(CommentsActivity.this, "Post not found", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    void setUpData(Post post){
         if (!approved && ADMIN_UID_LIST.contains(userId)) {
             Toast.makeText(this, "Approve or Delete this Post", Toast.LENGTH_SHORT).show();
             adminActivity.setVisibility(View.VISIBLE);
@@ -190,7 +258,7 @@ public class CommentsActivity extends AppCompatActivity {
 
         user_id = post.getUserId();
         post_desc.setDisplayText(post.getDescription());
-       // p_instTV.setText(post.getDept() + ", " + post.getInstitute());
+        // p_instTV.setText(post.getDept() + ", " + post.getInstitute());
 
         if (!post.getDept().equals("") && !post.getInstitute().equals("")) {
             p_instTV.setText(post.getDept() + ", " + post.getInstitute());
@@ -235,8 +303,6 @@ public class CommentsActivity extends AppCompatActivity {
                 .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                 .load(me.getImage())
                 .into(myImage);
-
-
     }
 
     private void approvePost(Post post) {
@@ -328,8 +394,12 @@ public class CommentsActivity extends AppCompatActivity {
                         .load(documentSnapshot.getString("image"))
                         .into(user_image))
                 .addOnFailureListener(e -> Log.e("error", e.getLocalizedMessage()));
-        p_nameTV.setOnClickListener(view -> FriendProfile.startActivity(getApplicationContext(), post.getUserId()));
-        p_instTV.setOnClickListener(view -> FriendProfile.startActivity(getApplicationContext(), post.getUserId()));
+        p_nameTV.setOnClickListener(view -> {
+            startActivity(new Intent(getApplicationContext(), FriendProfile.class).putExtra("f_id", post.getUserId()));
+        });
+        p_instTV.setOnClickListener(view -> {
+            startActivity(new Intent(getApplicationContext(), FriendProfile.class).putExtra("f_id", post.getUserId()));
+        });
 
     }
 

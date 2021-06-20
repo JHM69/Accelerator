@@ -23,26 +23,35 @@
         android:roundIcon="@drawable/ic_logo"
         android:screenOrientation="portrait"
         android:supportsRtl="true"
-        android:theme="@style/SplashAppTheme"
+        android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup"
         tools:targetApi="m">
-        <activity
-            android:name=".ui.activities.account.EditProfile"
-            />
-        <activity
-            android:name=".ui.activities.quiz.SelectTopic" />
+        <activity android:name=".ui.activities.account.EditProfile" />
+        <activity android:name=".ui.activities.quiz.SelectTopic" />
         <activity
             android:name=".ui.activities.quiz.SubTopic"
             android:noHistory="true" />
         <activity android:name=".ui.activities.post.SinglePostView" />
         <activity
             android:name=".ui.activities.post.CommentsActivity"
-            android:windowSoftInputMode="stateHidden" />
-        <activity android:name=".ui.activities.quiz.ResultActivity"
-            android:theme="@style/AppTheme"/>
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter android:label="View Post in App">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="tarok.tech"
+                    android:pathPrefix="/post"
+                    android:scheme="https" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ui.activities.quiz.ResultActivity" />
         <activity android:name=".ui.activities.post.WhoLikedActivity" />
         <activity android:name=".ui.activities.post.PostText" />
+        <activity android:name=".messege.activity.MessageActivity" />
         <activity android:name=".ui.activities.post.PostImage" />
         <activity
             android:name=".ui.activities.quiz.QuizBattle"
@@ -50,26 +59,24 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="org.jhm69.battle_of_quiz.TARGET_PLAY" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.activities.Splash"
             android:noHistory="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/SplashAppTheme">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.activities.MainActivity"
             android:hardwareAccelerated="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:screenOrientation="portrait">
+
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
@@ -85,33 +92,33 @@
         <activity
             android:name=".ui.activities.account.LoginActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/LoginAppTheme"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.activities.account.RegisterActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/LoginAppTheme"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ui.activities.notification.ImagePreviewSave"
-            android:screenOrientation="portrait"
-            android:theme="@style/SplashAppTheme" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activities.friends.SearchUsersActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/SplashAppTheme" />
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/SplashAppTheme" />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activities.friends.FriendProfile"
-            android:screenOrientation="portrait"
-            android:theme="@style/SplashAppTheme">
-            <intent-filter>
-                <action android:name="org.jhm69.battle_of_quiz.TARGET_FRIENDREQUEST" />
+            android:screenOrientation="portrait">
+            <intent-filter android:label="View User Profile">
+                <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="tarok.tech"
+                    android:pathPrefix="/user"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
 

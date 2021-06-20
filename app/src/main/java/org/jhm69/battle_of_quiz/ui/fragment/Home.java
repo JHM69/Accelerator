@@ -21,6 +21,7 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
@@ -32,6 +33,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 
 import org.jhm69.battle_of_quiz.R;
@@ -56,7 +58,7 @@ public class Home extends Fragment {
     private FirebaseFirestore mFirestore;
     private View statsheetView;
     private BottomSheetDialog mmBottomSheetDialog;
-
+    SwipeRefreshLayout mSwipeRefreshLayout;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -66,9 +68,14 @@ public class Home extends Fragment {
     @SuppressLint("InflateParams")
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        mFirestore = FirebaseFirestore.getInstance();
         context = getContext();
         ExtendedFloatingActionButton button = view.findViewById(R.id.soihefawiw);
+        mSwipeRefreshLayout = view.findViewById(R.id.swf);
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.setFirestoreSettings(settings);
         statsheetView = Objects.requireNonNull(getActivity()).getLayoutInflater().inflate(R.layout.stat_bottom_sheet_dialog, null);
         mmBottomSheetDialog = new BottomSheetDialog(view.getContext());
         mmBottomSheetDialog.setContentView(statsheetView);
@@ -95,7 +102,7 @@ public class Home extends Fragment {
         mPostsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mPostsRecyclerView.setHasFixedSize(true);
         setupAdapter(tag);
-
+        mSwipeRefreshLayout.setOnRefreshListener(() -> setupAdapter(tag));
         ChipGroup chipGroup = view.findViewById(R.id.filter_chip_SS_group);
         chipGroup.setOnCheckedChangeListener((group, checkedId) -> {
             try {
@@ -111,11 +118,11 @@ public class Home extends Fragment {
     }
 
     private void setupAdapter(String tag) {
-
+        mSwipeRefreshLayout.setRefreshing(true);
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
-                .setPrefetchDistance(5)
-                .setPageSize(10)
+                .setPrefetchDistance(6)
+                .setPageSize(15)
                 .build();
         Query mQuery;
         if (tag.equals("All")) {
@@ -144,7 +151,7 @@ public class Home extends Fragment {
                                 : R.anim.down_from_top);
                 holder.itemView.startAnimation(animation);
                 lastPosition = position;
-
+                mSwipeRefreshLayout.setRefreshing(false);
                 holder.bind(post, holder, position, mmBottomSheetDialog, statsheetView, true);
             }
 

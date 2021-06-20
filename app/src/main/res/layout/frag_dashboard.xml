@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:windowBackground"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,12 +16,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:titleTextColor="@color/white"
-            android:backgroundTint="@color/colorAccentt"
+            android:backgroundTint="?colorPrimary"
             app:tabMode="fixed"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tabIndicatorColor="@color/white">
+            app:tabIndicatorColor="?rippleColor">
         </com.google.android.material.tabs.TabLayout>
 
         <androidx.viewpager.widget.ViewPager
@@ -42,7 +43,7 @@
         android:focusable="true"
         android:foreground="?selectableItemBackground"
         android:visibility="gone"
-        app:cardBackgroundColor="@color/colorAccentt"
+        app:cardBackgroundColor="?colorPrimary"
         app:cardCornerRadius="5dp"
         app:cardElevation="7dp"
         app:cardMaxElevation="13dp"

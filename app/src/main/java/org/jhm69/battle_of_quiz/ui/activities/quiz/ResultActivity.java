@@ -19,6 +19,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
@@ -66,10 +69,25 @@ public class ResultActivity extends AppCompatActivity {
     @SuppressLint({"SetTextI18n", "InflateParams"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
         setContentView(R.layout.activity_result);
         Toolbar toolbar = findViewById(R.id.toolbar2);
 
@@ -84,10 +102,7 @@ public class ResultActivity extends AppCompatActivity {
         thisUserImage = findViewById(R.id.thisUserImage);
         thisScore = findViewById(R.id.myScore);
         otherUserName = findViewById(R.id.otherUserName);
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+
         mDialog = new ProgressDialog(this);
         mDialog.setMessage("Please wait..");
         mDialog.setIndeterminate(true);
@@ -181,7 +196,7 @@ public class ResultActivity extends AppCompatActivity {
                     name.setText(me1.getUsername());
                     setLevelByScore(level, (int) me1.getScore());
                     Glide.with(getApplicationContext())
-                            .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                            .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                             .load(me1.getImage())
                             .into(proPic);
                 });
@@ -194,7 +209,7 @@ public class ResultActivity extends AppCompatActivity {
                             try {
                                 setLevelByScore(level, Integer.parseInt(String.valueOf(documentSnapshot.getLong("score"))));
                                 Glide.with(getApplicationContext())
-                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                         .load(documentSnapshot.getString("image"))
                                         .into(proPic);
                             }catch (Exception ignored){
@@ -205,8 +220,12 @@ public class ResultActivity extends AppCompatActivity {
         } catch (NullPointerException ignored) {
 
         }
-        name.setOnClickListener(v -> FriendProfile.startActivity(getApplicationContext(), uid));
-        proPic.setOnClickListener(v -> FriendProfile.startActivity(getApplicationContext(), uid));
+        name.setOnClickListener(v ->{
+            startActivity(new Intent(getApplicationContext(), FriendProfile.class).putExtra("f_id", uid));
+        });
+        proPic.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), FriendProfile.class).putExtra("f_id", uid));
+        });
     }
 
     private int getScoreCount(List<Boolean> scoreList) {

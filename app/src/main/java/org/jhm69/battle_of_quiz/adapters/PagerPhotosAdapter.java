@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
@@ -47,7 +48,7 @@ public class PagerPhotosAdapter extends PagerAdapter {
         View imageLayout = inflater.inflate(R.layout.item_viewpager_image, view, false);
 
         assert imageLayout != null;
-        SFImageView imageView = imageLayout.findViewById(R.id.image);
+        ImageView imageView = imageLayout.findViewById(R.id.image);
 
         Glide.with(context)
                 .load(IMAGES.get(position).getPath())

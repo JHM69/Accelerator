@@ -11,7 +11,6 @@
     <string name="group_or_subject">Group (Select Any)</string>
     <string name="class_level">Class Level* (select any)</string>
     <string name="location">Location (Select Zila)</string>
-    <string name="_4">4</string>
     <string name="let_s_challenge_others_in_battle_of_quiz">Let\'s Challenge others in ত্বরণ. Currently no battle history found.</string>
     <string name="sdf">Type Latex Equation, eg x^2+3\\pi=b_5</string>
 </resources>

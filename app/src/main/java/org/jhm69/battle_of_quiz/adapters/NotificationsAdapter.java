@@ -125,7 +125,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
                 holder.type_image.setImageResource(R.drawable.ic_image_post_black);
                 break;
             default:
-                holder.type_image.setImageResource(R.drawable.ic_logo_icon);
+                holder.type_image.setImageResource(R.drawable.ic_logo);
                 break;
         }
 

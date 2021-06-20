@@ -177,7 +177,7 @@ RE.setCode = function(data) {
 RE.setVideo = function(data) {
     RE.restorerange();
     if (data.toString().length != 0) {
-        var firstPart = "<div style=\"width: 348px; height: 215px;  border-radius: 3px; float: none; clear: both; margin: 0px auto; background-image: url(file:///android_asset/video_loading_bg.svg);\">\n" +
+        var firstPart = "<div style=\"width: auto; height: 245px;  border-radius: 3px; float: none; clear: both; margin: 0px auto; background-image: url(file:///android_asset/video_loading_bg.svg);\">\n" +
                                 "  <embed\n" +
                                 "    src=\"https://www.youtube.com/embed/";
         var secondPart = "?autohide=1&autoplay=1&controls=1\"\n" +

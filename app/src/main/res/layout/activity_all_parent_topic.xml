@@ -19,14 +19,14 @@
         android:id="@+id/toolbar2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorAccentt"
+        android:background="?colorPrimary"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
+        android:theme="@style/ToolbarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Select"
-        app:titleTextColor="#ffffff" />
+        app:title="Select Topic"
+        app:titleTextColor="@color/white" />
 
     <ProgressBar
         android:id="@+id/progressBar2"

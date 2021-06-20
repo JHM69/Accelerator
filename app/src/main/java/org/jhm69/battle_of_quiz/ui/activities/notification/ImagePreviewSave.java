@@ -11,14 +11,25 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
+import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
@@ -34,8 +45,10 @@ import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.messege.activity.MessageActivity;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
 
@@ -114,10 +127,43 @@ public class ImagePreviewSave extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
 
 
         setContentView(R.layout.activity_image_preview_save);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().getDecorView().getWindowInsetsController().hide(
+                    WindowInsets.Type.statusBars()
+            );
+        }else{
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
+        Toolbar toolbar = findViewById(R.id.toolbar5);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("Zoom Image");
+        toolbar.setTitleTextColor(Color.WHITE);
 
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         intent_URL = getIntent().getStringExtra("url");
 
         registerReceiver(onComplete,
@@ -126,7 +172,7 @@ public class ImagePreviewSave extends AppCompatActivity {
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         ImageView photoView = findViewById(R.id.photo_view);
-        if (getSharedPreferences("theme", MODE_PRIVATE).getBoolean("dark", false)) {
+        if (getSharedPreferences("Theme", MODE_PRIVATE).getBoolean("DarkTheme", false)) {
             Glide.with(this)
                     .setDefaultRequestOptions(new RequestOptions().placeholder(getResources().getDrawable(R.drawable.placeholder)))
                     .load(intent_URL)
@@ -137,10 +183,7 @@ public class ImagePreviewSave extends AppCompatActivity {
                     .load(intent_URL)
                     .into(photoView);
         }
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+
 
     }
 
@@ -174,7 +217,7 @@ public class ImagePreviewSave extends AppCompatActivity {
 
     }
 
-    public void saveImage(View v) {
+    public void saveImage() {
         Dexter.withActivity(this)
                 .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
@@ -205,5 +248,25 @@ public class ImagePreviewSave extends AppCompatActivity {
                     }
                 }).check();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.save, menu);
+        return true;
+    }
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.save) {
+            saveImage();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return super.onSupportNavigateUp();
     }
 }

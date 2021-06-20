@@ -7,8 +7,8 @@ android {
         applicationId "org.jhm69.battle_of_quiz"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 6
-        versionName "6.0"
+        versionCode 7
+        versionName "7.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

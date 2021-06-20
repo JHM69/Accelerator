@@ -25,6 +25,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
@@ -118,16 +121,19 @@ public class PostText extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.AppTheme);
 
         setContentView(R.layout.activity_post_text);
         databaseReference = FirebaseDatabase.getInstance().getReference();
-        Toolbar toolbar = findViewById(R.id.toolbar4);
-        setSupportActionBar(toolbar);
-        toolbar.setTitle("New Article");
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+
+        Toolbar toolbar = findViewById(R.id.toolbar4);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("New Article Post");
+
         latexText = findViewById(R.id.latex_equation);
         type = findViewById(R.id.spinner_type);
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.item_type_x));

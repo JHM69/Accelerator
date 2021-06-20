@@ -27,7 +27,7 @@ import java.util.Objects;
 public class FriendsFragment extends Fragment implements BottomNavigationView.OnNavigationItemReselectedListener,
         BottomNavigationView.OnNavigationItemSelectedListener {
 
-    FloatingActionButton fab;
+   // FloatingActionButton fab;
 
     public static FriendsFragment newInstance(String frag) {
 
@@ -51,8 +51,8 @@ public class FriendsFragment extends Fragment implements BottomNavigationView.On
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fab = view.findViewById(R.id.searchFab);
-        fab.setOnClickListener(v -> gotoSearch());
+       // fab = view.findViewById(R.id.searchFab);
+       // fab.setOnClickListener(v -> gotoSearch());
 
         BottomNavigationView bottomNavigationView = view.findViewById(R.id.bottom_nav);
         if (getArguments() != null) {
@@ -75,7 +75,7 @@ public class FriendsFragment extends Fragment implements BottomNavigationView.On
     }
 
     public void gotoSearch() {
-        SearchUsersActivity.startActivity(getActivity(), Objects.requireNonNull(getView()).getContext(), fab);
+       // SearchUsersActivity.startActivity(getActivity(), Objects.requireNonNull(getView()).getContext(), fab);
     }
 
     @SuppressLint("NonConstantResourceId")

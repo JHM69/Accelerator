@@ -10,14 +10,13 @@
         android:id="@+id/top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:backgroundTint="#5D445059">
+        android:layout_alignParentTop="true">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccentt"
+            android:background="?colorPrimary"
             app:title="" />
 
     </com.google.android.material.appbar.AppBarLayout>

@@ -4,12 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground"
+    android:backgroundTint="?android:windowBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="24dp"
-    android:paddingTop="7dp"
+    android:paddingStart="16dp"
+    android:paddingTop="9dp"
     android:paddingEnd="24dp"
-    android:paddingBottom="7dp">
+    android:paddingBottom="9dp">
 
     <ImageView
         android:id="@+id/icon"

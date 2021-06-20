@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -30,6 +31,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -89,7 +93,7 @@ public class QuizBattle extends AppCompatActivity {
     public ArrayList<Boolean> SenderAnsList;
     public ArrayList<Boolean> reciverAnsList;
     public int position;
-
+    boolean destroy=false;
     public final int JUST_STARTED = -1;
     public final int OFFLINE_STARTED = -2;
     public final int JUST_IN = -3;
@@ -189,7 +193,7 @@ public class QuizBattle extends AppCompatActivity {
             if (list.get(position).getImg().length() > 10) {
                 mcqImg.setVisibility(View.VISIBLE);
                 Glide.with(getApplicationContext())
-                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.main_logo_png))
+                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_main_logo_png))
                         .load(list.get(position).getImg())
                         .into(mcqImg);
             } else {
@@ -260,6 +264,7 @@ public class QuizBattle extends AppCompatActivity {
         countDownTimer = new CountDownTimer(t*1000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
+                if((millisUntilFinished)<(t*1000*0.4)) destroy=true;
                 timeLeftInMillis = millisUntilFinished;
                 updateCountDownText();
             }
@@ -275,7 +280,6 @@ public class QuizBattle extends AppCompatActivity {
                 CorrectLayout = (LinearLayout) optionsContainer.getChildAt(list.get(position).getAns());
                 CorrectLayout.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4BBB4F")));
                 stepAnsList.add(position, false);
-
                 showResult();
             }
         }.start();
@@ -679,6 +683,24 @@ public class QuizBattle extends AppCompatActivity {
         getWindow().setEnterTransition(new Explode());
         getWindow().setExitTransition(new Explode());
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
         setContentView(R.layout.activity_quiz_battle);
         stepAnsList = new ArrayList<>();
         thisUid = userId;
@@ -689,10 +711,7 @@ public class QuizBattle extends AppCompatActivity {
         question_number = getIntent().getIntExtra("question_number", 5);
         mainDB = FirebaseDatabase.getInstance().getReference();
         user = new UserRepository(getApplication()).getUser();
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(getApplicationContext(), R.color.statusBar));
+
         reciverAnsList = new ArrayList<>();
         thisUserName = findViewById(R.id.thisUserName);
         viewModel = ViewModelProviders.of(this).get(ResultViewModel.class);
@@ -883,10 +902,15 @@ public class QuizBattle extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        try{
+           if(destroy) showResult();
+        }catch (Exception ignored){
+
+        }
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
+        super.onDestroy();
     }
 
     private void addScore(int score, String uid, String what, boolean me) {

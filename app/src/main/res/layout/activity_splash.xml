@@ -15,16 +15,28 @@
         app:layoutDescription="@xml/activity_splash_xml_constraintlayout5_scene">
 
         <TextView
+            android:id="@+id/textView16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="52dp"
+            android:text="tarok.tech"
+            android:textSize="19sp"
+            android:textColor="?customColorValue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="HardcodedText" />
+
+        <TextView
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="@color/white"
             android:elevation="0dp"
             android:padding="4dp"
             android:text="Accelerate your Learning"
             android:textAlignment="center"
-            android:textColor="#A034B3"
+            android:textColor="?customColorValue"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +53,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView10"
             app:srcCompat="@drawable/ic_artboard_1baar"
-            tools:ignore="ContentDescription,VectorDrawableCompat" />
+            tools:ignore="ContentDescription,VectorDrawableCompat"
+            app:tint="?customColorValue" />
 
 
         <ImageView
@@ -68,7 +81,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.216"
-            app:srcCompat="@drawable/main_logo_png"
+            app:srcCompat="@drawable/ic_main_logo_png"
             tools:ignore="ContentDescription" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>

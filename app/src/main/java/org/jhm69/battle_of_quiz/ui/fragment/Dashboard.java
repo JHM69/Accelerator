@@ -30,6 +30,7 @@ import com.google.firebase.firestore.Query;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.messege.model.Chat;
 import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.ui.activities.notification.NotificationFragment;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.BattleModel;
@@ -52,8 +53,9 @@ import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 public class Dashboard extends Fragment {
     private final int[] tabIcons = {
+            R.drawable.ic_multiline_chart_black_24dp,
             R.drawable.ic_flash_on_black_24dp,
-            R.drawable.ic_notes_black_24dp,
+            R.drawable.ic_question_answer_black_24dp,
             R.drawable.ic_notifications_black_24dp
     };
     private TabAdapter adapter;
@@ -62,7 +64,7 @@ public class Dashboard extends Fragment {
     private ResultViewModel viewModel;
     private int nSize;
     private FirebaseFirestore firestore;
-    int count = 0;
+    int count = 0, chatCount=0;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -77,9 +79,11 @@ public class Dashboard extends Fragment {
         tabLayout = Objects.requireNonNull(getView()).findViewById(R.id.tabLayout);
         ViewPager viewPager = getView().findViewById(R.id.view_pager);
         adapter = new TabAdapter(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), getActivity());
-        adapter.addFragment(new Quiz(), "Quiz", tabIcons[0]);
-        adapter.addFragment(new Home(), "Posts", tabIcons[1]);
-        adapter.addFragment(new NotificationFragment(), "Notification", tabIcons[2]);
+
+        adapter.addFragment(new Home(), "Post", tabIcons[0]);
+        adapter.addFragment(new Quiz(), "Quiz", tabIcons[1]);
+        adapter.addFragment(new ChatsFragment(), "Chat", tabIcons[2]);
+        adapter.addFragment(new NotificationFragment(), "Notif", tabIcons[3]);
 
         viewPager.setAdapter(adapter);
         for (int i = 0; i < tabLayout.getTabCount(); i++) {
@@ -118,6 +122,35 @@ public class Dashboard extends Fragment {
         firestore = FirebaseFirestore.getInstance();
 
         updateBattle();
+
+        TabLayout.Tab tab = tabLayout.getTabAt(2);
+        FirebaseDatabase.getInstance().getReference().child("Chats")
+                .orderByChild("receiver")
+                .equalTo(userId).limitToLast(10).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                try {
+                    Chat chat = (Chat) snapshot.getValue(Chat.class);
+                    //Log.d("SeenCount", chat.getMessage()+chat.isIsseen());
+                    if(chat!=null) {
+                        if (!chat.isIsseen()) {
+                            chatCount++;
+                            if (chatCount > 0) {
+                                tab.setCustomView(null);
+                                tab.setCustomView(adapter.setChat(chatCount));
+                            }
+                        }
+                    }
+                }catch(Exception ignore){
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
@@ -154,7 +187,7 @@ public class Dashboard extends Fragment {
                            }
                        }
                        if(count!=0) {
-                           TabLayout.Tab tab = tabLayout.getTabAt(2);
+                           TabLayout.Tab tab = tabLayout.getTabAt(3);
                            Objects.requireNonNull(tab).setCustomView(null);
                            tab.setCustomView(adapter.setNotifications(count/2));
                        }
@@ -169,7 +202,6 @@ public class Dashboard extends Fragment {
             tab.setCustomView(null);
             tab.setCustomView(adapter.getTabView(i));
         }
-        tabLayout.setSelectedTabIndicatorColor(Color.parseColor("#BCA9DA"));
         TabLayout.Tab tab = tabLayout.getTabAt(position);
         assert tab != null;
         tab.setCustomView(null);
@@ -310,7 +342,13 @@ public class Dashboard extends Fragment {
         }
     }
 
- /*   private void checkFriendRequest() {
+    @Override
+    public void onDestroy() {
+        count=chatCount=0;
+        super.onDestroy();
+    }
+
+    /*   private void checkFriendRequest() {
         request_alert = getView().findViewById(R.id.friend_req_alert);
         request_alert_text = getView().findViewById(R.id.friend_req_alert_text);
         FirebaseFirestore.getInstance().collection("Users")

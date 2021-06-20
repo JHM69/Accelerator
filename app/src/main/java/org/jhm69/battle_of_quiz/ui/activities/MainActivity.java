@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,6 +25,9 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -70,6 +74,7 @@ import org.jhm69.battle_of_quiz.ui.fragment.Dashboard;
 import org.jhm69.battle_of_quiz.ui.fragment.FriendsFragment;
 import org.jhm69.battle_of_quiz.ui.fragment.ProfileFragment;
 import org.jhm69.battle_of_quiz.ui.fragment.SavedFragment;
+import org.jhm69.battle_of_quiz.ui.fragment.ThemeBottomSheetDialog;
 import org.jhm69.battle_of_quiz.ui.fragment.admin.AdminFragment;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
@@ -93,9 +98,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int RANKING = 1;
     private static final int POS_FRIENDS = 2;
     private static final int SAVED_POST = 3;
-    private static final int ABOUT_APP = 4;
-    private static final int POS_LOGOUT = 5;
-    private static final int ADMIN = 6;
+    private static final int WEB = 4;
+    private static final int ABOUT_APP = 5;
+    private static final int THEME = 6;
+    private static final int POS_LOGOUT = 7;
+    private static final int ADMIN = 8;
     public static String userId;
     public static boolean inHome=true;
     @SuppressLint({"StaticFieldLeak", "NewApi"})
@@ -245,17 +252,37 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getSharedPreferences("Theme", Context.MODE_PRIVATE);
+        String themeName = sharedPreferences.getString("ThemeName", "Default");
+        if (themeName.equalsIgnoreCase("TealTheme")) {
+            setTheme(R.style.TealTheme);
+        } else if (themeName.equalsIgnoreCase("VioleteTheme")) {
+            setTheme(R.style.VioleteTheme);
+        } else if (themeName.equalsIgnoreCase("PinkTheme")) {
+            setTheme(R.style.PinkTheme);
+        } else if (themeName.equalsIgnoreCase("DelRio")) {
+            setTheme(R.style.DelRio);
+        } else if (themeName.equalsIgnoreCase("DarkTheme")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            setTheme(R.style.Dark);
+        } else if (themeName.equalsIgnoreCase("Lynch")) {
+            setTheme(R.style.Lynch);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
+
+
+
+
         setContentView(R.layout.activity_main);
+
+
         edit = getIntent().getStringExtra("sss");
         mainToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(mainToolbar);
         userViewModel = ViewModelProviders.of(this)
                 .get(UserViewModel.class);
         updateStatus();
-        Window window = this.getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.statusBar));
 
 
         firestore = FirebaseFirestore.getInstance();
@@ -310,7 +337,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         createItemFor(RANKING),
                         createItemFor(POS_FRIENDS),
                         createItemFor(SAVED_POST),
+                        createItemFor(WEB),
                         createItemFor(ABOUT_APP),
+                        createItemFor(THEME),
                         createItemFor(POS_LOGOUT),
                         createItemFor(ADMIN)));
             } else {
@@ -319,7 +348,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         createItemFor(RANKING),
                         createItemFor(POS_FRIENDS),
                         createItemFor(SAVED_POST),
+                        createItemFor(WEB),
                         createItemFor(ABOUT_APP),
+                        createItemFor(THEME),
                         createItemFor(POS_LOGOUT)));
             }
             adapter.setListener(MainActivity.this);
@@ -519,6 +550,17 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             case ABOUT_APP:
                 inHome = false;
                 startActivity(new Intent(getApplicationContext(), SinglePostView.class).putExtra("post_id", "about_app"));
+                return;
+
+            case WEB:
+                inHome = true;
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://tarok.tech"));
+                startActivity(browserIntent);
+                return;
+
+            case THEME:
+                inHome = true;
+                new ThemeBottomSheetDialog().show(getSupportFragmentManager(), "");
                 return;
 
           /*  case POS_SHARE:

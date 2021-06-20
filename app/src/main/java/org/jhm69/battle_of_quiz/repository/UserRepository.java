@@ -106,6 +106,14 @@ public class UserRepository {
         return resultDao.getStaticUser(FirebaseAuth.getInstance().getUid());
     }
 
+    public Users getStaticChat(String s) {
+        return resultDao.getStaticUser(s);
+    }
+
+    public void deleteUser(String id) {
+        resultDao.deleteUser(id);
+    }
+
     private static class UpdateScoreAsyncTask extends AsyncTask<Integer, Void, Void> {
         private final DaoAccess resultDao;
 

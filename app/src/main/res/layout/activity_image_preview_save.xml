@@ -9,7 +9,7 @@
         android:id="@+id/photo_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#302733"
+        android:background="#2E2C2E"
         android:scaleType="fitCenter"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -18,19 +18,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_logo" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        style="@style/Widget.Design.FloatingActionButton"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar5"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="@color/colorSec"
-        android:onClick="saveImage"
-        android:padding="16dp"
-        android:src="@drawable/ic_file_download_white_24dp"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="#1B353535"
+        app:title="Image"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ToolbarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="ContentDescription" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

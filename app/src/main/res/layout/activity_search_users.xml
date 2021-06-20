@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,42 +7,25 @@
     app:layoutDescription="@xml/activity_search_users_scene"
     tools:context="org.jhm69.battle_of_quiz.ui.activities.friends.SearchUsersActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/usersList"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#5D445059"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorAccentt"
-            app:popupTheme="@style/AppTheme"
-            app:theme="@style/ToolbarColoredBackArrow"
-            app:title="Search people or Posts"
-            app:titleTextColor="@color/white" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/layout"
-        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2">
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/usersList"
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            android:layout_height="wrap_content"
+            android:background="?colorPrimary"
+            app:theme="@style/ToolbarTheme"
+            app:title="Search people or Posts"
+            app:titleTextColor="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
     <HorizontalScrollView
         android:id="@+id/textView2"
@@ -53,7 +36,7 @@
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appbar">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filter_chip_SS_group"
@@ -71,7 +54,7 @@
                 android:layout_marginStart="10dp"
                 android:checked="true"
                 android:text="User"
-                app:checkedIconTint="#121212"
+                app:checkedIconTint="?android:textColorPrimary"
                 tools:ignore="HardcodedText" />
 
 
@@ -81,6 +64,7 @@
                 android:layout_height="50dp"
                 android:layout_marginEnd="10dp"
                 android:text="Post"
+                app:checkedIconTint="?android:textColorPrimary"
                 tools:ignore="HardcodedText" />
 
 
@@ -88,4 +72,4 @@
     </HorizontalScrollView>
 
 
-</androidx.constraintlayout.motion.widget.MotionLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
