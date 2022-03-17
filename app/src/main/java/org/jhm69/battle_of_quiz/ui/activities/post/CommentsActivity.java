@@ -1,29 +1,23 @@
 package org.jhm69.battle_of_quiz.ui.activities.post;
 
+import static org.jhm69.battle_of_quiz.ui.activities.post.PostText.getSaltString;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.transition.ChangeBounds;
-import android.transition.ChangeImageTransform;
-import android.transition.ChangeScroll;
-import android.transition.ChangeTransform;
 import android.transition.Explode;
-import android.transition.Fade;
-import android.transition.Slide;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,13 +29,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -51,9 +39,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
 import com.github.marlonlom.utilities.timeago.TimeAgo;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -62,17 +47,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.notification.APIService;
-import org.jhm69.battle_of_quiz.notification.Client;
-import org.jhm69.battle_of_quiz.notification.MyResponse;
-import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.adapters.CommentsAdapter;
 import org.jhm69.battle_of_quiz.adapters.PostPhotosAdapter;
 import org.jhm69.battle_of_quiz.models.Comment;
@@ -80,13 +59,16 @@ import org.jhm69.battle_of_quiz.models.MultipleImage;
 import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.models.Post;
 import org.jhm69.battle_of_quiz.models.Users;
+import org.jhm69.battle_of_quiz.notification.APIService;
+import org.jhm69.battle_of_quiz.notification.Client;
+import org.jhm69.battle_of_quiz.notification.MyResponse;
+import org.jhm69.battle_of_quiz.notification.NotificationSender;
 import org.jhm69.battle_of_quiz.repository.UserRepository;
 import org.jhm69.battle_of_quiz.ui.activities.friends.FriendProfile;
 import org.jhm69.battle_of_quiz.ui.fragment.Home;
 import org.jhm69.battle_of_quiz.utils.AnimationUtil;
 import org.jhm69.battle_of_quiz.utils.MathView;
 import org.jhm69.battle_of_quiz.utils.RichEditor;
-import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -136,6 +118,7 @@ public class CommentsActivity extends AppCompatActivity {
     private CommentsAdapter mAdapter;
     TextView p_nameTV, p_instTV, timestampTV;
     boolean approved = true;
+    boolean alreadyLiked;
     FrameLayout mImageholder;
     LinearLayout adminActivity;
     View vBgLike;
@@ -195,6 +178,7 @@ public class CommentsActivity extends AppCompatActivity {
 
 
         approved = getIntent().getBooleanExtra("approveStatus", true);
+        alreadyLiked = getIntent().getBooleanExtra("alreadyLiked", false);
 
 
 
@@ -260,12 +244,17 @@ public class CommentsActivity extends AppCompatActivity {
         post_desc.setDisplayText(post.getDescription());
         // p_instTV.setText(post.getDept() + ", " + post.getInstitute());
 
-        if (!post.getDept().equals("") && !post.getInstitute().equals("")) {
-            p_instTV.setText(post.getDept() + ", " + post.getInstitute());
-        } else if (post.getInstitute().equals("")) {
+
+        try {
+            if (post.getInstitute() == null) {
+                p_instTV.setText(post.getDept());
+            } else if (post.getDept() == null) {
+                p_instTV.setText(post.getInstitute());
+            } else {
+                p_instTV.setText(post.getDept() + ", " + post.getInstitute());
+            }
+        }catch (Exception j){
             p_instTV.setText(post.getDept());
-        } else if (post.getDept().equals("")) {
-            p_instTV.setText(post.getInstitute());
         }
 
         p_nameTV.setText(post.getName());
@@ -273,6 +262,9 @@ public class CommentsActivity extends AppCompatActivity {
         setupCommentView();
         getLikeandFav(post);
         setStatData(post);
+
+        likeCount.setOnClickListener(view -> view.getContext().startActivity(new Intent(view.getContext(), WhoLikedActivity.class).putExtra("postId", post.getPostId()).putExtra("type", "Liked_Users")));
+
 
 
         mCommentText = findViewById(R.id.text);
@@ -494,31 +486,11 @@ public class CommentsActivity extends AppCompatActivity {
     }
 
     private void getLikeandFav(Post post) {
-        try {
-            postDb.document(post.getPostId())
-                    .collection("Liked_Users")
-                    .document(mCurrentUser.getUid())
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        try {
-                            if (documentSnapshot.exists()) {
-                                boolean liked = documentSnapshot.getBoolean("liked");
-                                like_btn.setFavorite(liked, false);
-                            } else {
-                                Log.e("Like", "No document found");
-                            }
-                        }catch (Exception b){
-                            like_btn.setFavorite(false, false);
-                        }
+        like_btn.setFavorite(alreadyLiked);
+        like_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
+            updateLike(post.getPostId());
+        });
 
-                            like_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
-                                updateLike(favorite, post.getPostId());
-                            });
-                    })
-                    .addOnFailureListener(e -> Log.e("Error Like", e.getMessage()));
-        } catch (NullPointerException ignored) {
-
-        }
 
         try {
             postDb.document(post.getPostId())
@@ -538,8 +510,8 @@ public class CommentsActivity extends AppCompatActivity {
 
                         if (isOnline()) {
                             sav_button.setOnFavoriteChangeListener((buttonView, favorite) -> {
+                                Map<String, Object> favMap = new HashMap<>();
                                 if (favorite) {
-                                    Map<String, Object> favMap = new HashMap<>();
                                     favMap.put("Saved", true);
 
                                     try {
@@ -614,7 +586,6 @@ public class CommentsActivity extends AppCompatActivity {
                                         e.printStackTrace();
                                     }
                                 } else {
-                                    Map<String, Object> favMap = new HashMap<>();
                                     favMap.put("Saved", false);
                                     try {
                                         mFirestore.collection("Posts")
@@ -657,9 +628,9 @@ public class CommentsActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    public void updateLike(boolean like, String postId) {
+    public void updateLike(String postId) {
         int postLikes = post.getLiked_count();
-        if(like){
+        if(!alreadyLiked){
             postLikes++;
             try {
                 Map<String, Boolean> likeMap = new HashMap<>();
@@ -669,6 +640,7 @@ public class CommentsActivity extends AppCompatActivity {
                         .document(mCurrentUser.getUid())
                         .set(likeMap)
                         .addOnSuccessListener(aVoid -> {
+                            alreadyLiked=true;
                                 addToNotification("Liked your post", "like");
                         })
                         .addOnFailureListener(e -> Log.e("Error like", e.getMessage()));
@@ -684,6 +656,7 @@ public class CommentsActivity extends AppCompatActivity {
                         //.set(likeMap)
                         .delete()
                         .addOnSuccessListener(aVoid -> {
+                            alreadyLiked=true;
                             //holder.like_count.setText(String.valueOf(Integer.parseInt(holder.like_count.getText().toString())-1));
                             //Toast.makeText(context, "Unliked post '" + post.postId, Toast.LENGTH_SHORT).show();
                         })
@@ -733,14 +706,17 @@ public class CommentsActivity extends AppCompatActivity {
         overridePendingTransitionExit();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void sendComment(final String comment, final ProgressBar mProgress) {
         mProgress.setVisibility(View.VISIBLE);
-        Comment comment1 = new Comment(me.getId(), me.getName(), me.getImage(), post.getPostId(), comment, String.valueOf(System.currentTimeMillis()));
+        String commentId = getSaltString();
+        Comment comment1 = new Comment(me.getId(), me.getName(), me.getImage(), post.getPostId(), comment, String.valueOf(System.currentTimeMillis()), commentId);
         mCommentText.setHtml("");
         mFirestore.collection("Posts")
                 .document(post.getPostId())
                 .collection("Comments")
-                .add(comment1)
+                .document(commentId)
+                .set(comment1)
                 .addOnSuccessListener(documentReference -> {
                     mProgress.setVisibility(View.GONE);
                     addToNotification("Commented on your post", "comment");
@@ -758,7 +734,7 @@ public class CommentsActivity extends AppCompatActivity {
     }
 
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
     private void getComments(final ProgressBar mProgress) {
         CommentCount.setText("   " + post.getComment_count());
         mProgress.setVisibility(View.VISIBLE);
@@ -778,7 +754,7 @@ public class CommentsActivity extends AppCompatActivity {
                             if (doc.getDocument().exists()) {
                                 if (doc.getType() == DocumentChange.Type.ADDED) {
                                     mProgress.setVisibility(View.GONE);
-                                    Comment comment = doc.getDocument().toObject(Comment.class).withId(doc.getDocument().getId());
+                                    Comment comment = doc.getDocument().toObject(Comment.class);
                                     commentList.add(comment);
                                     mAdapter.notifyDataSetChanged();
                                 }

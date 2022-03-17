@@ -1,5 +1,6 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.Dialog;
@@ -21,7 +22,6 @@ import com.google.android.material.chip.Chip;
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.models.SubTopicModel;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.QuizBattle;
-import org.jhm69.battle_of_quiz.ui.activities.quiz.SubTopic;
 
 import java.util.List;
 
@@ -51,7 +51,7 @@ public class SubTopicAdapter extends RecyclerView.Adapter<SubTopicAdapter.MyView
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder viewHolder, int i) {
+    public void onBindViewHolder(MyViewHolder viewHolder, @SuppressLint("RecyclerView") int i) {
         Animation animation = AnimationUtils.loadAnimation(context,
                 (i > lastPosition) ? R.anim.up_from_bottom
                         : R.anim.down_from_top);

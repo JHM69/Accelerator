@@ -1,5 +1,8 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,8 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by Jahangir.
@@ -71,7 +72,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, @SuppressLint("RecyclerView") int position) {
 
         Animation animation = AnimationUtils.loadAnimation(context,
                 (position > lastPosition) ? R.anim.up_from_bottom
@@ -83,7 +84,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
         holder.name.setText(usersList.get(position).getName());
 
         Glide.with(context)
-                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                 .load(usersList.get(position).getImage())
                 .into(holder.image);
 
@@ -111,7 +112,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                             holder.name.setText(documentSnapshot.getString("name"));
 
                             Glide.with(context)
-                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                     .load(documentSnapshot.getString("image"))
                                     .into(holder.image);
 
@@ -147,7 +148,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
 
                             Glide.with(context)
-                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                    .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                     .load(documentSnapshot.getString("image"))
                                     .into(holder.image);
 

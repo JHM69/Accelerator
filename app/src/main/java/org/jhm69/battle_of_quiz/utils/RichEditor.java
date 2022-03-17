@@ -1,5 +1,8 @@
 package org.jhm69.battle_of_quiz.utils;
 
+import static android.view.Gravity.LEFT;
+import static android.view.Gravity.RIGHT;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -15,7 +18,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -25,9 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static android.view.Gravity.LEFT;
-import static android.view.Gravity.RIGHT;
 
 
 public class RichEditor extends WebView {

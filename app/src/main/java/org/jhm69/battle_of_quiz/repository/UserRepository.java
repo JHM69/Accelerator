@@ -1,6 +1,8 @@
 package org.jhm69.battle_of_quiz.repository;
 
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.app.Application;
 import android.os.AsyncTask;
 
@@ -14,8 +16,6 @@ import org.jhm69.battle_of_quiz.models.Users;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 public class UserRepository {
     private final Executor executor = Executors.newSingleThreadExecutor();

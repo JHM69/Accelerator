@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.ui.fragment;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
@@ -35,6 +37,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
 import org.jhm69.battle_of_quiz.models.Post;
@@ -50,8 +53,6 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.dmoral.toasty.Toasty;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by jhm69

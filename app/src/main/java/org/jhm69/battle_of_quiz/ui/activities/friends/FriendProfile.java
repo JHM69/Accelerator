@@ -1,5 +1,8 @@
 package org.jhm69.battle_of_quiz.ui.activities.friends;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
@@ -8,14 +11,13 @@ import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.transition.Explode;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,21 +25,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,7 +53,6 @@ import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.color.MaterialColors;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -68,15 +65,14 @@ import com.google.firebase.firestore.Query;
 import com.marcoscg.dialogsheet.DialogSheet;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
 import org.jhm69.battle_of_quiz.messege.activity.MessageActivity;
+import org.jhm69.battle_of_quiz.models.Notification;
+import org.jhm69.battle_of_quiz.models.Post;
 import org.jhm69.battle_of_quiz.notification.APIService;
 import org.jhm69.battle_of_quiz.notification.Client;
 import org.jhm69.battle_of_quiz.notification.MyResponse;
 import org.jhm69.battle_of_quiz.notification.NotificationSender;
-import org.jhm69.battle_of_quiz.adapters.PostViewHolder;
-import org.jhm69.battle_of_quiz.models.Notification;
-import org.jhm69.battle_of_quiz.models.Post;
-import org.jhm69.battle_of_quiz.ui.activities.post.CommentsActivity;
 import org.jhm69.battle_of_quiz.ui.activities.quiz.SelectTopic;
 
 import java.util.ArrayList;
@@ -91,10 +87,6 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
-import static org.jhm69.battle_of_quiz.ui.fragment.Home.context;
 
 public class FriendProfile extends AppCompatActivity {
     String id;
@@ -503,6 +495,7 @@ public class FriendProfile extends AppCompatActivity {
                     return new PostViewHolder(view);
                 }
 
+                @RequiresApi(api = Build.VERSION_CODES.R)
                 @Override
                 protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull Post post) {
                     holder.bind(post, holder, position, mmBottomSheetDialog, statsheetView, true);

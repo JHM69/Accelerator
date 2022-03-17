@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.ui.fragment;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,8 +31,6 @@ import java.util.List;
 import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by jhm69

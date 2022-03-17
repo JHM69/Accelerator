@@ -25,8 +25,6 @@ import org.jhm69.battle_of_quiz.ui.activities.notification.ImagePreviewSave;
 import java.util.List;
 import java.util.Objects;
 
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
-
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewHolder> {
 
     public static final int MSG_TYPE_LEFT = 0;

@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.messege.Adapter;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.github.marlonlom.utilities.timeago.TimeAgo;
 import com.google.firebase.database.FirebaseDatabase;
+
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.messege.activity.MessageActivity;
 import org.jhm69.battle_of_quiz.models.Users;
@@ -29,8 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
 

@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,20 +19,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowInsets;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
-import android.widget.Toast;
-
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
@@ -45,7 +39,6 @@ import com.karumi.dexter.listener.single.DialogOnDeniedPermissionListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.messege.activity.MessageActivity;
 
 import java.util.ArrayList;
 import java.util.Objects;

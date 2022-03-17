@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.adapters.viewFriends;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -31,8 +33,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by Jahangir .

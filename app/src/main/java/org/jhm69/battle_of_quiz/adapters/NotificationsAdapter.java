@@ -1,11 +1,12 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +14,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -37,8 +36,6 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.dmoral.toasty.Toasty;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by Jahangir .

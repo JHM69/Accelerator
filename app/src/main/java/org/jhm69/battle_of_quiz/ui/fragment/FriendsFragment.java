@@ -12,10 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.ui.activities.friends.SearchUsersActivity;
 
 import java.util.Objects;
 

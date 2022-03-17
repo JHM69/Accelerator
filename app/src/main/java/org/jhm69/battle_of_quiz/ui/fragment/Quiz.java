@@ -1,5 +1,8 @@
 package org.jhm69.battle_of_quiz.ui.fragment;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -23,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.github.marlonlom.utilities.timeago.TimeAgo;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -50,9 +52,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import es.dmoral.toasty.Toasty;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by jhm69

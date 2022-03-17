@@ -1,20 +1,20 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -22,8 +22,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
@@ -50,13 +50,13 @@ import com.google.firebase.storage.StorageReference;
 import com.tbuonomo.viewpagerdotsindicator.DotsIndicator;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.models.MultipleImage;
+import org.jhm69.battle_of_quiz.models.Notification;
+import org.jhm69.battle_of_quiz.models.Post;
 import org.jhm69.battle_of_quiz.notification.APIService;
 import org.jhm69.battle_of_quiz.notification.Client;
 import org.jhm69.battle_of_quiz.notification.MyResponse;
 import org.jhm69.battle_of_quiz.notification.NotificationSender;
-import org.jhm69.battle_of_quiz.models.MultipleImage;
-import org.jhm69.battle_of_quiz.models.Notification;
-import org.jhm69.battle_of_quiz.models.Post;
 import org.jhm69.battle_of_quiz.ui.activities.friends.FriendProfile;
 import org.jhm69.battle_of_quiz.ui.activities.post.CommentsActivity;
 import org.jhm69.battle_of_quiz.ui.activities.post.WhoLikedActivity;
@@ -79,8 +79,6 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 @SuppressWarnings("ConstantConditions")
 public class PostViewHolder extends RecyclerView.ViewHolder {
@@ -110,6 +108,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     PostViewModel postViewModel;
     private Context context;
     private boolean isOwner;
+    private boolean alreadyLiked=false;
     private Activity activity;
     private View mView;
     int postLikes;
@@ -137,9 +136,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         menu = holder.findViewById(R.id.menu_button);
     }
 
-    private int updateLike(boolean like, String postId, String posterId) {
+    private int updateLike(String postId, String posterId) {
         try {
-            if(like){
+            if(!alreadyLiked){
                 postLikes++;
                 try {
                     Map<String, Boolean> likeMap = new HashMap<>();
@@ -149,6 +148,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                             .document(mCurrentUser.getUid())
                             .set(likeMap)
                             .addOnSuccessListener(aVoid -> {
+                                alreadyLiked=true;
                                 UserViewModel userViewModel = ViewModelProviders.of((FragmentActivity) context).get(UserViewModel.class);
                                 userViewModel.user.observe((LifecycleOwner) context, users -> {
                                     Notification notification = new Notification(postId,
@@ -173,9 +173,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                             .document(postId)
                             .collection("Liked_Users")
                             .document(mCurrentUser.getUid())
-                            //.set(likeMap)
                             .delete()
                             .addOnSuccessListener(aVoid -> {
+                                alreadyLiked=false;
                                 //holder.like_count.setText(String.valueOf(Integer.parseInt(holder.like_count.getText().toString())-1));
                                 //Toast.makeText(context, "Unliked post '" + post.postId, Toast.LENGTH_SHORT).show();
                             })
@@ -184,12 +184,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                 }
             }
             likes_count.setText(String.valueOf(postLikes));
-            HashMap<String, Object> scoreMap = new HashMap<>();
-            scoreMap.put("liked_count", postLikes);
-            mFirestore
-                    .collection("Posts")
-                    .document(postId)
-                    .update(scoreMap).addOnSuccessListener(aVoid -> {
+            mFirestore.collection("Posts").document(postId).update("liked_count", postLikes).addOnSuccessListener(aVoid -> {
             });
         } catch (NullPointerException ignored) {
 
@@ -197,6 +192,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         return postLikes;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @SuppressLint({"ResourceType", "SetTextI18n"})
     public void bind(Post post, final PostViewHolder holder, int position, BottomSheetDialog mmBottomSheetDialog, View statsheetView, boolean approved) {
         Log.d("Approved", approved+" ");
@@ -208,18 +204,20 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         user_name.setOnClickListener(v -> {
             context.startActivity(new Intent(context, FriendProfile.class).putExtra("f_id", post.getUserId()));
         });
-        String dept = post.getDept();
-        String institute = post.getInstitute();
+
         likes_count.setText(String.valueOf(post.getLiked_count()));
-        if (!dept.equals("") && !institute.equals("")) {
-            holder.institute_dept.setText(dept + ", " + institute);
-        } else if (institute.equals("")) {
-            holder.institute_dept.setText(dept);
-        } else if (dept.equals("")) {
-            holder.institute_dept.setText(institute);
+
+        try {
+            if (post.getInstitute() == null) {
+                holder.institute_dept.setText(post.getDept());
+            } else if (post.getDept() == null) {
+                holder.institute_dept.setText(post.getInstitute());
+            } else {
+                holder.institute_dept.setText(post.getDept() + ", " + post.getInstitute());
+            }
+        }catch (Exception j){
+            holder.institute_dept.setText(post.getDept());
         }
-
-
 
         //post_desc.setDisplayText(post.getDescription());
         stat_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
@@ -280,7 +278,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         timestamp.setText(timeAgo);
         try {
             String descc = post.getDescription();
-            post_desc.setDisplayText((descc.length() > 497) ? descc.substring(0, 500) + "..." : descc);
+            post_desc.setDisplayText((descc.length() > 597) ? descc.substring(0, 600) + "..." : descc);
             if(descc.contains("video_loading_bg.svg")){
                 post_desc.setDisplayText((descc.length() > 1497) ? descc.substring(0, 1500) + "..." : descc);
             }
@@ -477,7 +475,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                                 user_name.setText(documentSnapshot.getString("name"));
 
                                 Glide.with(Home.context)
-                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo_icon))
+                                        .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.ic_logo))
                                         .load(documentSnapshot.getString("image"))
                                         .into(user_image);
                             } else if (!Objects.equals(documentSnapshot.getString("userId"), post.getUserId())) {
@@ -518,9 +516,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             Log.w("error", "fastscrolled", ex);
         }
 
-        see_more.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved), ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
+        see_more.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved).putExtra("alreadyLiked", alreadyLiked) , ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
 
-        holder.itemView.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved), ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
+        holder.itemView.setOnClickListener(view -> context.startActivity(new Intent(Home.context, CommentsActivity.class).putExtra("post", post).putExtra("owner", isOwner).putExtra("approveStatus", approved).putExtra("alreadyLiked", alreadyLiked) , ActivityOptions.makeSceneTransitionAnimation((Activity) context).toBundle()));
 
     }
 
@@ -629,14 +627,14 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                     .addOnSuccessListener(documentSnapshot -> {
                         try {
                             if (documentSnapshot.exists()) {
-                                boolean liked = documentSnapshot.getBoolean("liked");
+                                alreadyLiked = true;
                                 like_btn.setFavorite(true, false);
                             }
                         }catch (Exception ignored){
                             
                         }
                         like_btn.setOnFavoriteChangeListener((buttonView, favorite) -> {
-                            post.setLike_count(updateLike(favorite, post.getPostId(), post.getUserId()));
+                            post.setLike_count(updateLike(post.getPostId(), post.getUserId()));
                         });
                     })
                     .addOnFailureListener(e -> Log.e("Error Like", e.getMessage()));

@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.ui.fragment;
 
+import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,8 +29,6 @@ import org.jhm69.battle_of_quiz.models.FriendRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static androidx.recyclerview.widget.RecyclerView.VERTICAL;
 
 /**
  * Created by jhm69

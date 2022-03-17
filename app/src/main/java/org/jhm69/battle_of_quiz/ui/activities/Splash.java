@@ -1,20 +1,20 @@
 package org.jhm69.battle_of_quiz.ui.activities;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.ui.activities.account.LoginActivity;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class Splash extends AppCompatActivity {
     @Override

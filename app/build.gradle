@@ -7,8 +7,8 @@ android {
         applicationId "org.jhm69.battle_of_quiz"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 7
-        versionName "7.0"
+        versionCode 8
+        versionName "8.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,17 +36,7 @@ configurations {
     }
     compile.exclude group: 'com.google.zxing'
 }
-allprojects {
-    repositories {
-        jcenter()
-        maven {
-            url "https://maven.google.com"
-        }
-        maven {
-            url "https://jitpack.io"
-        }
-    }
-}
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -107,6 +97,7 @@ dependencies {
     implementation "android.arch.lifecycle:livedata:1.1.1"
     implementation "android.arch.persistence.room:runtime:1.1.1"
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    implementation "com.github.skydoves:expandablelayout:1.0.7"
 }
 apply plugin: 'com.google.gms.google-services'
 repositories {

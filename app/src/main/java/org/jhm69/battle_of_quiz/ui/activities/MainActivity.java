@@ -1,10 +1,13 @@
 package org.jhm69.battle_of_quiz.ui.activities;
 
+import static org.jhm69.battle_of_quiz.R.id.search;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -17,23 +20,21 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -59,12 +60,12 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
+
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.models.UserId;
-import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.adapters.DrawerAdapter;
 import org.jhm69.battle_of_quiz.models.DrawerItem;
 import org.jhm69.battle_of_quiz.models.SimpleItem;
+import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.ui.activities.account.EditProfile;
 import org.jhm69.battle_of_quiz.ui.activities.account.LoginActivity;
 import org.jhm69.battle_of_quiz.ui.activities.friends.SearchUsersActivity;
@@ -87,8 +88,6 @@ import java.util.Set;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import es.dmoral.toasty.Toasty;
-
-import static org.jhm69.battle_of_quiz.R.id.search;
 
 /**
  * Created by jhm69
@@ -158,12 +157,12 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     }
 
     private void updateXP() {
-        long newScore = rewardCount + (20);
+        long newScore = rewardCount + (50);
         HashMap<String, Object> scoreMap = new HashMap<>();
         scoreMap.put("reward", newScore);
         firestore.collection("Users")
                 .document(userId)
-                .update(scoreMap).addOnSuccessListener(aVoid -> userViewModel.setScore((int)newScore));
+                .update(scoreMap).addOnSuccessListener(aVoid -> userViewModel.setReward((int)newScore));
     }
 
     @SuppressLint("CheckResult")

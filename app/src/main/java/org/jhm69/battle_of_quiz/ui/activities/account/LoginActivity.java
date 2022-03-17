@@ -1,11 +1,17 @@
 package org.jhm69.battle_of_quiz.ui.activities.account;
 
+import static es.dmoral.toasty.Toasty.LENGTH_SHORT;
+import static es.dmoral.toasty.Toasty.error;
+import static es.dmoral.toasty.Toasty.info;
+import static es.dmoral.toasty.Toasty.success;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -18,9 +24,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.auth.api.Auth;
@@ -47,8 +51,8 @@ import com.marcoscg.dialogsheet.DialogSheet;
 import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
 import org.jhm69.battle_of_quiz.R;
-import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.models.Users;
+import org.jhm69.battle_of_quiz.notification.Token;
 import org.jhm69.battle_of_quiz.ui.activities.MainActivity;
 import org.jhm69.battle_of_quiz.utils.AnimationUtil;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
@@ -59,11 +63,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
-
-import static es.dmoral.toasty.Toasty.LENGTH_SHORT;
-import static es.dmoral.toasty.Toasty.error;
-import static es.dmoral.toasty.Toasty.info;
-import static es.dmoral.toasty.Toasty.success;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 

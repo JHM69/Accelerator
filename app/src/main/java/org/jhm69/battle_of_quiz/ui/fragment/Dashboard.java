@@ -1,7 +1,10 @@
 package org.jhm69.battle_of_quiz.ui.fragment;
 
+import static org.jhm69.battle_of_quiz.adapters.ResultAdapter.COMPLETED;
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,11 +43,6 @@ import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
 import java.util.List;
 import java.util.Objects;
-
-import static android.content.Context.MODE_PRIVATE;
-import static org.jhm69.battle_of_quiz.adapters.ResultAdapter.COMPLETED;
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by jhm69

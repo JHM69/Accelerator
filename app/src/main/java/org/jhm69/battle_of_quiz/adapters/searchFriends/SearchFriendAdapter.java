@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.adapters.searchFriends;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -24,8 +26,6 @@ import org.jhm69.battle_of_quiz.ui.activities.friends.FriendProfile;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 /**
  * Created by Jahangir .

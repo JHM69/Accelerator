@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.ui.activities.post;
 
+import static android.view.View.GONE;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -54,8 +56,6 @@ import java.util.Objects;
 import java.util.Random;
 
 import es.dmoral.toasty.Toasty;
-
-import static android.view.View.GONE;
 
 @SuppressWarnings("UnusedAssignment")
 public class PostImage extends AppCompatActivity {

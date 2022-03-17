@@ -25,9 +25,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
-import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;

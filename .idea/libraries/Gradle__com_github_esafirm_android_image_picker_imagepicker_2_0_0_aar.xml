@@ -8,7 +8,6 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.esafirm.android-image-picker/imagepicker/2.0.0/38eec2e8ed2d0a95f97faae0888763809258824c/imagepicker-2.0.0-sources.jar!/" />
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.esafirm.android-image-picker/imagepicker/2.0.0/9840f7f179b3408f0dc03bd6fdc7d7a1403e36ea/imagepicker-2.0.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

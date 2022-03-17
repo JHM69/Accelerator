@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,8 +30,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 
 public class FriendRequestAdapter extends RecyclerView.Adapter<FriendRequestAdapter.ViewHolder> {

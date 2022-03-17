@@ -1,7 +1,8 @@
 package org.jhm69.battle_of_quiz.ui.activities.quiz;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
+
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
@@ -42,8 +43,6 @@ import java.util.List;
 import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.inHome;
 
 /**
  * Created by jhm69

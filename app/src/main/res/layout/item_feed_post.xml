@@ -197,6 +197,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:maxLines="5"
+            app:setTextSize="10sp"
             android:padding="3dp"
             android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"

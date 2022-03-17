@@ -1,16 +1,17 @@
 package org.jhm69.battle_of_quiz.ui.activities.quiz;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.transition.Explode;
-import android.transition.TransitionInflater;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,11 +20,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,9 +49,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.dmoral.toasty.Toasty;
-
-import static java.util.Objects.requireNonNull;
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 public class ResultActivity extends AppCompatActivity {
     public ProgressDialog mDialog;

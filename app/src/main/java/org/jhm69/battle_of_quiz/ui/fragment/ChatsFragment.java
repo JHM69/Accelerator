@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.ui.fragment;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,16 +28,13 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.messege.Adapter.UserAdapter;
 import org.jhm69.battle_of_quiz.messege.model.Chatlist;
-import org.jhm69.battle_of_quiz.viewmodel.ChatViewModel;
-
 import org.jhm69.battle_of_quiz.models.Users;
+import org.jhm69.battle_of_quiz.viewmodel.ChatViewModel;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 
 public class ChatsFragment extends Fragment {

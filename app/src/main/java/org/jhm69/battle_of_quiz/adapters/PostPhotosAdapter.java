@@ -1,5 +1,7 @@
 package org.jhm69.battle_of_quiz.adapters;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -39,14 +41,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.models.MultipleImage;
+import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.notification.APIService;
 import org.jhm69.battle_of_quiz.notification.Client;
 import org.jhm69.battle_of_quiz.notification.MyResponse;
 import org.jhm69.battle_of_quiz.notification.NotificationSender;
-import org.jhm69.battle_of_quiz.models.MultipleImage;
-import org.jhm69.battle_of_quiz.models.Notification;
 import org.jhm69.battle_of_quiz.ui.activities.notification.ImagePreviewSave;
-import org.jhm69.battle_of_quiz.ui.views.SFImageView;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
 import java.io.File;
@@ -60,8 +61,6 @@ import id.zelory.compressor.Compressor;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
 
 
 public class PostPhotosAdapter extends PagerAdapter {
@@ -95,6 +94,7 @@ public class PostPhotosAdapter extends PagerAdapter {
     public int getCount() {
         return IMAGES.size();
     }
+
 
 
     private void animatePhotoLike(final View vBgLike, final ImageView ivLike, boolean like) {

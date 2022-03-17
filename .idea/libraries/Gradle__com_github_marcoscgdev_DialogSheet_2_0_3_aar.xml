@@ -1,12 +1,9 @@
 <component name="libraryTable">
   <library name="Gradle: com.github.marcoscgdev:DialogSheet:2.0.3@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f79b7c23ab2b5f0aaba9c08286c36d51/jetified-DialogSheet-2.0.3/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f79b7c23ab2b5f0aaba9c08286c36d51/jetified-DialogSheet-2.0.3/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f79b7c23ab2b5f0aaba9c08286c36d51/jetified-DialogSheet-2.0.3/AndroidManifest.xml" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/5a9bdc8fcc1b7921b5140553f07feda3/jetified-DialogSheet-2.0.3/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/5a9bdc8fcc1b7921b5140553f07feda3/jetified-DialogSheet-2.0.3/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/5a9bdc8fcc1b7921b5140553f07feda3/jetified-DialogSheet-2.0.3/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/42ca39b778d83852e4c94b9d15015b52/jetified-DialogSheet-2.0.3/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/42ca39b778d83852e4c94b9d15015b52/jetified-DialogSheet-2.0.3/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/42ca39b778d83852e4c94b9d15015b52/jetified-DialogSheet-2.0.3/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

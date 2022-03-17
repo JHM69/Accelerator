@@ -1,8 +1,7 @@
 package org.jhm69.battle_of_quiz.service;
 
-import android.annotation.SuppressLint;
-import android.app.Application;
-import android.app.Notification;
+import static org.jhm69.battle_of_quiz.ui.activities.post.PostText.getSaltString;
+
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,7 +22,6 @@ import androidx.core.app.NotificationCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,9 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.models.Images;
-import org.jhm69.battle_of_quiz.repository.UserRepository;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,9 +43,6 @@ import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
 import id.zelory.compressor.Compressor;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
-import static org.jhm69.battle_of_quiz.ui.activities.post.PostText.getSaltString;
 
 public class UploadService extends Service {
 

@@ -1,11 +1,14 @@
 package org.jhm69.battle_of_quiz.ui.activities.quiz;
 
+import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
+import static org.jhm69.battle_of_quiz.ui.activities.quiz.StepView.stepAnsList;
+
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -18,8 +21,6 @@ import android.transition.Explode;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -31,16 +32,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import android.content.SharedPreferences;
 import androidx.appcompat.app.AppCompatDelegate;
-import android.content.Context;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -57,22 +54,20 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.jhm69.battle_of_quiz.R;
+import org.jhm69.battle_of_quiz.models.Notification;
+import org.jhm69.battle_of_quiz.models.Question;
 import org.jhm69.battle_of_quiz.models.Users;
 import org.jhm69.battle_of_quiz.notification.APIService;
 import org.jhm69.battle_of_quiz.notification.Client;
 import org.jhm69.battle_of_quiz.notification.MyResponse;
 import org.jhm69.battle_of_quiz.notification.NotificationSender;
-import org.jhm69.battle_of_quiz.models.Notification;
-import org.jhm69.battle_of_quiz.models.Question;
 import org.jhm69.battle_of_quiz.repository.UserRepository;
 import org.jhm69.battle_of_quiz.utils.MathView;
 import org.jhm69.battle_of_quiz.viewmodel.BattleViewModel;
 import org.jhm69.battle_of_quiz.viewmodel.ResultViewModel;
 import org.jhm69.battle_of_quiz.viewmodel.UserViewModel;
 
-import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -84,9 +79,6 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static org.jhm69.battle_of_quiz.ui.activities.MainActivity.userId;
-import static org.jhm69.battle_of_quiz.ui.activities.quiz.StepView.stepAnsList;
 
 public class QuizBattle extends AppCompatActivity {
 

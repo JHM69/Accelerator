@@ -14,7 +14,6 @@ import com.bumptech.glide.Glide;
 
 import org.jhm69.battle_of_quiz.R;
 import org.jhm69.battle_of_quiz.models.Images;
-import org.jhm69.battle_of_quiz.ui.views.SFImageView;
 
 import java.util.List;
 
