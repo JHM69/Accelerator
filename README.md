@@ -34,43 +34,43 @@ The android app lets you:
 
 ## Screenshots
 
-[<img src="/img/p.gif" align="center"
+[<img src="/img/p.gif" align="left"
 width="200"
     hspace="10" vspace="10">](/img/p.gif)
     
-[<img src="/img/0.webp" align="left"
+[<img src="/img/0.webp" align="center"
 width="200"
     hspace="10" vspace="10">](/img/0.webp)
     
-[<img src="/img/1.webp" align="center"
+[<img src="/img/1.webp" align="left"
 width="200"
     hspace="10" vspace="10">](/img/1.webp)
     
-[<img src="/img/2.webp" align="left"
+[<img src="/img/2.webp" align="center"
 width="200"
     hspace="10" vspace="10">](/img/2.webp)
     
-[<img src="/img/3.webp" align="center"
+[<img src="/img/3.webp" align="left"
 width="200"
     hspace="10" vspace="10">](/img/3.webp)
     
-[<img src="/img/4.webp" align="left"
+[<img src="/img/4.webp" align="center"
 width="200"
     hspace="10" vspace="10">](/img/4.webp)
     
-[<img src="/img/5.webp" align="center"
+[<img src="/img/5.webp" align="left"
 width="200"
     hspace="10" vspace="10">](/img/5.webp)
     
-[<img src="/img/6.webp" align="left"
+[<img src="/img/6.webp" align="center"
 width="200"
     hspace="10" vspace="10">](/img/6.webp)
     
-[<img src="/img/7.webp" align="center"
+[<img src="/img/7.webp" align="left"
 width="200"
     hspace="10" vspace="10">](/img/7.webp)
     
-[<img src="/img/8.webp" align="left"
+[<img src="/img/8.webp" align="center"
 width="200"
     hspace="10" vspace="10">](/img/8.webp)
     
