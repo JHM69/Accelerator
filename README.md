@@ -92,7 +92,8 @@ The "Run at startup" permission is only used if Auto-Sync feature is enabled and
 
 ## Contributing
 
-Accelerator app is a free and open source project developed by jhm69. Any contributions are welcome. Here are a few ways you can help:
+Accelerator app is a free and open source project developed by [[jhm69]](https://www.facebook.com/jhm69)
+. Any contributions are welcome. Here are a few ways you can help:
  * [Report bugs and make suggestions.](https://github.com/jhm69/Accelerator/issues)
  * Write some code. Please follow the code style used in the project to make a review process faster.
 
