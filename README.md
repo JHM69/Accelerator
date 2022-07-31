@@ -74,9 +74,7 @@ width="200"
 width="200"
     hspace="10" vspace="10">](/img/8.webp)
     
-[<img src="/img/9.webp" align="center"
-width="200"
-    hspace="10" vspace="10">](/img/9.webp)
+
     
     
 ## Permissions
