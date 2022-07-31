@@ -88,7 +88,7 @@ On Android versions prior to Android 6.0, Accelerator requires the following per
 - Read and write access to external storage.
 - Notification Permissions
 
-The "Run at startup" permission is only used if Auto-Sync feature is enabled and is not utilised otherwise. The network access permissions are made use of for downloading content. The external storage permission is used to cache article images for viewing offline.
+The "Run at startup" permission is only used if Auto-Sync feature is enabled and is not utilised otherwise. The network access permissions are made use of for downloading content. The external storage permission is used to cache posts and battles for viewing offline.
 
 ## Contributing
 
