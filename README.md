@@ -34,7 +34,7 @@ The android app lets you:
 
 ## Screenshots
 
-[<img src="/img/p.gif" align="left"
+[<img src="/img/p.gif" align="center"
 width="200"
     hspace="10" vspace="10">](/img/p.gif)
     
